@@ -1,24 +1,69 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Hero } from "@/components/home/Hero";
+import {
+  BlogPreview,
+  BonusGrid,
+  CTABand,
+  CategoryGrid,
+  EventsAndTraining,
+  FeaturedProducts,
+  OpportunitySection,
+  RewardsTimeline,
+  StatsBand,
+  Testimonials,
+  WhyChoose,
+} from "@/components/home/Sections";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const title = "RDG Future Way Pvt. Ltd. — Ayurveda, Wellness & Business Opportunity";
+const description =
+  "Quality ayurvedic, healthcare, agriculture and lifestyle products from RDG Future Way, with a transparent generation income plan for distributors across India.";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "RDG Future Way Pvt. Ltd.",
+          description,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Indore",
+            addressRegion: "Madhya Pradesh",
+            addressCountry: "IN",
+          },
+          telephone: "+91 98765 43210",
+          email: "care@rdgfutureway.com",
+        }),
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <>
+      <Hero />
+      <StatsBand />
+      <CategoryGrid />
+      <FeaturedProducts />
+      <WhyChoose />
+      <OpportunitySection />
+      <BonusGrid />
+      <Testimonials />
+      <EventsAndTraining />
+      <RewardsTimeline />
+      <BlogPreview />
+      <CTABand />
+    </>
   );
 }
