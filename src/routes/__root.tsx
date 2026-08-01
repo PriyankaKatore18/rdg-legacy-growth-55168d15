@@ -95,6 +95,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "RDG Future Way Pvt. Ltd." },
+      { name: "twitter:description", content: "Ayurvedic, healthcare, agriculture and lifestyle products with a transparent generation income plan." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/aa50d5c3-df55-4ce7-804b-8306e3e3deff/id-preview-7a4a2b5f--0b7583c5-56f4-49ce-9423-583efa902604.lovable.app-1785562506956.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/aa50d5c3-df55-4ce7-804b-8306e3e3deff/id-preview-7a4a2b5f--0b7583c5-56f4-49ce-9423-583efa902604.lovable.app-1785562506956.png" },
     ],
     links: [
       {
