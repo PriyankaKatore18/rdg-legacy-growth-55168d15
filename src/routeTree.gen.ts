@@ -12,8 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as BecomeDistributorRouteImport } from './routes/become-distributor'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BusinessOpportunityRouteImport } from './routes/business-opportunity'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as GenerationPlanRouteImport } from './routes/generation-plan'
 import { Route as IncomeCalculatorRouteImport } from './routes/income-calculator'
 import { Route as ProductsRouteImport } from './routes/products'
@@ -34,14 +38,34 @@ const BecomeDistributorRoute = BecomeDistributorRouteImport.update({
   path: '/become-distributor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BusinessOpportunityRoute = BusinessOpportunityRouteImport.update({
   id: '/business-opportunity',
   path: '/business-opportunity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GenerationPlanRoute = GenerationPlanRouteImport.update({
@@ -69,8 +93,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/become-distributor': typeof BecomeDistributorRoute
+  '/blog': typeof BlogRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/downloads': typeof DownloadsRoute
   '/events': typeof EventsRoute
+  '/faqs': typeof FaqsRoute
+  '/gallery': typeof GalleryRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
@@ -80,8 +108,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/become-distributor': typeof BecomeDistributorRoute
+  '/blog': typeof BlogRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/downloads': typeof DownloadsRoute
   '/events': typeof EventsRoute
+  '/faqs': typeof FaqsRoute
+  '/gallery': typeof GalleryRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
@@ -92,8 +124,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/become-distributor': typeof BecomeDistributorRoute
+  '/blog': typeof BlogRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/downloads': typeof DownloadsRoute
   '/events': typeof EventsRoute
+  '/faqs': typeof FaqsRoute
+  '/gallery': typeof GalleryRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
@@ -105,8 +141,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/become-distributor'
+    | '/blog'
     | '/business-opportunity'
+    | '/downloads'
     | '/events'
+    | '/faqs'
+    | '/gallery'
     | '/generation-plan'
     | '/income-calculator'
     | '/products'
@@ -116,8 +156,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/become-distributor'
+    | '/blog'
     | '/business-opportunity'
+    | '/downloads'
     | '/events'
+    | '/faqs'
+    | '/gallery'
     | '/generation-plan'
     | '/income-calculator'
     | '/products'
@@ -127,8 +171,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/become-distributor'
+    | '/blog'
     | '/business-opportunity'
+    | '/downloads'
     | '/events'
+    | '/faqs'
+    | '/gallery'
     | '/generation-plan'
     | '/income-calculator'
     | '/products'
@@ -139,8 +187,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BecomeDistributorRoute: typeof BecomeDistributorRoute
+  BlogRoute: typeof BlogRoute
   BusinessOpportunityRoute: typeof BusinessOpportunityRoute
+  DownloadsRoute: typeof DownloadsRoute
   EventsRoute: typeof EventsRoute
+  FaqsRoute: typeof FaqsRoute
+  GalleryRoute: typeof GalleryRoute
   GenerationPlanRoute: typeof GenerationPlanRoute
   IncomeCalculatorRoute: typeof IncomeCalculatorRoute
   ProductsRoute: typeof ProductsRoute
@@ -170,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BecomeDistributorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/business-opportunity': {
       id: '/business-opportunity'
       path: '/business-opportunity'
@@ -177,11 +236,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessOpportunityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events': {
       id: '/events'
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generation-plan': {
@@ -219,8 +299,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BecomeDistributorRoute: BecomeDistributorRoute,
+  BlogRoute: BlogRoute,
   BusinessOpportunityRoute: BusinessOpportunityRoute,
+  DownloadsRoute: DownloadsRoute,
   EventsRoute: EventsRoute,
+  FaqsRoute: FaqsRoute,
+  GalleryRoute: GalleryRoute,
   GenerationPlanRoute: GenerationPlanRoute,
   IncomeCalculatorRoute: IncomeCalculatorRoute,
   ProductsRoute: ProductsRoute,
