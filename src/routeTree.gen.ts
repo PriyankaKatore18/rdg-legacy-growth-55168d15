@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as BecomeDistributorRouteImport } from './routes/become-distributor'
 import { Route as BusinessOpportunityRouteImport } from './routes/business-opportunity'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as GenerationPlanRouteImport } from './routes/generation-plan'
 import { Route as IncomeCalculatorRouteImport } from './routes/income-calculator'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -26,9 +29,19 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BecomeDistributorRoute = BecomeDistributorRouteImport.update({
+  id: '/become-distributor',
+  path: '/become-distributor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BusinessOpportunityRoute = BusinessOpportunityRouteImport.update({
   id: '/business-opportunity',
   path: '/business-opportunity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GenerationPlanRoute = GenerationPlanRouteImport.update({
@@ -46,66 +59,92 @@ const ProductsRoute = ProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
+  id: '/success-stories',
+  path: '/success-stories',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/become-distributor': typeof BecomeDistributorRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/events': typeof EventsRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
+  '/success-stories': typeof SuccessStoriesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/become-distributor': typeof BecomeDistributorRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/events': typeof EventsRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
+  '/success-stories': typeof SuccessStoriesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/become-distributor': typeof BecomeDistributorRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/events': typeof EventsRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
+  '/success-stories': typeof SuccessStoriesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/become-distributor'
     | '/business-opportunity'
+    | '/events'
     | '/generation-plan'
     | '/income-calculator'
     | '/products'
+    | '/success-stories'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/become-distributor'
     | '/business-opportunity'
+    | '/events'
     | '/generation-plan'
     | '/income-calculator'
     | '/products'
+    | '/success-stories'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/become-distributor'
     | '/business-opportunity'
+    | '/events'
     | '/generation-plan'
     | '/income-calculator'
     | '/products'
+    | '/success-stories'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BecomeDistributorRoute: typeof BecomeDistributorRoute
   BusinessOpportunityRoute: typeof BusinessOpportunityRoute
+  EventsRoute: typeof EventsRoute
   GenerationPlanRoute: typeof GenerationPlanRoute
   IncomeCalculatorRoute: typeof IncomeCalculatorRoute
   ProductsRoute: typeof ProductsRoute
+  SuccessStoriesRoute: typeof SuccessStoriesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -124,11 +163,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/become-distributor': {
+      id: '/become-distributor'
+      path: '/become-distributor'
+      fullPath: '/become-distributor'
+      preLoaderRoute: typeof BecomeDistributorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/business-opportunity': {
       id: '/business-opportunity'
       path: '/business-opportunity'
       fullPath: '/business-opportunity'
       preLoaderRoute: typeof BusinessOpportunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generation-plan': {
@@ -152,16 +205,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/success-stories': {
+      id: '/success-stories'
+      path: '/success-stories'
+      fullPath: '/success-stories'
+      preLoaderRoute: typeof SuccessStoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BecomeDistributorRoute: BecomeDistributorRoute,
   BusinessOpportunityRoute: BusinessOpportunityRoute,
+  EventsRoute: EventsRoute,
   GenerationPlanRoute: GenerationPlanRoute,
   IncomeCalculatorRoute: IncomeCalculatorRoute,
   ProductsRoute: ProductsRoute,
+  SuccessStoriesRoute: SuccessStoriesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
