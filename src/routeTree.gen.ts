@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as BusinessOpportunityRouteImport } from './routes/business-opportunity'
+import { Route as GenerationPlanRouteImport } from './routes/generation-plan'
+import { Route as IncomeCalculatorRouteImport } from './routes/income-calculator'
 import { Route as ProductsRouteImport } from './routes/products'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +26,21 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BusinessOpportunityRoute = BusinessOpportunityRouteImport.update({
+  id: '/business-opportunity',
+  path: '/business-opportunity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenerationPlanRoute = GenerationPlanRouteImport.update({
+  id: '/generation-plan',
+  path: '/generation-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IncomeCalculatorRoute = IncomeCalculatorRouteImport.update({
+  id: '/income-calculator',
+  path: '/income-calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -32,30 +50,61 @@ const ProductsRoute = ProductsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/business-opportunity': typeof BusinessOpportunityRoute
+  '/generation-plan': typeof GenerationPlanRoute
+  '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/business-opportunity': typeof BusinessOpportunityRoute
+  '/generation-plan': typeof GenerationPlanRoute
+  '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/business-opportunity': typeof BusinessOpportunityRoute
+  '/generation-plan': typeof GenerationPlanRoute
+  '/income-calculator': typeof IncomeCalculatorRoute
   '/products': typeof ProductsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/products'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/business-opportunity'
+    | '/generation-plan'
+    | '/income-calculator'
+    | '/products'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/products'
-  id: '__root__' | '/' | '/about' | '/products'
+  to:
+    | '/'
+    | '/about'
+    | '/business-opportunity'
+    | '/generation-plan'
+    | '/income-calculator'
+    | '/products'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/business-opportunity'
+    | '/generation-plan'
+    | '/income-calculator'
+    | '/products'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BusinessOpportunityRoute: typeof BusinessOpportunityRoute
+  GenerationPlanRoute: typeof GenerationPlanRoute
+  IncomeCalculatorRoute: typeof IncomeCalculatorRoute
   ProductsRoute: typeof ProductsRoute
 }
 
@@ -75,6 +124,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/business-opportunity': {
+      id: '/business-opportunity'
+      path: '/business-opportunity'
+      fullPath: '/business-opportunity'
+      preLoaderRoute: typeof BusinessOpportunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/generation-plan': {
+      id: '/generation-plan'
+      path: '/generation-plan'
+      fullPath: '/generation-plan'
+      preLoaderRoute: typeof GenerationPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/income-calculator': {
+      id: '/income-calculator'
+      path: '/income-calculator'
+      fullPath: '/income-calculator'
+      preLoaderRoute: typeof IncomeCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
@@ -88,6 +158,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BusinessOpportunityRoute: BusinessOpportunityRoute,
+  GenerationPlanRoute: GenerationPlanRoute,
+  IncomeCalculatorRoute: IncomeCalculatorRoute,
   ProductsRoute: ProductsRoute,
 }
 export const routeTree = rootRouteImport
