@@ -22,8 +22,12 @@ import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as GenerationPlanRouteImport } from './routes/generation-plan'
 import { Route as IncomeCalculatorRouteImport } from './routes/income-calculator'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as ShippingPolicyRouteImport } from './routes/shipping-policy'
 import { Route as SuccessStoriesRouteImport } from './routes/success-stories'
+import { Route as TermsRouteImport } from './routes/terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -90,14 +94,34 @@ const IncomeCalculatorRoute = IncomeCalculatorRouteImport.update({
   path: '/income-calculator',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingPolicyRoute = ShippingPolicyRouteImport.update({
+  id: '/shipping-policy',
+  path: '/shipping-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuccessStoriesRoute = SuccessStoriesRouteImport.update({
   id: '/success-stories',
   path: '/success-stories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -115,8 +139,12 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/success-stories': typeof SuccessStoriesRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,8 +160,12 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/success-stories': typeof SuccessStoriesRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -150,8 +182,12 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/generation-plan': typeof GenerationPlanRoute
   '/income-calculator': typeof IncomeCalculatorRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/success-stories': typeof SuccessStoriesRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -169,8 +205,12 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/generation-plan'
     | '/income-calculator'
+    | '/privacy-policy'
     | '/products'
+    | '/refund-policy'
+    | '/shipping-policy'
     | '/success-stories'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,8 +226,12 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/generation-plan'
     | '/income-calculator'
+    | '/privacy-policy'
     | '/products'
+    | '/refund-policy'
+    | '/shipping-policy'
     | '/success-stories'
+    | '/terms'
   id:
     | '__root__'
     | '/'
@@ -203,8 +247,12 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/generation-plan'
     | '/income-calculator'
+    | '/privacy-policy'
     | '/products'
+    | '/refund-policy'
+    | '/shipping-policy'
     | '/success-stories'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -221,8 +269,12 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   GenerationPlanRoute: typeof GenerationPlanRoute
   IncomeCalculatorRoute: typeof IncomeCalculatorRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProductsRoute: typeof ProductsRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ShippingPolicyRoute: typeof ShippingPolicyRoute
   SuccessStoriesRoute: typeof SuccessStoriesRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -318,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IncomeCalculatorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
@@ -325,11 +384,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping-policy': {
+      id: '/shipping-policy'
+      path: '/shipping-policy'
+      fullPath: '/shipping-policy'
+      preLoaderRoute: typeof ShippingPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/success-stories': {
       id: '/success-stories'
       path: '/success-stories'
       fullPath: '/success-stories'
       preLoaderRoute: typeof SuccessStoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -349,9 +429,23 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   GenerationPlanRoute: GenerationPlanRoute,
   IncomeCalculatorRoute: IncomeCalculatorRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProductsRoute: ProductsRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ShippingPolicyRoute: ShippingPolicyRoute,
   SuccessStoriesRoute: SuccessStoriesRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
