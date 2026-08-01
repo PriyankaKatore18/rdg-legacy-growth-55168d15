@@ -14,6 +14,8 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as BecomeDistributorRouteImport } from './routes/become-distributor'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BusinessOpportunityRouteImport } from './routes/business-opportunity'
+import { Route as CareerRouteImport } from './routes/career'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as FaqsRouteImport } from './routes/faqs'
@@ -46,6 +48,16 @@ const BlogRoute = BlogRouteImport.update({
 const BusinessOpportunityRoute = BusinessOpportunityRouteImport.update({
   id: '/business-opportunity',
   path: '/business-opportunity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerRoute = CareerRouteImport.update({
+  id: '/career',
+  path: '/career',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DownloadsRoute = DownloadsRouteImport.update({
@@ -95,6 +107,8 @@ export interface FileRoutesByFullPath {
   '/become-distributor': typeof BecomeDistributorRoute
   '/blog': typeof BlogRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/career': typeof CareerRoute
+  '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
   '/events': typeof EventsRoute
   '/faqs': typeof FaqsRoute
@@ -110,6 +124,8 @@ export interface FileRoutesByTo {
   '/become-distributor': typeof BecomeDistributorRoute
   '/blog': typeof BlogRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/career': typeof CareerRoute
+  '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
   '/events': typeof EventsRoute
   '/faqs': typeof FaqsRoute
@@ -126,6 +142,8 @@ export interface FileRoutesById {
   '/become-distributor': typeof BecomeDistributorRoute
   '/blog': typeof BlogRoute
   '/business-opportunity': typeof BusinessOpportunityRoute
+  '/career': typeof CareerRoute
+  '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
   '/events': typeof EventsRoute
   '/faqs': typeof FaqsRoute
@@ -143,6 +161,8 @@ export interface FileRouteTypes {
     | '/become-distributor'
     | '/blog'
     | '/business-opportunity'
+    | '/career'
+    | '/contact'
     | '/downloads'
     | '/events'
     | '/faqs'
@@ -158,6 +178,8 @@ export interface FileRouteTypes {
     | '/become-distributor'
     | '/blog'
     | '/business-opportunity'
+    | '/career'
+    | '/contact'
     | '/downloads'
     | '/events'
     | '/faqs'
@@ -173,6 +195,8 @@ export interface FileRouteTypes {
     | '/become-distributor'
     | '/blog'
     | '/business-opportunity'
+    | '/career'
+    | '/contact'
     | '/downloads'
     | '/events'
     | '/faqs'
@@ -189,6 +213,8 @@ export interface RootRouteChildren {
   BecomeDistributorRoute: typeof BecomeDistributorRoute
   BlogRoute: typeof BlogRoute
   BusinessOpportunityRoute: typeof BusinessOpportunityRoute
+  CareerRoute: typeof CareerRoute
+  ContactRoute: typeof ContactRoute
   DownloadsRoute: typeof DownloadsRoute
   EventsRoute: typeof EventsRoute
   FaqsRoute: typeof FaqsRoute
@@ -234,6 +260,20 @@ declare module '@tanstack/react-router' {
       path: '/business-opportunity'
       fullPath: '/business-opportunity'
       preLoaderRoute: typeof BusinessOpportunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career': {
+      id: '/career'
+      path: '/career'
+      fullPath: '/career'
+      preLoaderRoute: typeof CareerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/downloads': {
@@ -301,6 +341,8 @@ const rootRouteChildren: RootRouteChildren = {
   BecomeDistributorRoute: BecomeDistributorRoute,
   BlogRoute: BlogRoute,
   BusinessOpportunityRoute: BusinessOpportunityRoute,
+  CareerRoute: CareerRoute,
+  ContactRoute: ContactRoute,
   DownloadsRoute: DownloadsRoute,
   EventsRoute: EventsRoute,
   FaqsRoute: FaqsRoute,
