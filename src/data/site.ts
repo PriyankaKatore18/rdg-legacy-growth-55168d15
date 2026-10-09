@@ -2,8 +2,10 @@ export const company = {
   name: "RDG Future Way Pvt. Ltd.",
   short: "RDG Future Way",
   tagline: "Empowering Every Family Through Quality Products & Business Opportunities",
-  phone: "+91 98765 43210",
-  email: "care@rdgfutureway.com",
+  phone: "+91 73979 67779",
+  secondaryPhone: "+91 79729 73775",
+  email: "rdgfutureway7779@gmail.com",
+  website: "rdgfutureway.com",
   address: "RDG Corporate House, Ring Road, Indore, Madhya Pradesh 452001, India",
   branches: ["Bhopal", "Jaipur", "Lucknow", "Nagpur", "Patna"],
 };
@@ -232,6 +234,68 @@ export const products: Product[] = [
     pv: 6,
     bv: 290,
     rating: 4.4,
+  },
+];
+
+export const featuredOfferings = [
+  {
+    name: "Anmol Ratan Juice",
+    category: "Ayurvedic wellness",
+    description: "Herbal mixed-berry juice featured in RDG's company material.",
+    note: "Natural ingredients • no added sugar • no preservatives",
+  },
+  {
+    name: "Ayurvedic ID Package",
+    category: "Business package",
+    description: "A 15-level package structure using the published ID × 100 formula.",
+    note: "Packages from ₹100 to ₹50,00,000",
+  },
+  {
+    name: "15-Level Award & Reward Plan",
+    category: "Recognition",
+    description:
+      "A recognition ladder featuring welcome kits, apparel, gadgets, vehicles, homes and travel rewards.",
+    note: "Eligibility depends on plan terms and performance",
+  },
+];
+
+export const incomePackages = [
+  { level: 1, package: "₹100", network: "₹10,000" },
+  { level: 2, package: "₹250", network: "₹25,000" },
+  { level: 3, package: "₹500", network: "₹50,000" },
+  { level: 4, package: "₹1,000", network: "₹1,00,000" },
+  { level: 5, package: "₹2,500", network: "₹2,50,000" },
+  { level: 6, package: "₹5,000", network: "₹5,00,000" },
+  { level: 7, package: "₹10,000", network: "₹10,00,000" },
+  { level: 8, package: "₹25,000", network: "₹25,00,000" },
+  { level: 9, package: "₹50,000", network: "₹50,00,000" },
+  { level: 10, package: "₹1,00,000", network: "₹1,00,00,000" },
+  { level: 11, package: "₹2,50,000", network: "₹2,50,00,000" },
+  { level: 12, package: "₹5,00,000", network: "₹5,00,00,000" },
+  { level: 13, package: "₹10,00,000", network: "₹10,00,00,000" },
+  { level: 14, package: "₹25,00,000", network: "₹25,00,00,000" },
+  { level: 15, package: "₹50,00,000", network: "₹50,00,00,000" },
+];
+
+export const awardRewards = [
+  { level: 1, qualification: "₹10,000", reward: "Certificate + welcome kit" },
+  { level: 2, qualification: "₹25,000", reward: "RDG T-shirt + badge" },
+  { level: 3, qualification: "₹50,000", reward: "Smart watch" },
+  { level: 4, qualification: "₹1,00,000", reward: "Bluetooth earbuds" },
+  { level: 5, qualification: "₹2,50,000", reward: "Smartphone" },
+  { level: 6, qualification: "₹5,00,000", reward: "LED TV" },
+  { level: 7, qualification: "₹10,00,000", reward: "Laptop" },
+  { level: 8, qualification: "₹25,00,000", reward: "Bike" },
+  { level: 9, qualification: "₹50,00,000", reward: "20 gm gold coin" },
+  { level: 10, qualification: "₹1,00,00,000", reward: "Hatchback car" },
+  { level: 11, qualification: "₹2,50,00,000", reward: "SUV car" },
+  { level: 12, qualification: "₹5,00,00,000", reward: "Luxury car" },
+  { level: 13, qualification: "₹10,00,00,000", reward: "2 BHK flat" },
+  { level: 14, qualification: "₹25,00,00,000", reward: "Luxury villa" },
+  {
+    level: 15,
+    qualification: "₹50,00,00,000",
+    reward: "Dream house + international tour + chairman award",
   },
 ];
 

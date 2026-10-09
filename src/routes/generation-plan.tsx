@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
-import { bonuses, ranks } from "@/data/site";
+import { awardRewards, bonuses, incomePackages, ranks } from "@/data/site";
 
 const title = "Generation Plan — Income Levels, Bonuses & Rewards | RDG Future Way";
 const description =
@@ -22,6 +22,38 @@ function GenerationPlan() {
         title="A published, transparent income plan"
         description="No capping tricks, no forced matching. Income flows through active generations of your network and is paid on the 10th of every month."
       />
+
+      <section className="py-16">
+        <div className="container-x">
+          <SectionHeading
+            eyebrow="Ayurvedic ID package"
+            title="15-level package structure"
+            description="The reference material presents an ID package value and a 100-ID network value for each level. These figures are shown for information only and are subject to the official plan terms."
+          />
+          <div className="mt-10 overflow-x-auto rounded-3xl border border-border shadow-soft">
+            <table className="w-full min-w-[38rem] text-left text-sm">
+              <thead className="bg-primary-dark text-primary-foreground">
+                <tr>
+                  <th className="px-5 py-4 font-semibold">Level</th>
+                  <th className="px-5 py-4 font-semibold">ID package</th>
+                  <th className="px-5 py-4 font-semibold">100 IDs total</th>
+                  <th className="px-5 py-4 font-semibold">Formula</th>
+                </tr>
+              </thead>
+              <tbody className="bg-card">
+                {incomePackages.map((item) => (
+                  <tr key={item.level} className="border-t border-border">
+                    <td className="px-5 py-3 font-semibold text-foreground">{item.level}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{item.package}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{item.network}</td>
+                    <td className="px-5 py-3 text-muted-foreground">ID × 100</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
       <section className="py-20">
         <div className="container-x">
@@ -99,6 +131,30 @@ function GenerationPlan() {
               </tbody>
             </table>
           </div>
+          <div className="mt-12 overflow-x-auto rounded-3xl border border-border shadow-soft">
+            <table className="w-full min-w-[42rem] text-left text-sm">
+              <thead className="bg-primary-dark text-primary-foreground">
+                <tr>
+                  <th className="px-5 py-4 font-semibold">Level</th>
+                  <th className="px-5 py-4 font-semibold">Qualification</th>
+                  <th className="px-5 py-4 font-semibold">Reference reward</th>
+                </tr>
+              </thead>
+              <tbody className="bg-card">
+                {awardRewards.map((item) => (
+                  <tr key={item.level} className="border-t border-border">
+                    <td className="px-5 py-3 font-semibold text-foreground">{item.level}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{item.qualification}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{item.reward}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-5 text-center text-xs text-muted-foreground">
+            Rewards are illustrative references from the supplied company material. Qualification,
+            verification and fulfilment are governed by RDG policies.
+          </p>
           <div className="mt-10 text-center">
             <a
               href="/income-calculator"

@@ -55,10 +55,14 @@ export function Footer() {
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" /> {company.address}
             </p>
             <p className="flex gap-3">
-              <Phone className="h-4 w-4 shrink-0 text-gold" /> {company.phone}
+              <Phone className="h-4 w-4 shrink-0 text-gold" /> {company.phone} /{" "}
+              {company.secondaryPhone}
             </p>
             <p className="flex gap-3">
               <Mail className="h-4 w-4 shrink-0 text-gold" /> {company.email}
+            </p>
+            <p className="flex gap-3">
+              <span className="w-4 shrink-0 text-center text-gold">@</span> {company.website}
             </p>
           </div>
           <div className="mt-6 flex gap-3">
