@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -9,24 +8,13 @@ const title = "Blog — Health Tips, Business Tips, Agriculture & Wellness | RDG
 const description =
   "Practical articles from RDG Future Way on ayurvedic health, direct selling business growth, agriculture, wellness, lifestyle and company news.";
 
-export const Route = createFileRoute("/blog")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Blog,
-});
-
 function Blog() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("All");
   const cats = ["All", ...Array.from(new Set(posts.map((p) => p.category)))];
   const list = posts.filter(
-    (p) => (cat === "All" || p.category === cat) && p.title.toLowerCase().includes(query.toLowerCase()),
+    (p) =>
+      (cat === "All" || p.category === cat) && p.title.toLowerCase().includes(query.toLowerCase()),
   );
 
   return (
@@ -105,3 +93,5 @@ function Blog() {
     </>
   );
 }
+
+export default Blog;

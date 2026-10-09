@@ -63,7 +63,9 @@ export function SectionHeading({
         <p className="text-xs font-semibold tracking-[0.22em] text-primary uppercase">{eyebrow}</p>
       )}
       <h2 className="mt-3 text-3xl font-bold text-foreground md:text-4xl">{title}</h2>
-      {description && <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>}
+      {description && (
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>
+      )}
     </div>
   );
 }

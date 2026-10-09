@@ -8,7 +8,11 @@ export const company = {
   branches: ["Bhopal", "Jaipur", "Lucknow", "Nagpur", "Patna"],
 };
 
-export type NavItem = { label: string; to: string; children?: { label: string; to: string; desc?: string }[] };
+export type NavItem = {
+  label: string;
+  to: string;
+  children?: { label: string; to: string; desc?: string }[];
+};
 
 export const navigation: NavItem[] = [
   { label: "Home", to: "/" },
@@ -28,7 +32,11 @@ export const navigation: NavItem[] = [
     to: "/products",
     children: [
       { label: "All Categories", to: "/products", desc: "13 categories, 500+ SKUs" },
-      { label: "Ayurvedic & Healthcare", to: "/products", desc: "Classical & proprietary formulations" },
+      {
+        label: "Ayurvedic & Healthcare",
+        to: "/products",
+        desc: "Classical & proprietary formulations",
+      },
       { label: "Agriculture & Seeds", to: "/products", desc: "Inputs that grow yields" },
       { label: "Personal & Home Care", to: "/products", desc: "Daily essentials for the family" },
     ],
@@ -37,7 +45,11 @@ export const navigation: NavItem[] = [
     label: "Opportunity",
     to: "/business-opportunity",
     children: [
-      { label: "Business Opportunity", to: "/business-opportunity", desc: "How direct selling works" },
+      {
+        label: "Business Opportunity",
+        to: "/business-opportunity",
+        desc: "How direct selling works",
+      },
       { label: "Generation Plan", to: "/generation-plan", desc: "Income levels & bonuses" },
       { label: "Income Calculator", to: "/income-calculator", desc: "Estimate your earnings" },
       { label: "Become a Distributor", to: "/become-distributor", desc: "Join in minutes" },
@@ -63,10 +75,30 @@ export const stats = [
 ];
 
 export const categories = [
-  { name: "Healthcare", slug: "healthcare", items: 64, blurb: "Everyday health support for the whole family." },
-  { name: "Pharmacy", slug: "pharmacy", items: 48, blurb: "GMP-certified pharmaceutical formulations." },
-  { name: "Ayurvedic", slug: "ayurvedic", items: 72, blurb: "Classical churnas, syrups and tablets." },
-  { name: "Organic Foods", slug: "organic-foods", items: 39, blurb: "Chemical-free grains, oils and spices." },
+  {
+    name: "Healthcare",
+    slug: "healthcare",
+    items: 64,
+    blurb: "Everyday health support for the whole family.",
+  },
+  {
+    name: "Pharmacy",
+    slug: "pharmacy",
+    items: 48,
+    blurb: "GMP-certified pharmaceutical formulations.",
+  },
+  {
+    name: "Ayurvedic",
+    slug: "ayurvedic",
+    items: 72,
+    blurb: "Classical churnas, syrups and tablets.",
+  },
+  {
+    name: "Organic Foods",
+    slug: "organic-foods",
+    items: 39,
+    blurb: "Chemical-free grains, oils and spices.",
+  },
   { name: "Agriculture", slug: "agriculture", items: 41, blurb: "Soil health and crop nutrition." },
   { name: "Seeds", slug: "seeds", items: 22, blurb: "High-germination hybrid seeds." },
   { name: "Fertilizers", slug: "fertilizers", items: 27, blurb: "Bio & organic plant nutrition." },
@@ -74,10 +106,25 @@ export const categories = [
   { name: "Clothing", slug: "clothing", items: 44, blurb: "Comfort fabrics at factory pricing." },
   { name: "Personal Care", slug: "personal-care", items: 58, blurb: "Skin, hair and oral care." },
   { name: "Home Care", slug: "home-care", items: 31, blurb: "Safe cleaning for modern homes." },
-  { name: "Nutraceutical", slug: "nutraceutical", items: 29, blurb: "Protein, vitamins and immunity." },
+  {
+    name: "Nutraceutical",
+    slug: "nutraceutical",
+    items: 29,
+    blurb: "Protein, vitamins and immunity.",
+  },
   { name: "Animal Care", slug: "animal-care", items: 18, blurb: "Cattle and poultry wellness." },
-  { name: "Daily Essentials", slug: "daily-essentials", items: 52, blurb: "Groceries you reorder monthly." },
-  { name: "Kitchen Products", slug: "kitchen", items: 24, blurb: "Cookware and storage solutions." },
+  {
+    name: "Daily Essentials",
+    slug: "daily-essentials",
+    items: 52,
+    blurb: "Groceries you reorder monthly.",
+  },
+  {
+    name: "Kitchen Products",
+    slug: "kitchen",
+    items: 24,
+    blurb: "Cookware and storage solutions.",
+  },
 ];
 
 export type Product = {
@@ -94,24 +141,123 @@ export type Product = {
 };
 
 export const products: Product[] = [
-  { id: "rdg-imm-01", name: "Immunity Booster Amla Tablets", category: "Ayurvedic", mrp: 640, dp: 480, cp: 545, pv: 12, bv: 420, rating: 4.8, badge: "Bestseller" },
-  { id: "rdg-pro-02", name: "Plant Protein Nutri Powder", category: "Nutraceutical", mrp: 1650, dp: 1250, cp: 1420, pv: 32, bv: 1120, rating: 4.7, badge: "New" },
-  { id: "rdg-agr-03", name: "Bio Organic Soil Enricher 5kg", category: "Agriculture", mrp: 900, dp: 690, cp: 780, pv: 18, bv: 620, rating: 4.6 },
-  { id: "rdg-per-04", name: "Neem Tulsi Herbal Face Wash", category: "Personal Care", mrp: 320, dp: 235, cp: 275, pv: 6, bv: 205, rating: 4.9, badge: "Top Rated" },
-  { id: "rdg-hom-05", name: "Plant-Based Floor Cleaner 1L", category: "Home Care", mrp: 290, dp: 210, cp: 250, pv: 5, bv: 185, rating: 4.5 },
-  { id: "rdg-org-06", name: "Cold Pressed Mustard Oil 1L", category: "Organic Foods", mrp: 380, dp: 295, cp: 335, pv: 7, bv: 260, rating: 4.7 },
-  { id: "rdg-pha-07", name: "Joint Care Pain Relief Oil", category: "Pharmacy", mrp: 460, dp: 340, cp: 395, pv: 9, bv: 300, rating: 4.8, badge: "Bestseller" },
-  { id: "rdg-dai-08", name: "Premium Whole Wheat Atta 5kg", category: "Daily Essentials", mrp: 420, dp: 330, cp: 375, pv: 6, bv: 290, rating: 4.4 },
+  {
+    id: "rdg-imm-01",
+    name: "Immunity Booster Amla Tablets",
+    category: "Ayurvedic",
+    mrp: 640,
+    dp: 480,
+    cp: 545,
+    pv: 12,
+    bv: 420,
+    rating: 4.8,
+    badge: "Bestseller",
+  },
+  {
+    id: "rdg-pro-02",
+    name: "Plant Protein Nutri Powder",
+    category: "Nutraceutical",
+    mrp: 1650,
+    dp: 1250,
+    cp: 1420,
+    pv: 32,
+    bv: 1120,
+    rating: 4.7,
+    badge: "New",
+  },
+  {
+    id: "rdg-agr-03",
+    name: "Bio Organic Soil Enricher 5kg",
+    category: "Agriculture",
+    mrp: 900,
+    dp: 690,
+    cp: 780,
+    pv: 18,
+    bv: 620,
+    rating: 4.6,
+  },
+  {
+    id: "rdg-per-04",
+    name: "Neem Tulsi Herbal Face Wash",
+    category: "Personal Care",
+    mrp: 320,
+    dp: 235,
+    cp: 275,
+    pv: 6,
+    bv: 205,
+    rating: 4.9,
+    badge: "Top Rated",
+  },
+  {
+    id: "rdg-hom-05",
+    name: "Plant-Based Floor Cleaner 1L",
+    category: "Home Care",
+    mrp: 290,
+    dp: 210,
+    cp: 250,
+    pv: 5,
+    bv: 185,
+    rating: 4.5,
+  },
+  {
+    id: "rdg-org-06",
+    name: "Cold Pressed Mustard Oil 1L",
+    category: "Organic Foods",
+    mrp: 380,
+    dp: 295,
+    cp: 335,
+    pv: 7,
+    bv: 260,
+    rating: 4.7,
+  },
+  {
+    id: "rdg-pha-07",
+    name: "Joint Care Pain Relief Oil",
+    category: "Pharmacy",
+    mrp: 460,
+    dp: 340,
+    cp: 395,
+    pv: 9,
+    bv: 300,
+    rating: 4.8,
+    badge: "Bestseller",
+  },
+  {
+    id: "rdg-dai-08",
+    name: "Premium Whole Wheat Atta 5kg",
+    category: "Daily Essentials",
+    mrp: 420,
+    dp: 330,
+    cp: 375,
+    pv: 6,
+    bv: 290,
+    rating: 4.4,
+  },
 ];
 
 export const whyChoose = [
-  { title: "Quality Assurance", desc: "GMP, ISO and FSSAI certified manufacturing with batch-level testing." },
-  { title: "Affordable Pricing", desc: "Factory-to-family pricing removes every unnecessary middleman." },
-  { title: "Direct Company Products", desc: "Every SKU is owned, formulated and dispatched by RDG." },
-  { title: "Income Opportunity", desc: "A transparent generation plan with lifetime repurchase income." },
+  {
+    title: "Quality Assurance",
+    desc: "GMP, ISO and FSSAI certified manufacturing with batch-level testing.",
+  },
+  {
+    title: "Affordable Pricing",
+    desc: "Factory-to-family pricing removes every unnecessary middleman.",
+  },
+  {
+    title: "Direct Company Products",
+    desc: "Every SKU is owned, formulated and dispatched by RDG.",
+  },
+  {
+    title: "Income Opportunity",
+    desc: "A transparent generation plan with lifetime repurchase income.",
+  },
   { title: "Training Support", desc: "Weekly online and on-ground training in 7 languages." },
   { title: "Fast Delivery", desc: "48–96 hour dispatch to 25+ cities and 400+ pin codes." },
-  { title: "Customer Satisfaction", desc: "A 4.8/5 average rating across 18,000+ verified reviews." },
+  {
+    title: "Customer Satisfaction",
+    desc: "A 4.8/5 average rating across 18,000+ verified reviews.",
+  },
   { title: "Trusted Brand", desc: "A registered Indian company with full compliance and audits." },
 ];
 
@@ -126,11 +272,27 @@ export const journey = [
 
 export const bonuses = [
   { name: "Retail Profit", detail: "15–30% margin on every product you sell.", value: "Up to 30%" },
-  { name: "Performance Bonus", detail: "Paid on personal + group BV each month.", value: "5% – 25%" },
-  { name: "Matching Bonus", detail: "Earn on the performance of your direct legs.", value: "Up to 20%" },
-  { name: "Generation Bonus", detail: "Income across 7 active generations deep.", value: "7 Levels" },
+  {
+    name: "Performance Bonus",
+    detail: "Paid on personal + group BV each month.",
+    value: "5% – 25%",
+  },
+  {
+    name: "Matching Bonus",
+    detail: "Earn on the performance of your direct legs.",
+    value: "Up to 20%",
+  },
+  {
+    name: "Generation Bonus",
+    detail: "Income across 7 active generations deep.",
+    value: "7 Levels",
+  },
   { name: "Leadership Bonus", detail: "Unlocked at Silver rank and above.", value: "3% Pool" },
-  { name: "Royalty Income", detail: "Company turnover share for qualified leaders.", value: "2% Pool" },
+  {
+    name: "Royalty Income",
+    detail: "Company turnover share for qualified leaders.",
+    value: "2% Pool",
+  },
 ];
 
 export const ranks = [
@@ -143,35 +305,143 @@ export const ranks = [
 ];
 
 export const testimonials = [
-  { name: "Sunita Verma", role: "Diamond Distributor, Indore", quote: "I started with a ₹1,200 product order for my family. Four years later my team spans three states and my monthly income replaced my husband's salary.", rating: 5 },
-  { name: "Ramesh Patidar", role: "Platinum Distributor, Ujjain", quote: "The agriculture range genuinely improved my soybean yield. Selling what I already trusted made building a team effortless.", rating: 5 },
-  { name: "Dr. Neha Sharma", role: "Customer, Bhopal", quote: "I recommend the ayurvedic line to my patients. Consistent quality, honest labelling and prices families can actually sustain.", rating: 5 },
-  { name: "Ajay Kushwaha", role: "Gold Distributor, Jaipur", quote: "The training academy taught me digital prospecting. I closed 42 customers in my first 90 days without leaving my town.", rating: 4 },
+  {
+    name: "Sunita Verma",
+    role: "Diamond Distributor, Indore",
+    quote:
+      "I started with a ₹1,200 product order for my family. Four years later my team spans three states and my monthly income replaced my husband's salary.",
+    rating: 5,
+  },
+  {
+    name: "Ramesh Patidar",
+    role: "Platinum Distributor, Ujjain",
+    quote:
+      "The agriculture range genuinely improved my soybean yield. Selling what I already trusted made building a team effortless.",
+    rating: 5,
+  },
+  {
+    name: "Dr. Neha Sharma",
+    role: "Customer, Bhopal",
+    quote:
+      "I recommend the ayurvedic line to my patients. Consistent quality, honest labelling and prices families can actually sustain.",
+    rating: 5,
+  },
+  {
+    name: "Ajay Kushwaha",
+    role: "Gold Distributor, Jaipur",
+    quote:
+      "The training academy taught me digital prospecting. I closed 42 customers in my first 90 days without leaving my town.",
+    rating: 4,
+  },
 ];
 
 export const events = [
-  { title: "National Leadership Summit 2026", date: "2026-09-12", city: "Indore", type: "Seminar", seats: 1200 },
-  { title: "Ayurveda Product Launch — Immunity Series", date: "2026-08-22", city: "Bhopal", type: "Launch", seats: 400 },
-  { title: "Kisan Samriddhi Business Meet", date: "2026-10-05", city: "Nagpur", type: "Business Meet", seats: 600 },
-  { title: "Rewards & Recognition Night", date: "2026-11-18", city: "Jaipur", type: "Award Night", seats: 900 },
+  {
+    title: "National Leadership Summit 2026",
+    date: "2026-09-12",
+    city: "Indore",
+    type: "Seminar",
+    seats: 1200,
+  },
+  {
+    title: "Ayurveda Product Launch — Immunity Series",
+    date: "2026-08-22",
+    city: "Bhopal",
+    type: "Launch",
+    seats: 400,
+  },
+  {
+    title: "Kisan Samriddhi Business Meet",
+    date: "2026-10-05",
+    city: "Nagpur",
+    type: "Business Meet",
+    seats: 600,
+  },
+  {
+    title: "Rewards & Recognition Night",
+    date: "2026-11-18",
+    city: "Jaipur",
+    type: "Award Night",
+    seats: 900,
+  },
 ];
 
 export const trainings = [
-  { title: "Product Training", desc: "Know every SKU, its usage, dosage and cross-sell story.", modules: 14 },
-  { title: "Sales Training", desc: "Prospecting, objection handling and closing frameworks.", modules: 11 },
-  { title: "Leadership Training", desc: "Build, duplicate and retain a productive team.", modules: 9 },
-  { title: "Motivation", desc: "Habits, goal-setting and mindset sessions with top leaders.", modules: 8 },
-  { title: "Digital Marketing", desc: "WhatsApp, Instagram and content that converts.", modules: 12 },
-  { title: "Compliance", desc: "Direct selling guidelines and ethical selling practices.", modules: 6 },
+  {
+    title: "Product Training",
+    desc: "Know every SKU, its usage, dosage and cross-sell story.",
+    modules: 14,
+  },
+  {
+    title: "Sales Training",
+    desc: "Prospecting, objection handling and closing frameworks.",
+    modules: 11,
+  },
+  {
+    title: "Leadership Training",
+    desc: "Build, duplicate and retain a productive team.",
+    modules: 9,
+  },
+  {
+    title: "Motivation",
+    desc: "Habits, goal-setting and mindset sessions with top leaders.",
+    modules: 8,
+  },
+  {
+    title: "Digital Marketing",
+    desc: "WhatsApp, Instagram and content that converts.",
+    modules: 12,
+  },
+  {
+    title: "Compliance",
+    desc: "Direct selling guidelines and ethical selling practices.",
+    modules: 6,
+  },
 ];
 
 export const posts = [
-  { slug: "immunity-monsoon", title: "7 Ayurvedic Habits That Keep Immunity Strong Through Monsoon", category: "Health Tips", date: "2026-07-18", read: 6 },
-  { slug: "first-90-days", title: "Your First 90 Days as an RDG Distributor: A Practical Playbook", category: "Business Tips", date: "2026-07-04", read: 9 },
-  { slug: "soil-health", title: "Soil Health 101: Why Organic Inputs Outperform in Year Three", category: "Agriculture", date: "2026-06-21", read: 7 },
-  { slug: "protein-gap", title: "The Indian Protein Gap and How to Close It at Home", category: "Wellness", date: "2026-06-09", read: 5 },
-  { slug: "family-budget", title: "Cutting a Family Grocery Bill by 18% With Direct Purchase", category: "Lifestyle", date: "2026-05-27", read: 4 },
-  { slug: "rdg-expansion", title: "RDG Future Way Expands to 25 Cities With New Logistics Hub", category: "Latest News", date: "2026-05-12", read: 3 },
+  {
+    slug: "immunity-monsoon",
+    title: "7 Ayurvedic Habits That Keep Immunity Strong Through Monsoon",
+    category: "Health Tips",
+    date: "2026-07-18",
+    read: 6,
+  },
+  {
+    slug: "first-90-days",
+    title: "Your First 90 Days as an RDG Distributor: A Practical Playbook",
+    category: "Business Tips",
+    date: "2026-07-04",
+    read: 9,
+  },
+  {
+    slug: "soil-health",
+    title: "Soil Health 101: Why Organic Inputs Outperform in Year Three",
+    category: "Agriculture",
+    date: "2026-06-21",
+    read: 7,
+  },
+  {
+    slug: "protein-gap",
+    title: "The Indian Protein Gap and How to Close It at Home",
+    category: "Wellness",
+    date: "2026-06-09",
+    read: 5,
+  },
+  {
+    slug: "family-budget",
+    title: "Cutting a Family Grocery Bill by 18% With Direct Purchase",
+    category: "Lifestyle",
+    date: "2026-05-27",
+    read: 4,
+  },
+  {
+    slug: "rdg-expansion",
+    title: "RDG Future Way Expands to 25 Cities With New Logistics Hub",
+    category: "Latest News",
+    date: "2026-05-12",
+    read: 3,
+  },
 ];
 
 export const downloads = [
@@ -185,12 +455,30 @@ export const downloads = [
 ];
 
 export const faqs = [
-  { q: "What is the joining fee to become an RDG distributor?", a: "Registration is free. You only purchase the product package you actually want, starting from ₹1,200. There is no franchise, security or renewal fee." },
-  { q: "How is the Generation Plan different from a binary plan?", a: "Income flows through active generations of your network rather than balanced legs, so a strong single leg is rewarded instead of being capped." },
-  { q: "When are payouts released?", a: "Bonus cycles close on the last day of each month and payouts are credited to your registered bank account by the 10th of the following month." },
-  { q: "Are the products certified?", a: "Yes. Manufacturing units are GMP and ISO certified, food products carry FSSAI licences, and every batch is tested before dispatch." },
-  { q: "Can I return a product?", a: "Unopened products can be returned within 30 days of delivery for a full refund as per our refund policy." },
-  { q: "Do I need prior sales experience?", a: "No. The Training Academy takes you from product basics to leadership with structured modules, live sessions and downloadable material." },
+  {
+    q: "What is the joining fee to become an RDG distributor?",
+    a: "Registration is free. You only purchase the product package you actually want, starting from ₹1,200. There is no franchise, security or renewal fee.",
+  },
+  {
+    q: "How is the Generation Plan different from a binary plan?",
+    a: "Income flows through active generations of your network rather than balanced legs, so a strong single leg is rewarded instead of being capped.",
+  },
+  {
+    q: "When are payouts released?",
+    a: "Bonus cycles close on the last day of each month and payouts are credited to your registered bank account by the 10th of the following month.",
+  },
+  {
+    q: "Are the products certified?",
+    a: "Yes. Manufacturing units are GMP and ISO certified, food products carry FSSAI licences, and every batch is tested before dispatch.",
+  },
+  {
+    q: "Can I return a product?",
+    a: "Unopened products can be returned within 30 days of delivery for a full refund as per our refund policy.",
+  },
+  {
+    q: "Do I need prior sales experience?",
+    a: "No. The Training Academy takes you from product basics to leadership with structured modules, live sessions and downloadable material.",
+  },
 ];
 
 export const galleryItems = [

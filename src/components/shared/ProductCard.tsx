@@ -25,10 +25,16 @@ export function ProductCard({ product }: { product: Product }) {
           <button className="bg-brand flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-xs font-semibold text-primary-foreground">
             <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
           </button>
-          <button aria-label="Quick view" className="glass flex h-10 w-10 items-center justify-center rounded-full text-primary">
+          <button
+            aria-label="Quick view"
+            className="glass flex h-10 w-10 items-center justify-center rounded-full text-primary"
+          >
             <Eye className="h-4 w-4" />
           </button>
-          <button aria-label="Wishlist" className="glass flex h-10 w-10 items-center justify-center rounded-full text-primary">
+          <button
+            aria-label="Wishlist"
+            className="glass flex h-10 w-10 items-center justify-center rounded-full text-primary"
+          >
             <Heart className="h-4 w-4" />
           </button>
         </div>
@@ -36,7 +42,9 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="p-5">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-medium tracking-wide text-primary uppercase">{product.category}</span>
+          <span className="font-medium tracking-wide text-primary uppercase">
+            {product.category}
+          </span>
           <span className="flex items-center gap-1 text-muted-foreground">
             <Star className="h-3.5 w-3.5 fill-gold text-gold" /> {product.rating}
           </span>

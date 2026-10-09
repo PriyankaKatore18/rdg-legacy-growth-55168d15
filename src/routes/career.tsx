@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { Briefcase, MapPin } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -6,18 +5,6 @@ import { Stagger, StaggerItem } from "@/components/motion/Reveal";
 const title = "Career at RDG Future Way — Join Our Team";
 const description =
   "Explore openings at RDG Future Way across sales, production, quality, logistics and digital marketing in Indore and regional offices.";
-
-export const Route = createFileRoute("/career")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Career,
-});
 
 const jobs = [
   { role: "Regional Sales Manager", city: "Indore", type: "Full-time" },
@@ -63,3 +50,5 @@ function Career() {
     </>
   );
 }
+
+export default Career;

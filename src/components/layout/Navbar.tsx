@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ChevronDown, Globe, Menu, Search, UserPlus, X } from "lucide-react";
@@ -42,28 +41,34 @@ export function Navbar() {
         )}
       >
         <div className="container-x flex h-18 items-center justify-between gap-4 py-2">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="RDG Future Way logo" width={44} height={44} className="h-11 w-11 object-contain" />
+          <a href="/" className="flex items-center gap-3">
+            <img
+              src={logo}
+              alt="RDG Future Way logo"
+              width={44}
+              height={44}
+              className="h-11 w-11 object-contain"
+            />
             <span className="leading-tight">
-              <span className="block font-display text-lg font-bold text-primary-dark">RDG Future Way</span>
+              <span className="block font-display text-lg font-bold text-primary-dark">
+                RDG Future Way
+              </span>
               <span className="block text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
                 Pvt. Ltd.
               </span>
             </span>
-          </Link>
+          </a>
 
           <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMenu(null)}>
             {navigation.map((item) => (
               <div key={item.label} className="relative" onMouseEnter={() => setMenu(item.label)}>
-                <Link
-                  to={item.to}
+                <a
+                  href={item.to}
                   className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-primary"
-                  activeProps={{ className: "text-primary" }}
-                  activeOptions={{ exact: item.to === "/" }}
                 >
                   {item.label}
                   {item.children && <ChevronDown className="h-3.5 w-3.5 opacity-60" />}
-                </Link>
+                </a>
                 <AnimatePresence>
                   {item.children && menu === item.label && (
                     <motion.div
@@ -75,14 +80,18 @@ export function Navbar() {
                     >
                       <div className="glass overflow-hidden rounded-2xl p-2 shadow-card">
                         {item.children.map((child) => (
-                          <Link
+                          <a
                             key={child.label}
-                            to={child.to}
+                            href={child.to}
                             className="block rounded-xl px-4 py-3 transition-colors hover:bg-accent"
                           >
-                            <span className="block text-sm font-semibold text-foreground">{child.label}</span>
-                            <span className="block text-xs text-muted-foreground">{child.desc}</span>
-                          </Link>
+                            <span className="block text-sm font-semibold text-foreground">
+                              {child.label}
+                            </span>
+                            <span className="block text-xs text-muted-foreground">
+                              {child.desc}
+                            </span>
+                          </a>
                         ))}
                       </div>
                     </motion.div>
@@ -107,18 +116,18 @@ export function Navbar() {
             >
               <Globe className="h-4 w-4" /> EN
             </button>
-            <Link
-              to="/become-distributor"
+            <a
+              href="/become-distributor"
               className="hidden rounded-full px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-accent xl:block"
             >
               Login
-            </Link>
-            <Link
-              to="/become-distributor"
+            </a>
+            <a
+              href="/become-distributor"
               className="bg-brand hidden items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 sm:flex"
             >
               <UserPlus className="h-4 w-4" /> Become Distributor
-            </Link>
+            </a>
             <button
               type="button"
               aria-label="Toggle menu"
@@ -142,32 +151,32 @@ export function Navbar() {
             <div className="container-x max-h-[70vh] space-y-1 overflow-y-auto py-4">
               {navigation.map((item) => (
                 <div key={item.label}>
-                  <Link
-                    to={item.to}
+                  <a
+                    href={item.to}
                     onClick={() => setOpen(false)}
                     className="block rounded-xl px-3 py-2.5 font-display font-semibold text-foreground"
                   >
                     {item.label}
-                  </Link>
+                  </a>
                   {item.children?.map((child) => (
-                    <Link
+                    <a
                       key={child.label}
-                      to={child.to}
+                      href={child.to}
                       onClick={() => setOpen(false)}
                       className="block rounded-xl px-6 py-2 text-sm text-muted-foreground"
                     >
                       {child.label}
-                    </Link>
+                    </a>
                   ))}
                 </div>
               ))}
-              <Link
-                to="/become-distributor"
+              <a
+                href="/become-distributor"
                 onClick={() => setOpen(false)}
                 className="bg-brand mt-3 block rounded-full px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
               >
                 Become a Distributor
-              </Link>
+              </a>
             </div>
           </motion.div>
         )}

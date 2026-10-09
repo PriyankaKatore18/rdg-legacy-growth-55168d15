@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { Download, FileText } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -7,18 +6,6 @@ import { downloads } from "@/data/site";
 const title = "Download Center — Brochure, Catalogue, Income Plan & Forms | RDG";
 const description =
   "Download the RDG Future Way company brochure, product catalogue, generation income plan, price list, application form and training material.";
-
-export const Route = createFileRoute("/downloads")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Downloads,
-});
 
 function Downloads() {
   return (
@@ -59,3 +46,5 @@ function Downloads() {
     </>
   );
 }
+
+export default Downloads;

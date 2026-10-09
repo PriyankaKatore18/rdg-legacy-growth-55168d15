@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Send, Youtube } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { company } from "@/data/site";
@@ -36,13 +35,20 @@ export function Footer() {
         <div className="lg:col-span-2">
           <div className="flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-background">
-              <img src={logo} alt="RDG Future Way logo" loading="lazy" width={40} height={40} className="h-9 w-9 object-contain" />
+              <img
+                src={logo}
+                alt="RDG Future Way logo"
+                loading="lazy"
+                width={40}
+                height={40}
+                className="h-9 w-9 object-contain"
+              />
             </span>
             <span className="font-display text-xl font-bold">RDG Future Way</span>
           </div>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-primary-foreground/70">
-            An Indian direct selling company delivering ayurvedic, healthcare, agricultural, organic and
-            lifestyle products — paired with a transparent generation income plan.
+            An Indian direct selling company delivering ayurvedic, healthcare, agricultural, organic
+            and lifestyle products — paired with a transparent generation income plan.
           </p>
           <div className="mt-6 space-y-3 text-sm text-primary-foreground/80">
             <p className="flex gap-3">
@@ -73,7 +79,9 @@ export function Footer() {
         <FooterCol title="Resources" links={resourceLinks} />
 
         <div>
-          <h4 className="font-display text-sm font-semibold tracking-widest uppercase text-gold">Newsletter</h4>
+          <h4 className="font-display text-sm font-semibold tracking-widest uppercase text-gold">
+            Newsletter
+          </h4>
           <p className="mt-4 text-sm text-primary-foreground/70">
             Product launches, offers and business updates — once a month.
           </p>
@@ -96,13 +104,18 @@ export function Footer() {
               <Send className="h-4 w-4" />
             </button>
           </form>
-          <h4 className="mt-8 font-display text-sm font-semibold tracking-widest uppercase text-gold">Policies</h4>
+          <h4 className="mt-8 font-display text-sm font-semibold tracking-widest uppercase text-gold">
+            Policies
+          </h4>
           <ul className="mt-4 space-y-2.5 text-sm">
             {policyLinks.map((l) => (
               <li key={l.label}>
-                <Link to={l.to} className="text-primary-foreground/70 transition-colors hover:text-gold">
+                <a
+                  href={l.to}
+                  className="text-primary-foreground/70 transition-colors hover:text-gold"
+                >
                   {l.label}
-                </Link>
+                </a>
               </li>
             ))}
           </ul>
@@ -111,7 +124,9 @@ export function Footer() {
 
       <div className="border-t border-primary-foreground/10">
         <div className="container-x flex flex-col gap-3 py-6 text-xs text-primary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {company.name}. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} {company.name}. All rights reserved.
+          </p>
           <p>Income depends on effort and results. This is not a guaranteed-income scheme.</p>
         </div>
       </div>
@@ -122,13 +137,15 @@ export function Footer() {
 function FooterCol({ title, links }: { title: string; links: { label: string; to: string }[] }) {
   return (
     <div>
-      <h4 className="font-display text-sm font-semibold tracking-widest uppercase text-gold">{title}</h4>
+      <h4 className="font-display text-sm font-semibold tracking-widest uppercase text-gold">
+        {title}
+      </h4>
       <ul className="mt-4 space-y-2.5 text-sm">
         {links.map((l) => (
           <li key={l.label}>
-            <Link to={l.to} className="text-primary-foreground/70 transition-colors hover:text-gold">
+            <a href={l.to} className="text-primary-foreground/70 transition-colors hover:text-gold">
               {l.label}
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

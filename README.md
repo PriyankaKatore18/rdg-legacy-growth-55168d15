@@ -48,7 +48,7 @@ Frontend
 
  Tailwind CSS
 
- React Router
+ React pathname routing
 
  Framer Motion
 
@@ -751,18 +751,6 @@ Generate a complete React.js project with:
  Easily connectable to a future Node.js/Spring Boot + MySQL backend
 
 Note: Use the uploaded RDG company logo throughout the website for branding. The uploaded PDF could not be read for its contents, but it can still serve as the source logo asset if imported manually into the project.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://rdg-legacy-growth.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/0b7583c5-56f4-49ce-9423-583efa902604).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 

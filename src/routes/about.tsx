@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { Eye, Flag, Quote, Target } from "lucide-react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -9,22 +8,22 @@ const title = "About RDG Future Way — Our Story, Vision & Mission";
 const description =
   "RDG Future Way Pvt. Ltd. is an Indian direct selling company manufacturing ayurvedic, healthcare, agricultural and lifestyle products for 50,000+ families.";
 
-export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: About,
-});
-
 const pillars = [
-  { icon: Eye, title: "Our Vision", text: "To make certified, affordable wellness and lifestyle products reachable in every Indian household while creating one lakh self-reliant entrepreneurs." },
-  { icon: Target, title: "Our Mission", text: "Manufacture with integrity, price with fairness, train relentlessly and pay every rupee of bonus on time — month after month." },
-  { icon: Flag, title: "Our Values", text: "Transparency in payouts, honesty in labelling, respect for distributors and long-term thinking over short-term volume." },
+  {
+    icon: Eye,
+    title: "Our Vision",
+    text: "To make certified, affordable wellness and lifestyle products reachable in every Indian household while creating one lakh self-reliant entrepreneurs.",
+  },
+  {
+    icon: Target,
+    title: "Our Mission",
+    text: "Manufacture with integrity, price with fairness, train relentlessly and pay every rupee of bonus on time — month after month.",
+  },
+  {
+    icon: Flag,
+    title: "Our Values",
+    text: "Transparency in payouts, honesty in labelling, respect for distributors and long-term thinking over short-term volume.",
+  },
 ];
 
 function About() {
@@ -44,7 +43,9 @@ function About() {
                 <span className="bg-brand flex h-12 w-12 items-center justify-center rounded-2xl text-primary-foreground">
                   <p.icon className="h-5 w-5" />
                 </span>
-                <h2 className="mt-5 font-display text-xl font-semibold text-foreground">{p.title}</h2>
+                <h2 className="mt-5 font-display text-xl font-semibold text-foreground">
+                  {p.title}
+                </h2>
                 <p className="mt-3 leading-relaxed text-muted-foreground">{p.text}</p>
               </div>
             </Reveal>
@@ -58,13 +59,16 @@ function About() {
             <div className="rounded-[2rem] border border-border bg-card p-10 shadow-card">
               <Quote className="h-8 w-8 text-gold" />
               <p className="mt-6 text-lg leading-relaxed text-foreground">
-                “We did not start RDG to sell more boxes. We started it so a family in a small town could buy
-                a trustworthy ayurvedic medicine at a fair price — and, if they choose, turn that trust into
-                a dignified income. Every policy we write is tested against that single sentence.”
+                “We did not start RDG to sell more boxes. We started it so a family in a small town
+                could buy a trustworthy ayurvedic medicine at a fair price — and, if they choose,
+                turn that trust into a dignified income. Every policy we write is tested against
+                that single sentence.”
               </p>
               <footer className="mt-8">
                 <p className="font-display font-semibold text-foreground">Chairman's Message</p>
-                <p className="text-sm text-muted-foreground">Founder & Chairman, RDG Future Way Pvt. Ltd.</p>
+                <p className="text-sm text-muted-foreground">
+                  Founder & Chairman, RDG Future Way Pvt. Ltd.
+                </p>
               </footer>
             </div>
           </Reveal>
@@ -77,7 +81,10 @@ function About() {
             />
             <div className="mt-10 grid grid-cols-2 gap-5">
               {stats.map((s) => (
-                <div key={s.label} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                <div
+                  key={s.label}
+                  className="rounded-2xl border border-border bg-card p-6 shadow-soft"
+                >
                   <p className="font-display text-3xl font-extrabold text-gradient">
                     <CountUp to={s.value} suffix={s.suffix} />
                   </p>
@@ -112,3 +119,5 @@ function About() {
     </>
   );
 }
+
+export default About;

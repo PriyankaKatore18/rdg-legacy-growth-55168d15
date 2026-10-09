@@ -1,26 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { categories, products } from "@/data/site";
+import productsImage from "@/assets/products.jpg";
 
 const title = "Products — Ayurvedic, Organic, Agriculture & Daily Essentials | RDG";
 const description =
   "Browse 500+ RDG Future Way products across ayurvedic, pharmacy, organic foods, agriculture, personal care, home care and daily essentials with DP, MRP and PV/BV details.";
-
-export const Route = createFileRoute("/products")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Products,
-});
 
 function Products() {
   const [query, setQuery] = useState("");
@@ -45,6 +33,18 @@ function Products() {
         title="Everything your family needs, direct from the company"
         description="Distributor price, customer price and PV/BV points are published on every product — so you always know exactly what you pay and what you earn."
       />
+
+      <section className="pb-4">
+        <div className="container-x">
+          <img
+            src={productsImage}
+            alt="RDG wellness products and natural ingredients"
+            width={1280}
+            height={960}
+            className="h-64 w-full rounded-[2rem] object-cover shadow-card md:h-80"
+          />
+        </div>
+      </section>
 
       <section className="py-16">
         <div className="container-x">
@@ -85,7 +85,9 @@ function Products() {
             ))}
           </Stagger>
           {filtered.length === 0 && (
-            <p className="mt-16 text-center text-muted-foreground">No products match that search.</p>
+            <p className="mt-16 text-center text-muted-foreground">
+              No products match that search.
+            </p>
           )}
         </div>
       </section>
@@ -95,7 +97,10 @@ function Products() {
           <h2 className="text-2xl font-bold text-foreground">All categories</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((c) => (
-              <div key={c.slug} className="card-lift rounded-2xl border border-border bg-card p-5 shadow-soft">
+              <div
+                key={c.slug}
+                className="card-lift rounded-2xl border border-border bg-card p-5 shadow-soft"
+              >
                 <div className="flex items-center justify-between">
                   <h3 className="font-display font-semibold text-foreground">{c.name}</h3>
                   <span className="text-xs text-muted-foreground">{c.items} items</span>
@@ -109,3 +114,5 @@ function Products() {
     </>
   );
 }
+
+export default Products;

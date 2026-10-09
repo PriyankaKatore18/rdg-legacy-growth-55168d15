@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { PlayCircle, Star } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -7,18 +6,6 @@ import { testimonials } from "@/data/site";
 const title = "Success Stories — RDG Future Way Distributors & Customers";
 const description =
   "Read and watch stories from RDG Future Way distributors and customers who transformed their health and income through direct selling.";
-
-export const Route = createFileRoute("/success-stories")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: SuccessStories,
-});
 
 function SuccessStories() {
   return (
@@ -32,19 +19,23 @@ function SuccessStories() {
       <section className="py-16">
         <div className="container-x">
           <Stagger className="grid gap-6 md:grid-cols-3">
-            {["Sunita's 4-Year Journey", "From Farmer to Platinum", "Building a Team of 900"].map((v) => (
-              <StaggerItem key={v}>
-                <div className="card-lift overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
-                  <div className="bg-brand relative flex h-48 items-center justify-center">
-                    <PlayCircle className="h-14 w-14 text-primary-foreground/90" />
+            {["Sunita's 4-Year Journey", "From Farmer to Platinum", "Building a Team of 900"].map(
+              (v) => (
+                <StaggerItem key={v}>
+                  <div className="card-lift overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+                    <div className="bg-brand relative flex h-48 items-center justify-center">
+                      <PlayCircle className="h-14 w-14 text-primary-foreground/90" />
+                    </div>
+                    <div className="p-6">
+                      <p className="font-display font-semibold text-foreground">{v}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Video testimonial • 6 min
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-6">
-                    <p className="font-display font-semibold text-foreground">{v}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Video testimonial • 6 min</p>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
+                </StaggerItem>
+              ),
+            )}
           </Stagger>
 
           <Stagger className="mt-16 grid gap-6 md:grid-cols-2">
@@ -68,3 +59,5 @@ function SuccessStories() {
     </>
   );
 }
+
+export default SuccessStories;

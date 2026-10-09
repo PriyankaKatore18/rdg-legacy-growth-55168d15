@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
   Accordion,
@@ -11,32 +10,6 @@ import { faqs } from "@/data/site";
 const title = "FAQs — Joining, Payouts, Products & Returns | RDG Future Way";
 const description =
   "Answers to common questions about RDG Future Way joining fees, the generation plan, bonus payouts, product certifications and returns.";
-
-export const Route = createFileRoute("/faqs")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: faqs.map((f) => ({
-            "@type": "Question",
-            name: f.q,
-            acceptedAnswer: { "@type": "Answer", text: f.a },
-          })),
-        }),
-      },
-    ],
-  }),
-  component: Faqs,
-});
 
 function Faqs() {
   return (
@@ -55,7 +28,9 @@ function Faqs() {
                 value={`item-${i}`}
                 className="rounded-2xl border border-border bg-card px-6 shadow-soft"
               >
-                <AccordionTrigger className="text-left font-display font-semibold">{f.q}</AccordionTrigger>
+                <AccordionTrigger className="text-left font-display font-semibold">
+                  {f.q}
+                </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">{f.a}</AccordionContent>
               </AccordionItem>
             ))}
@@ -65,3 +40,5 @@ function Faqs() {
     </>
   );
 }
+
+export default Faqs;

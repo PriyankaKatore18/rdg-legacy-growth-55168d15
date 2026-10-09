@@ -1,4 +1,3 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -7,18 +6,6 @@ import { bonuses, ranks } from "@/data/site";
 const title = "Generation Plan — Income Levels, Bonuses & Rewards | RDG Future Way";
 const description =
   "The RDG Future Way generation plan explained: retail profit, performance bonus, matching bonus, generation income, leadership bonus, royalty, car fund and foreign tours.";
-
-export const Route = createFileRoute("/generation-plan")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: GenerationPlan,
-});
 
 const tree = [
   { level: "You", nodes: 1, payout: "Retail + Performance" },
@@ -76,7 +63,9 @@ function GenerationPlan() {
               <StaggerItem key={b.name}>
                 <div className="card-lift h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
                   <p className="font-display text-2xl font-bold text-gradient">{b.value}</p>
-                  <h3 className="mt-3 font-display text-base font-semibold text-foreground">{b.name}</h3>
+                  <h3 className="mt-3 font-display text-base font-semibold text-foreground">
+                    {b.name}
+                  </h3>
                   <p className="mt-2 text-sm text-muted-foreground">{b.detail}</p>
                 </div>
               </StaggerItem>
@@ -100,7 +89,9 @@ function GenerationPlan() {
               <tbody className="bg-card">
                 {ranks.map((r) => (
                   <tr key={r.rank} className="border-t border-border">
-                    <td className="px-6 py-4 font-display font-semibold text-foreground">{r.rank}</td>
+                    <td className="px-6 py-4 font-display font-semibold text-foreground">
+                      {r.rank}
+                    </td>
                     <td className="px-6 py-4 text-muted-foreground">{r.bv}</td>
                     <td className="px-6 py-4 text-muted-foreground">{r.reward}</td>
                   </tr>
@@ -109,15 +100,17 @@ function GenerationPlan() {
             </table>
           </div>
           <div className="mt-10 text-center">
-            <Link
-              to="/income-calculator"
+            <a
+              href="/income-calculator"
               className="bg-brand inline-flex rounded-full px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-card"
             >
               Estimate your income
-            </Link>
+            </a>
           </div>
         </div>
       </section>
     </>
   );
 }
+
+export default GenerationPlan;

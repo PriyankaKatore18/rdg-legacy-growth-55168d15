@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -6,18 +5,6 @@ import { PageHeader } from "@/components/layout/PageHeader";
 const title = "Income Calculator — Estimate Your RDG Monthly Earnings";
 const description =
   "Use the RDG Future Way income calculator to estimate potential monthly income from your joining level, monthly purchases and team size.";
-
-export const Route = createFileRoute("/income-calculator")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Calculator,
-});
 
 const levels = [
   { name: "Starter", multiplier: 1, min: 1200 },
@@ -38,7 +25,13 @@ function Calculator() {
     const matching = performance * 0.35;
     const leadership = team > 50 ? performance * 0.15 : 0;
     const total = Math.round(retail + performance + matching + leadership);
-    return { retail: Math.round(retail), performance: Math.round(performance), matching: Math.round(matching), leadership: Math.round(leadership), total };
+    return {
+      retail: Math.round(retail),
+      performance: Math.round(performance),
+      matching: Math.round(matching),
+      leadership: Math.round(leadership),
+      total,
+    };
   }, [level, purchase, team]);
 
   return (
@@ -73,10 +66,15 @@ function Calculator() {
 
             <div className="mt-10">
               <div className="flex items-center justify-between">
-                <label htmlFor="purchase" className="font-display text-sm font-semibold text-foreground">
+                <label
+                  htmlFor="purchase"
+                  className="font-display text-sm font-semibold text-foreground"
+                >
                   Monthly purchases (BV value)
                 </label>
-                <span className="font-display font-bold text-primary">₹{purchase.toLocaleString("en-IN")}</span>
+                <span className="font-display font-bold text-primary">
+                  ₹{purchase.toLocaleString("en-IN")}
+                </span>
               </div>
               <input
                 id="purchase"
@@ -92,7 +90,10 @@ function Calculator() {
 
             <div className="mt-10">
               <div className="flex items-center justify-between">
-                <label htmlFor="team" className="font-display text-sm font-semibold text-foreground">
+                <label
+                  htmlFor="team"
+                  className="font-display text-sm font-semibold text-foreground"
+                >
                   Active team size
                 </label>
                 <span className="font-display font-bold text-primary">{team} members</span>
@@ -132,13 +133,15 @@ function Calculator() {
                   className="flex items-center justify-between rounded-2xl bg-primary-foreground/10 px-4 py-3"
                 >
                   <span className="opacity-80">{label}</span>
-                  <span className="font-semibold">₹{(value as number).toLocaleString("en-IN")}</span>
+                  <span className="font-semibold">
+                    ₹{(value as number).toLocaleString("en-IN")}
+                  </span>
                 </div>
               ))}
             </div>
             <p className="mt-8 text-xs leading-relaxed opacity-70">
-              Illustrative only. RDG Future Way does not guarantee income; earnings depend on personal effort,
-              retail sales and team activity.
+              Illustrative only. RDG Future Way does not guarantee income; earnings depend on
+              personal effort, retail sales and team activity.
             </p>
           </div>
         </div>
@@ -146,3 +149,5 @@ function Calculator() {
     </>
   );
 }
+
+export default Calculator;

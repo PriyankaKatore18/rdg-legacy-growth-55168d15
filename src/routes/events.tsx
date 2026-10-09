@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { MapPin, Ticket, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -7,18 +6,6 @@ import { events } from "@/data/site";
 const title = "Events — Seminars, Business Meets & Product Launches | RDG";
 const description =
   "Upcoming RDG Future Way seminars, business meetings, product launches and recognition nights across India. Register your seat online.";
-
-export const Route = createFileRoute("/events")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Events,
-});
 
 function daysLeft(date: string) {
   const diff = Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000);
@@ -47,7 +34,9 @@ function Events() {
                     </span>
                   </div>
                   <div className="p-7">
-                    <h2 className="font-display text-xl font-semibold text-foreground">{e.title}</h2>
+                    <h2 className="font-display text-xl font-semibold text-foreground">
+                      {e.title}
+                    </h2>
                     <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
                       <span className="flex items-center gap-2">
                         <Ticket className="h-4 w-4 text-primary" />
@@ -77,3 +66,5 @@ function Events() {
     </>
   );
 }
+
+export default Events;

@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
@@ -8,18 +7,6 @@ import { galleryItems } from "@/data/site";
 const title = "Gallery — Events, Training, Office & CSR | RDG Future Way";
 const description =
   "Photos and videos from RDG Future Way events, distributor training camps, corporate offices, manufacturing units and CSR activities.";
-
-export const Route = createFileRoute("/gallery")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Gallery,
-});
 
 const tags = ["All", "Events", "Training", "Office", "CSR", "Rewards"];
 
@@ -109,3 +96,5 @@ function Gallery() {
     </>
   );
 }
+
+export default Gallery;

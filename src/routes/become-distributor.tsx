@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
@@ -7,18 +6,6 @@ import { PageHeader } from "@/components/layout/PageHeader";
 const title = "Become a Distributor — Join RDG Future Way Free";
 const description =
   "Register free as an RDG Future Way distributor. Get wholesale pricing, PV/BV income, training support and access to the generation income plan.";
-
-export const Route = createFileRoute("/become-distributor")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: BecomeDistributor,
-});
 
 type FormValues = {
   fullName: string;
@@ -69,7 +56,10 @@ function BecomeDistributor() {
             ))}
           </div>
 
-          <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-8 shadow-card">
+          <form
+            onSubmit={onSubmit}
+            className="rounded-3xl border border-border bg-card p-8 shadow-card"
+          >
             {submitted && (
               <p className="mb-6 rounded-2xl bg-secondary/10 px-4 py-3 text-sm font-medium text-secondary">
                 Thank you! Your application has been received. Our team will contact you shortly.
@@ -102,14 +92,23 @@ function BecomeDistributor() {
                 />
               </Field>
               <Field label="City" error={errors.city?.message}>
-                <input {...register("city", { required: "City is required" })} className="field" placeholder="City" />
+                <input
+                  {...register("city", { required: "City is required" })}
+                  className="field"
+                  placeholder="City"
+                />
               </Field>
               <Field label="Sponsor ID (optional)">
                 <input {...register("sponsorId")} className="field" placeholder="RDG123456" />
               </Field>
               <div className="sm:col-span-2">
                 <Field label="Message (optional)">
-                  <textarea {...register("message")} rows={4} className="field" placeholder="Tell us about your goals" />
+                  <textarea
+                    {...register("message")}
+                    rows={4}
+                    className="field"
+                    placeholder="Tell us about your goals"
+                  />
                 </Field>
               </div>
             </div>
@@ -146,3 +145,5 @@ function Field({
     </label>
   );
 }
+
+export default BecomeDistributor;

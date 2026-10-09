@@ -1,12 +1,26 @@
-import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowRight, Leaf, PlayCircle, ShieldCheck, Sprout } from "lucide-react";
 import heroImage from "@/assets/hero.jpg";
 
 const floatingCards = [
-  { icon: Leaf, title: "Ayurvedic Immunity", meta: "12 PV • ₹480 DP", pos: "top-24 right-6 md:right-16" },
-  { icon: Sprout, title: "Bio Soil Enricher", meta: "18 PV • ₹690 DP", pos: "bottom-28 right-24 md:right-56" },
-  { icon: ShieldCheck, title: "GMP Certified", meta: "Batch tested", pos: "bottom-56 right-4 md:right-6" },
+  {
+    icon: Leaf,
+    title: "Ayurvedic Immunity",
+    meta: "12 PV • ₹480 DP",
+    pos: "top-24 right-6 md:right-16",
+  },
+  {
+    icon: Sprout,
+    title: "Bio Soil Enricher",
+    meta: "18 PV • ₹690 DP",
+    pos: "bottom-28 right-24 md:right-56",
+  },
+  {
+    icon: ShieldCheck,
+    title: "GMP Certified",
+    meta: "Batch tested",
+    pos: "bottom-56 right-4 md:right-6",
+  },
 ];
 
 export function Hero() {
@@ -40,8 +54,8 @@ export function Hero() {
             transition={{ delay: 0.08, duration: 0.7 }}
             className="mt-6 text-4xl leading-[1.08] font-extrabold text-foreground sm:text-5xl lg:text-6xl"
           >
-            Empowering Every Family Through{" "}
-            <span className="text-gradient">Quality Products</span> & Business Opportunities
+            Empowering Every Family Through <span className="text-gradient">Quality Products</span>{" "}
+            & Business Opportunities
           </motion.h1>
 
           <motion.p
@@ -50,8 +64,8 @@ export function Hero() {
             transition={{ delay: 0.16, duration: 0.7 }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
           >
-            Healthcare, Wellness, Agriculture & Lifestyle products with an innovative Generation Income
-            Plan — built for Indian families who want better products and a better future.
+            Healthcare, Wellness, Agriculture & Lifestyle products with an innovative Generation
+            Income Plan — built for Indian families who want better products and a better future.
           </motion.p>
 
           <motion.div
@@ -60,19 +74,19 @@ export function Hero() {
             transition={{ delay: 0.24, duration: 0.7 }}
             className="mt-9 flex flex-wrap items-center gap-4"
           >
-            <Link
-              to="/products"
+            <a
+              href="/products"
               className="bg-brand group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
             >
               Explore Products
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
-              to="/become-distributor"
+            </a>
+            <a
+              href="/become-distributor"
               className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/70 px-7 py-3.5 text-sm font-semibold text-primary backdrop-blur transition-colors hover:bg-accent"
             >
               Become Distributor
-            </Link>
+            </a>
             <button
               type="button"
               className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
@@ -104,7 +118,9 @@ export function Hero() {
               <span className="bg-brand flex h-10 w-10 items-center justify-center rounded-xl text-primary-foreground">
                 <card.icon className="h-5 w-5" />
               </span>
-              <p className="mt-3 font-display text-sm font-semibold text-foreground">{card.title}</p>
+              <p className="mt-3 font-display text-sm font-semibold text-foreground">
+                {card.title}
+              </p>
               <p className="text-xs text-muted-foreground">{card.meta}</p>
             </motion.div>
           ))}

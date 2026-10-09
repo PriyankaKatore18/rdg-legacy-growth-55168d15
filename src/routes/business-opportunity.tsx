@@ -1,4 +1,3 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Banknote, Compass, GraduationCap, Trophy, Users } from "lucide-react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
@@ -9,23 +8,27 @@ const title = "Business Opportunity — Direct Selling with RDG Future Way";
 const description =
   "Learn how direct selling works at RDG Future Way: low investment, repurchase income, training support, leadership growth, rewards and recognition.";
 
-export const Route = createFileRoute("/business-opportunity")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-  }),
-  component: Opportunity,
-});
-
 const benefits = [
-  { icon: Banknote, title: "Low Investment", text: "Free registration. Start with the products you already buy." },
-  { icon: Users, title: "Passive Income", text: "Repurchase income from every active generation of your team." },
-  { icon: Compass, title: "Leadership Growth", text: "Structured ranks with clear qualification criteria." },
-  { icon: GraduationCap, title: "Training", text: "Weekly live sessions plus an on-demand video library." },
+  {
+    icon: Banknote,
+    title: "Low Investment",
+    text: "Free registration. Start with the products you already buy.",
+  },
+  {
+    icon: Users,
+    title: "Passive Income",
+    text: "Repurchase income from every active generation of your team.",
+  },
+  {
+    icon: Compass,
+    title: "Leadership Growth",
+    text: "Structured ranks with clear qualification criteria.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Training",
+    text: "Weekly live sessions plus an on-demand video library.",
+  },
   { icon: Trophy, title: "Rewards", text: "Car fund, house fund and quarterly recognition." },
   { icon: ArrowRight, title: "Travel", text: "Domestic and international leadership tours." },
 ];
@@ -38,12 +41,12 @@ function Opportunity() {
         title="A business you can start this week, from home"
         description="Direct selling removes advertising, distributors and retail margins from the price — and pays that saving to the people who actually recommend the product. That's you."
       >
-        <Link
-          to="/become-distributor"
+        <a
+          href="/become-distributor"
           className="bg-brand inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground shadow-card"
         >
           Start free registration <ArrowRight className="h-4 w-4" />
-        </Link>
+        </a>
       </PageHeader>
 
       <section className="py-20">
@@ -93,7 +96,9 @@ function Opportunity() {
                   <span className="bg-leaf flex h-12 w-12 items-center justify-center rounded-2xl text-secondary-foreground">
                     <b.icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-5 font-display text-lg font-semibold text-foreground">{b.title}</h3>
+                  <h3 className="mt-5 font-display text-lg font-semibold text-foreground">
+                    {b.title}
+                  </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b.text}</p>
                 </div>
               </StaggerItem>
@@ -104,3 +109,5 @@ function Opportunity() {
     </>
   );
 }
+
+export default Opportunity;

@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/home/Hero";
 import {
   BlogPreview,
@@ -18,37 +17,6 @@ const title = "RDG Future Way Pvt. Ltd. — Ayurveda, Wellness & Business Opport
 const description =
   "Quality ayurvedic, healthcare, agriculture and lifestyle products from RDG Future Way, with a transparent generation income plan for distributors across India.";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "RDG Future Way Pvt. Ltd.",
-          description,
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: "Indore",
-            addressRegion: "Madhya Pradesh",
-            addressCountry: "IN",
-          },
-          telephone: "+91 98765 43210",
-          email: "care@rdgfutureway.com",
-        }),
-      },
-    ],
-  }),
-  component: Index,
-});
-
 function Index() {
   return (
     <>
@@ -67,3 +35,5 @@ function Index() {
     </>
   );
 }
+
+export default Index;
