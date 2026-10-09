@@ -117,7 +117,7 @@ function Calculator() {
               key={result.total}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-3 font-display text-5xl font-extrabold"
+              className="mt-3 font-display text-4xl font-extrabold sm:text-5xl"
             >
               ₹{result.total.toLocaleString("en-IN")}
             </motion.p>

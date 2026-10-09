@@ -72,7 +72,7 @@ function Gallery() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setOpen(null)}
-            className="fixed inset-0 z-100 flex items-center justify-center bg-foreground/70 p-6 backdrop-blur"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-foreground/70 p-3 backdrop-blur sm:p-6"
           >
             <motion.div
               initial={{ scale: 0.92 }}
@@ -80,8 +80,8 @@ function Gallery() {
               exit={{ scale: 0.92 }}
               className="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-card"
             >
-              <div className="bg-brand h-80" />
-              <p className="p-6 font-display font-semibold text-foreground">{open}</p>
+              <div className="bg-brand h-56 sm:h-80" />
+              <p className="p-4 font-display font-semibold text-foreground sm:p-6">{open}</p>
               <button
                 aria-label="Close"
                 onClick={() => setOpen(null)}

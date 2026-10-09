@@ -27,7 +27,7 @@ function Events() {
             {events.map((e) => (
               <StaggerItem key={e.title}>
                 <div className="card-lift h-full overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
-                  <div className="bg-brand flex items-center justify-between px-7 py-5 text-primary-foreground">
+                  <div className="bg-brand flex flex-wrap items-center justify-between gap-2 px-4 py-5 text-primary-foreground sm:px-7">
                     <span className="font-display text-sm font-semibold">{e.type}</span>
                     <span className="bg-gold-grad rounded-full px-3 py-1 text-[11px] font-bold text-gold-foreground">
                       {daysLeft(e.date)}

@@ -25,7 +25,7 @@ const floatingCards = [
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[100svh] items-center overflow-hidden pt-32 pb-20">
+    <section className="relative flex min-h-[100svh] items-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-20">
       <img
         src={heroImage}
         alt="Indian family with ayurvedic wellness products beside an organic farm field"
@@ -42,7 +42,7 @@ export function Hero() {
           <motion.span
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold tracking-wide text-primary"
+            className="glass inline-flex max-w-full items-center gap-2 rounded-full px-3 py-2 text-[11px] font-semibold tracking-wide text-primary sm:px-4 sm:text-xs"
           >
             <span className="bg-gold-grad h-2 w-2 rounded-full" />
             Direct Selling • Generation Income Plan
@@ -52,7 +52,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08, duration: 0.7 }}
-            className="mt-6 text-4xl leading-[1.08] font-extrabold text-foreground sm:text-5xl lg:text-6xl"
+            className="mt-6 text-3xl leading-[1.08] font-extrabold text-foreground sm:text-5xl lg:text-6xl"
           >
             Empowering Every Family Through <span className="text-gradient">Quality Products</span>{" "}
             & Business Opportunities
@@ -76,20 +76,20 @@ export function Hero() {
           >
             <a
               href="/products"
-              className="bg-brand group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
+              className="bg-brand group inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 sm:w-auto sm:px-7"
             >
               Explore Products
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a
               href="/become-distributor"
-              className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/70 px-7 py-3.5 text-sm font-semibold text-primary backdrop-blur transition-colors hover:bg-accent"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/25 bg-background/70 px-5 py-3.5 text-sm font-semibold text-primary backdrop-blur transition-colors hover:bg-accent sm:w-auto sm:px-7"
             >
               Become Distributor
             </a>
             <button
               type="button"
-              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              className="inline-flex w-full items-center justify-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:w-auto"
             >
               <PlayCircle className="h-5 w-5" /> Watch company film
             </button>

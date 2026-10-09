@@ -165,11 +165,25 @@
     border-color: var(--color-border);
   }
 
+  html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
+    min-width: 320px;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
   }
 
   h1,
@@ -221,6 +235,24 @@
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lift);
+  }
+}
+
+@media (max-width: 639px) {
+  .container-x {
+    padding-inline: 1rem;
+  }
+
+  .py-24 {
+    padding-block: 4rem;
+  }
+
+  .py-20 {
+    padding-block: 3.5rem;
+  }
+
+  .py-16 {
+    padding-block: 3rem;
   }
 }
 

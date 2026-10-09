@@ -40,20 +40,20 @@ export function Navbar() {
           scrolled ? "glass shadow-soft" : "bg-background/40 backdrop-blur-sm",
         )}
       >
-        <div className="container-x flex h-18 items-center justify-between gap-4 py-2">
-          <a href="/" className="flex items-center gap-3">
+        <div className="container-x flex h-16 items-center justify-between gap-3 py-2 sm:h-18 sm:gap-4">
+          <a href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
             <img
               src={logo}
               alt="RDG Future Way logo"
               width={44}
               height={44}
-              className="h-11 w-11 object-contain"
+              className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11"
             />
-            <span className="leading-tight">
-              <span className="block font-display text-lg font-bold text-primary-dark">
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate font-display text-base font-bold text-primary-dark sm:text-lg">
                 RDG Future Way
               </span>
-              <span className="block text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+              <span className="block text-[10px] tracking-[0.16em] text-muted-foreground uppercase sm:text-[11px] sm:tracking-[0.18em]">
                 Pvt. Ltd.
               </span>
             </span>
@@ -132,7 +132,7 @@ export function Navbar() {
               type="button"
               aria-label="Toggle menu"
               onClick={() => setOpen((v) => !v)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border lg:hidden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border lg:hidden"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>

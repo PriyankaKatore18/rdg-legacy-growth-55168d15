@@ -30,8 +30,8 @@ const policyLinks = [
 
 export function Footer() {
   return (
-    <footer className="mt-24 bg-primary-dark text-primary-foreground">
-      <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-5">
+    <footer className="mt-16 bg-primary-dark text-primary-foreground sm:mt-24">
+      <div className="container-x grid gap-10 py-12 sm:gap-12 sm:py-16 md:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-background">
@@ -58,11 +58,11 @@ export function Footer() {
               <Phone className="h-4 w-4 shrink-0 text-gold" /> {company.phone} /{" "}
               {company.secondaryPhone}
             </p>
-            <p className="flex gap-3">
-              <Mail className="h-4 w-4 shrink-0 text-gold" /> {company.email}
+            <p className="flex min-w-0 gap-3">
+              <Mail className="h-4 w-4 shrink-0 text-gold" /> <span className="break-words">{company.email}</span>
             </p>
-            <p className="flex gap-3">
-              <span className="w-4 shrink-0 text-center text-gold">@</span> {company.website}
+            <p className="flex min-w-0 gap-3">
+              <span className="w-4 shrink-0 text-center text-gold">@</span> <span className="break-words">{company.website}</span>
             </p>
           </div>
           <div className="mt-6 flex gap-3">

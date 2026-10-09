@@ -13,7 +13,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden bg-surface pt-40 pb-16 md:pt-48 md:pb-24">
+    <section className="relative overflow-hidden bg-surface pt-32 pb-12 sm:pt-40 sm:pb-16 md:pt-48 md:pb-24">
       <div className="bg-brand absolute -top-32 -right-24 h-96 w-96 rounded-full opacity-15 blur-3xl" />
       <div className="bg-leaf absolute -bottom-40 -left-24 h-96 w-96 rounded-full opacity-10 blur-3xl" />
       <div className="container-x relative">
@@ -28,7 +28,7 @@ export function PageHeader({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.06 }}
-          className="mt-4 max-w-3xl text-4xl font-bold text-foreground md:text-5xl"
+          className="mt-4 max-w-3xl text-3xl leading-tight font-bold text-foreground sm:text-4xl md:text-5xl"
         >
           {title}
         </motion.h1>
@@ -36,7 +36,7 @@ export function PageHeader({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground"
+          className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
         >
           {description}
         </motion.p>

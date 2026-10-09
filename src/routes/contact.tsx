@@ -47,7 +47,7 @@ function Contact() {
                   <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                     {c.label}
                   </p>
-                  <p className="mt-1 text-sm text-foreground">{c.value}</p>
+                <p className="mt-1 break-words text-sm text-foreground">{c.value}</p>
                 </div>
               </div>
             ))}

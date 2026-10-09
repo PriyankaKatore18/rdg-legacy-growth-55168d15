@@ -21,7 +21,7 @@ export function ProductCard({ product }: { product: Product }) {
         <span className="absolute top-4 right-4 rounded-full bg-secondary px-3 py-1 text-[11px] font-semibold text-secondary-foreground">
           {discount}% off
         </span>
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-full gap-2 p-4 transition-transform duration-300 group-hover:translate-y-0">
+        <div className="absolute inset-x-0 bottom-0 flex translate-y-0 gap-2 p-3 opacity-100 transition-transform duration-300 lg:translate-y-full lg:p-4 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
           <button className="bg-brand flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-xs font-semibold text-primary-foreground">
             <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
           </button>
