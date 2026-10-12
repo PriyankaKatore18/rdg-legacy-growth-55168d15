@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Building2, Mail, MapPin, Phone } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { company } from "@/data/site";
+import { submitPublicEnquiry } from "@/lib/public-api";
 
 const title = "Contact RDG Future Way — Head Office, Branches & Support";
 const description =
@@ -12,6 +13,7 @@ type Values = { name: string; email: string; phone: string; message: string };
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
   const {
     register,
     handleSubmit,
@@ -62,10 +64,17 @@ function Contact() {
           </div>
 
           <form
-            onSubmit={handleSubmit(async () => {
-              await new Promise((r) => setTimeout(r, 500));
-              setSent(true);
-              reset();
+            onSubmit={handleSubmit(async (values) => {
+              try {
+                setError("");
+                await submitPublicEnquiry({ type: "contact", ...values });
+                setSent(true);
+                reset();
+              } catch (reason) {
+                setError(
+                  reason instanceof Error ? reason.message : "Unable to submit your enquiry.",
+                );
+              }
             })}
             className="h-fit rounded-3xl border border-border bg-card p-8 shadow-card"
           >
@@ -73,6 +82,11 @@ function Contact() {
             {sent && (
               <p className="mt-5 rounded-2xl bg-secondary/10 px-4 py-3 text-sm font-medium text-secondary">
                 Thanks! Your message has been received.
+              </p>
+            )}
+            {error && (
+              <p className="mt-5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+                {error}
               </p>
             )}
             <div className="mt-6 grid gap-5">

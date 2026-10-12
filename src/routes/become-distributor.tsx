@@ -1,7 +1,16 @@
 import { useForm } from "react-hook-form";
-import { CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, Network, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { bonuses, directReferralPlans } from "@/data/site";
+import { submitPublicEnquiry } from "@/lib/public-api";
+
+const money = (value: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
 
 const title = "Become a Distributor — Join RDG Future Way Free";
 const description =
@@ -18,6 +27,7 @@ type FormValues = {
 
 function BecomeDistributor() {
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
   const {
     register,
     handleSubmit,
@@ -25,10 +35,24 @@ function BecomeDistributor() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>();
 
-  const onSubmit = handleSubmit(async () => {
-    await new Promise((r) => setTimeout(r, 600));
-    setSubmitted(true);
-    reset();
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      setError("");
+      await submitPublicEnquiry({
+        type: "distributor",
+        name: values.fullName,
+        phone: values.phone,
+        email: values.email,
+        city: values.city,
+        message: [values.sponsorId ? `Sponsor ID: ${values.sponsorId}` : "", values.message || ""]
+          .filter(Boolean)
+          .join("\n"),
+      });
+      setSubmitted(true);
+      reset();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to submit your application.");
+    }
   });
 
   return (
@@ -38,6 +62,109 @@ function BecomeDistributor() {
         title="Free registration. Lifetime opportunity."
         description="Fill the form and a regional business coach will call you within 24 hours with your ID, starter kit options and your first training session."
       />
+
+      <section className="bg-surface py-14 sm:py-18">
+        <div className="container-x">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+              Distributor commission structure
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold text-foreground sm:text-4xl">
+              Understand how the RDG plan is calculated
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+              The plan has a direct referral reference plus qualification-based retail, team and
+              leadership income streams. Use the exact package values below as a starting point;
+              final eligibility and payout terms are confirmed by RDG.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
+              <div className="flex items-center gap-3">
+                <span className="bg-brand flex h-11 w-11 items-center justify-center rounded-2xl text-primary-foreground">
+                  <CircleDollarSign className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-bold text-foreground">
+                    Direct referral reference
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Package value → listed referral reference
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {directReferralPlans.map((item) => (
+                  <div
+                    key={item.packageValue}
+                    className="rounded-2xl border border-border bg-surface p-4"
+                  >
+                    <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                      Package {money(item.packageValue)}
+                    </p>
+                    <p className="mt-2 font-display text-2xl font-extrabold text-secondary">
+                      {money(item.referralIncome)}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">referral reference</p>
+                  </div>
+                ))}
+              </div>
+              <a
+                href="/income-calculator"
+                className="bg-brand mt-6 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+              >
+                Calculate your scenario <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gold text-gold-foreground">
+                  <Network className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-bold text-foreground">
+                    Other commission streams
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Qualification-based plan components
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 space-y-3">
+                {bonuses.map((bonus) => (
+                  <div
+                    key={bonus.name}
+                    className="flex items-start justify-between gap-4 rounded-2xl bg-surface px-4 py-3"
+                  >
+                    <div>
+                      <p className="font-display text-sm font-semibold text-foreground">
+                        {bonus.name}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {bonus.detail}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-right text-xs font-bold text-primary">
+                      {bonus.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-primary/15 bg-primary/5 p-4 text-xs leading-relaxed text-muted-foreground">
+            <ShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <p>
+              These figures are plan references, not a guaranteed salary or profit. Retail margin,
+              performance, matching, generation, leadership and royalty payouts depend on product
+              sales, active IDs, qualification and the official RDG terms.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="py-16">
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr]">
@@ -63,6 +190,11 @@ function BecomeDistributor() {
             {submitted && (
               <p className="mb-6 rounded-2xl bg-secondary/10 px-4 py-3 text-sm font-medium text-secondary">
                 Thank you! Your application has been received. Our team will contact you shortly.
+              </p>
+            )}
+            {error && (
+              <p className="mb-6 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+                {error}
               </p>
             )}
             <div className="grid gap-5 sm:grid-cols-2">

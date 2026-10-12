@@ -23,6 +23,7 @@ import ShippingPolicy from "@/routes/shipping-policy";
 import SuccessStories from "@/routes/success-stories";
 import Terms from "@/routes/terms";
 import { LanguageProvider } from "@/lib/i18n";
+import { AdminDashboard, AdminLogin } from "@/routes/admin";
 
 const pages: Record<string, React.ComponentType> = {
   "/": Home,
@@ -45,6 +46,8 @@ const pages: Record<string, React.ComponentType> = {
   "/shipping-policy": ShippingPolicy,
   "/success-stories": SuccessStories,
   "/terms": Terms,
+  "/admin/login": AdminLogin,
+  "/admin/dashboard": AdminDashboard,
 };
 
 function NotFound() {
@@ -119,6 +122,15 @@ export function App() {
   }, []);
 
   const Page = pages[path] ?? NotFound;
+  const isAdmin = path.startsWith("/admin");
+
+  if (isAdmin) {
+    return (
+      <LanguageProvider>
+        <Page />
+      </LanguageProvider>
+    );
+  }
 
   return (
     <LanguageProvider>

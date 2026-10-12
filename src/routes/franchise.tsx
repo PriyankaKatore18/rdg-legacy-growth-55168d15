@@ -14,7 +14,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
-import { company } from "@/data/site";
+import { submitPublicEnquiry } from "@/lib/public-api";
 
 type FranchiseForm = {
   fullName: string;
@@ -74,6 +74,7 @@ const steps = [
 
 function Franchise() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
   const {
     register,
     handleSubmit,
@@ -81,22 +82,24 @@ function Franchise() {
     formState: { errors },
   } = useForm<FranchiseForm>();
 
-  const onSubmit = handleSubmit((values) => {
-    const subject = encodeURIComponent(`Franchise enquiry from ${values.fullName}`);
-    const body = encodeURIComponent(
-      [
-        `Name: ${values.fullName}`,
-        `Phone: ${values.phone}`,
-        `Email: ${values.email}`,
-        `City: ${values.city}`,
-        `Business background: ${values.businessType}`,
-        `Investment range: ${values.investment}`,
-        `Message: ${values.message || "Not provided"}`,
-      ].join("\n"),
-    );
-    window.location.href = `mailto:${company.email}?subject=${subject}&body=${body}`;
-    setSent(true);
-    reset();
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      setError("");
+      await submitPublicEnquiry({
+        type: "franchise",
+        name: values.fullName,
+        phone: values.phone,
+        email: values.email,
+        city: values.city,
+        businessType: values.businessType,
+        investmentRange: values.investment,
+        message: values.message,
+      });
+      setSent(true);
+      reset();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to submit your enquiry.");
+    }
   });
 
   return (
@@ -173,6 +176,11 @@ function Franchise() {
                 <p className="mb-6 rounded-2xl bg-secondary/10 px-4 py-3 text-sm font-medium text-secondary">
                   Your enquiry draft is ready. Please send it from your email app so our team can
                   respond.
+                </p>
+              )}
+              {error && (
+                <p className="mb-6 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+                  {error}
                 </p>
               )}
               <div className="grid gap-5 sm:grid-cols-2">

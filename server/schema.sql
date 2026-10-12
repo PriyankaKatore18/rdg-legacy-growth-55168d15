@@ -1,0 +1,157 @@
+CREATE TABLE IF NOT EXISTS admin_users (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('super_admin', 'content_editor', 'enquiry_manager') NOT NULL DEFAULT 'content_editor',
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  last_login DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS pages (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(190) NOT NULL UNIQUE,
+  description TEXT NULL,
+  body LONGTEXT NULL,
+  status ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
+  seo_title VARCHAR(255) NULL,
+  seo_description VARCHAR(320) NULL,
+  show_in_nav TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_pages_status (status),
+  INDEX idx_pages_updated (updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS home_sections (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  section_key VARCHAR(120) NOT NULL UNIQUE,
+  title VARCHAR(255) NULL,
+  description TEXT NULL,
+  payload JSON NULL,
+  enabled TINYINT(1) NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS banners (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  subtitle VARCHAR(255) NULL,
+  description TEXT NULL,
+  cta_label VARCHAR(120) NULL,
+  cta_url VARCHAR(500) NULL,
+  image_url VARCHAR(500) NULL,
+  mobile_image_url VARCHAR(500) NULL,
+  alt_text VARCHAR(255) NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  starts_at DATETIME NULL,
+  ends_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_banners_active (active, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS products (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  slug VARCHAR(190) NOT NULL UNIQUE,
+  category VARCHAR(120) NULL,
+  subtitle VARCHAR(500) NULL,
+  description TEXT NULL,
+  highlights JSON NULL,
+  price DECIMAL(12,2) NULL,
+  image_url VARCHAR(500) NULL,
+  status ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_products_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(190) NOT NULL UNIQUE,
+  excerpt TEXT NULL,
+  body LONGTEXT NULL,
+  featured_image VARCHAR(500) NULL,
+  image_alt VARCHAR(255) NULL,
+  author VARCHAR(120) NULL,
+  category VARCHAR(120) NULL,
+  tags JSON NULL,
+  seo_title VARCHAR(255) NULL,
+  seo_description VARCHAR(320) NULL,
+  status ENUM('draft', 'scheduled', 'published') NOT NULL DEFAULT 'draft',
+  published_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_blog_status_date (status, published_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS media_assets (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL,
+  original_name VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(120) NOT NULL,
+  size_bytes BIGINT UNSIGNED NOT NULL,
+  url VARCHAR(500) NOT NULL,
+  alt_text VARCHAR(255) NULL,
+  uploaded_by BIGINT UNSIGNED NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_media_created (created_at),
+  CONSTRAINT fk_media_user FOREIGN KEY (uploaded_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS contact_enquiries (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  enquiry_type ENUM('contact', 'distributor', 'franchise', 'other') NOT NULL DEFAULT 'contact',
+  name VARCHAR(160) NOT NULL,
+  email VARCHAR(190) NULL,
+  phone VARCHAR(40) NULL,
+  city VARCHAR(120) NULL,
+  business_type VARCHAR(160) NULL,
+  investment_range VARCHAR(120) NULL,
+  message TEXT NULL,
+  status ENUM('new', 'in_progress', 'contacted', 'closed') NOT NULL DEFAULT 'new',
+  internal_notes TEXT NULL,
+  assigned_to BIGINT UNSIGNED NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_enquiries_status_created (status, created_at),
+  CONSTRAINT fk_enquiry_user FOREIGN KEY (assigned_to) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS navigation_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  label VARCHAR(120) NOT NULL,
+  url VARCHAR(500) NOT NULL,
+  parent_id BIGINT UNSIGNED NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  visible TINYINT(1) NOT NULL DEFAULT 1,
+  CONSTRAINT fk_navigation_parent FOREIGN KEY (parent_id) REFERENCES navigation_items(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  setting_key VARCHAR(120) NOT NULL PRIMARY KEY,
+  setting_value JSON NOT NULL,
+  updated_by BIGINT UNSIGNED NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_setting_user FOREIGN KEY (updated_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NULL,
+  action VARCHAR(120) NOT NULL,
+  entity_type VARCHAR(120) NOT NULL,
+  entity_id BIGINT UNSIGNED NULL,
+  metadata JSON NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_activity_created (created_at),
+  CONSTRAINT fk_activity_user FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

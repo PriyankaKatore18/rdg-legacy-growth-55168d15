@@ -1,6 +1,8 @@
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Ban, Leaf, ShieldCheck, Sparkles } from "lucide-react";
 import heroImage from "@/assets/anmol-ratan-hero-v2.png";
+import { getPublicCmsConfig, type PublicCmsConfig } from "@/lib/cms";
 
 const highlights = [
   { icon: Leaf, label: "100%", detail: "Natural" },
@@ -10,11 +12,31 @@ const highlights = [
 ];
 
 export function Hero() {
+  const [cms, setCms] = useState<PublicCmsConfig | null>(null);
+
+  useEffect(() => {
+    getPublicCmsConfig().then(setCms);
+  }, []);
+
+  const banner = cms?.banners[0];
+  const heroTitle =
+    banner?.title || cms?.settings.hero_title || "Pure Herbal Nutrition for a Healthier Tomorrow";
+  const heroDescription =
+    banner?.description ||
+    cms?.settings.hero_description ||
+    "Anmol Ratan Juice is a herbal and mixed berry wellness drink for Indian families who want a refreshing, fruit-forward addition to their everyday routine.";
+  const heroCtaLabel = banner?.ctaLabel || cms?.settings.hero_cta_label || "Discover the Goodness";
+  const heroCtaUrl = banner?.ctaUrl || cms?.settings.hero_cta_url || "/products";
+  const titleParts = heroTitle.endsWith(" Tomorrow") ? [heroTitle.slice(0, -8), "Tomorrow"] : null;
+
   return (
     <section className="relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden pt-24 pb-8 sm:pt-28 sm:pb-10">
       <img
-        src={heroImage}
-        alt="Anmol Ratan Juice bottle, berry juice and fresh mixed berries in a natural setting"
+        src={banner?.imageUrl || heroImage}
+        alt={
+          banner?.altText ||
+          "Anmol Ratan Juice bottle, berry juice and fresh mixed berries in a natural setting"
+        }
         width={1984}
         height={793}
         className="absolute inset-0 h-full w-full object-cover object-center"
@@ -40,8 +62,13 @@ export function Hero() {
             transition={{ delay: 0.08, duration: 0.7 }}
             className="mt-6 max-w-2xl text-4xl leading-[1.04] font-extrabold tracking-tight text-primary-dark sm:text-5xl lg:text-6xl"
           >
-            Pure Herbal Nutrition for a Healthier{" "}
-            <span className="text-[#24804f] italic">Tomorrow</span>
+            {titleParts ? (
+              <>
+                {titleParts[0]} <span className="text-[#24804f] italic">{titleParts[1]}</span>
+              </>
+            ) : (
+              heroTitle
+            )}
           </motion.h1>
 
           <motion.p
@@ -50,8 +77,7 @@ export function Hero() {
             transition={{ delay: 0.16, duration: 0.7 }}
             className="mt-5 max-w-2xl text-base leading-relaxed text-primary-dark/75 sm:text-lg"
           >
-            Anmol Ratan Juice is a herbal and mixed berry wellness drink for Indian families who
-            want a refreshing, fruit-forward addition to their everyday routine.
+            {heroDescription}
           </motion.p>
 
           <motion.div
@@ -82,10 +108,10 @@ export function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.32, duration: 0.7 }}
-            href="/products"
+            href={heroCtaUrl}
             className="bg-brand group mt-9 inline-flex items-center gap-4 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_16px_30px_-14px_rgba(18,92,196,0.55)] transition-transform hover:-translate-y-0.5"
           >
-            Discover the Goodness
+            {heroCtaLabel}
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </motion.a>
         </div>

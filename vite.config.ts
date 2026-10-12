@@ -5,4 +5,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), tsconfigPaths()],
+  server: {
+    proxy: {
+      "/api": "http://localhost:8787",
+      "/uploads": "http://localhost:8787",
+    },
+  },
 });

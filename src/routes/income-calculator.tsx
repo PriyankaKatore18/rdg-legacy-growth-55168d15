@@ -1,15 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
-import {
-  ArrowRight,
-  Calculator as CalculatorIcon,
-  Gift,
-  Info,
-  Network,
-  Wallet,
-} from "lucide-react";
+import { ArrowRight, Calculator as CalculatorIcon, Info, Network, Wallet } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { directReferralPlans, planLevels } from "@/data/site";
+import { bonuses, directReferralPlans, planLevels } from "@/data/site";
 
 const money = (value: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -213,7 +206,7 @@ function Calculator() {
               <ResultRow icon={Network} label="Network value" value={result.networkValue} />
               <ResultRow
                 icon={Wallet}
-                label="Gross referral reference"
+                label="Gross direct referral reference"
                 value={result.grossReferral}
               />
               <ResultRow icon={Info} label="Expenses entered" value={monthlyExpenses} />
@@ -252,6 +245,54 @@ function Calculator() {
               View complete plan <ArrowRight className="h-4 w-4" />
             </a>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-surface py-16">
+        <div className="container-x">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+              Distributor income structure
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold text-foreground">
+              More than one way to build income
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              The calculator can calculate the direct referral reference and network arithmetic
+              shown in the supplied plan. The following streams require their own sales, volume and
+              qualification conditions.
+            </p>
+          </div>
+          <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {bonuses.map((bonus, index) => (
+              <motion.article
+                key={bonus.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: index * 0.06 }}
+                className="rounded-3xl border border-border bg-card p-6 shadow-soft"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="bg-gold flex h-10 w-10 items-center justify-center rounded-2xl text-gold-foreground">
+                    {index + 1}
+                  </span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                    {bonus.value}
+                  </span>
+                </div>
+                <h3 className="mt-5 font-display text-lg font-bold text-foreground">
+                  {bonus.name}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{bonus.detail}</p>
+              </motion.article>
+            ))}
+          </div>
+          <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-muted-foreground">
+            Percentage and pool labels are displayed as plan references. They are not added to the
+            numeric result because the supplied material does not define the qualifying BV rules,
+            payout caps, timing, taxes or final settlement conditions.
+          </p>
         </div>
       </section>
 

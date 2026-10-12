@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
-import { directReferralPlans, planLevels } from "@/data/site";
+import { bonuses, directReferralPlans, planLevels } from "@/data/site";
 
 const money = (value: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -174,6 +174,46 @@ function GenerationPlan() {
             >
               View reward milestones <ArrowRight className="h-4 w-4" />
             </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-surface py-20 sm:py-24">
+        <div className="container-x">
+          <SectionHeading
+            eyebrow="Distributor commission streams"
+            title="How the business plan builds income"
+            description="The direct referral references are calculated above. These additional plan components are qualification-based and are shown separately so the plan is easy to understand without presenting them as guaranteed earnings."
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {bonuses.map((bonus, index) => (
+              <motion.article
+                key={bonus.name}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: (index % 3) * 0.07 }}
+                className="rounded-3xl border border-border bg-card p-6 shadow-soft"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="bg-brand flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-bold text-primary-foreground">
+                    {index + 1}
+                  </span>
+                  <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary">
+                    {bonus.value}
+                  </span>
+                </div>
+                <h3 className="mt-5 font-display text-lg font-bold text-foreground">
+                  {bonus.name}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{bonus.detail}</p>
+              </motion.article>
+            ))}
+          </div>
+          <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-primary/15 bg-primary/5 p-5 text-sm leading-relaxed text-muted-foreground">
+            <strong className="text-foreground">Important:</strong> the percentage and pool labels
+            are plan references. Actual payout depends on product sales, personal and group volume,
+            active IDs, rank qualification, company terms, taxes and payout timing.
           </div>
         </div>
       </section>
