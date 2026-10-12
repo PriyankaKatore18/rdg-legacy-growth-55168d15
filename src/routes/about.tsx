@@ -4,7 +4,8 @@ import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { CountUp } from "@/components/motion/CountUp";
 import { stats } from "@/data/site";
 import { company } from "@/data/site";
-import companyProfileImage from "@/assets/about-company-profile.png";
+import certificatesImage from "@/assets/about-certificates.png";
+import foundersImage from "@/assets/about-founders.png";
 
 const title = "About RDG Future Way — Our Story, Vision & Mission";
 const description =
@@ -98,46 +99,84 @@ function About() {
         </div>
       </section>
 
-      <section className="py-20 sm:py-24">
-        <div className="container-x grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr]">
-          <Reveal>
-            <figure className="overflow-hidden rounded-[2rem] border border-border bg-card p-2 shadow-card">
-              <img
-                src={companyProfileImage}
-                alt="RDG Future Way company profile, credentials and leadership collage"
-                loading="lazy"
-                width={1110}
-                height={1600}
-                className="h-auto w-full rounded-[1.5rem] object-contain"
-              />
-            </figure>
-          </Reveal>
-          <div>
-            <SectionHeading
-              align="left"
-              eyebrow="Company profile & leadership"
-              title="Trust is built with transparency"
-              description="The company profile shared by RDG brings its brand identity, credential references and leadership details together in one place."
-            />
-            <div className="mt-8 space-y-3">
-              {[
-                "RDG Future Way Pvt. Ltd. company profile and registration references",
-                "Credential and identity documents presented for company transparency",
-                "Leadership details for M.M. Shaikh (C.M.D.) and Sameer Shaikh (M.D.)",
-                `Official contact support through ${company.phone} and ${company.email}`,
-              ].map((point) => (
-                <div
-                  key={point}
-                  className="card-glow flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft"
-                >
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
-                  <p className="text-sm leading-relaxed text-muted-foreground">{point}</p>
+      <section className="bg-surface py-20 sm:py-24">
+        <div className="container-x">
+          <SectionHeading
+            eyebrow="Company profile & leadership"
+            title="Trust is built with transparency"
+            description="Explore RDG's credentials and leadership through separate, focused documents instead of one crowded banner."
+          />
+          <div className="mt-12 grid gap-8 lg:grid-cols-2">
+            <Reveal>
+              <article className="card-glow h-full overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-card">
+                <div className="flex items-center gap-3 px-4 pb-4 pt-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand text-primary-foreground">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+                      Company credentials
+                    </p>
+                    <h3 className="font-display text-lg font-semibold text-foreground">
+                      Certificates & registration
+                    </h3>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <img
+                  src={certificatesImage}
+                  alt="RDG Future Way incorporation and registration certificates"
+                  loading="lazy"
+                  width={1536}
+                  height={1024}
+                  className="h-auto w-full rounded-[1.5rem] object-contain"
+                />
+              </article>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <article className="card-glow h-full overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-card">
+                <div className="flex items-center gap-3 px-4 pb-4 pt-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand text-primary-foreground">
+                    <Eye className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+                      Leadership team
+                    </p>
+                    <h3 className="font-display text-lg font-semibold text-foreground">
+                      Meet the founders
+                    </h3>
+                  </div>
+                </div>
+                <img
+                  src={foundersImage}
+                  alt="M.M. Shaikh, C.M.D. and Sameer Shaikh, M.D. founders of RDG Future Way"
+                  loading="lazy"
+                  width={1774}
+                  height={887}
+                  className="h-auto w-full rounded-[1.5rem] object-contain"
+                />
+              </article>
+            </Reveal>
+          </div>
+          <div className="mx-auto mt-8 grid max-w-5xl gap-3 md:grid-cols-3">
+            {[
+              "RDG Future Way Pvt. Ltd. company profile and registration references",
+              "Leadership details for M.M. Shaikh (C.M.D.) and Sameer Shaikh (M.D.)",
+              `Official support through ${company.phone} and ${company.email}`,
+            ].map((point) => (
+              <div
+                key={point}
+                className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft"
+              >
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
+                <p className="text-sm leading-relaxed text-muted-foreground">{point}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
             <a
               href="/contact"
-              className="bg-brand mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
+              className="bg-brand inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
             >
               Contact the RDG team
             </a>
