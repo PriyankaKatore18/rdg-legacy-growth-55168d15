@@ -20,10 +20,9 @@ import { CountUp } from "@/components/motion/CountUp";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/layout/PageHeader";
 import { ProductCard } from "@/components/shared/ProductCard";
-import opportunityImage from "@/assets/opportunity.jpg";
+import opportunityImage from "@/assets/opportunity-network-v2.png";
 import {
   bonuses,
-  categories,
   events,
   journey,
   posts,
@@ -53,47 +52,6 @@ export function StatsBand() {
   );
 }
 
-export function CategoryGrid() {
-  return (
-    <section className="py-24">
-      <div className="container-x">
-        <SectionHeading
-          eyebrow="Product Categories"
-          title="One company, every category your family reorders"
-          description="From classical ayurveda to farm inputs and daily groceries — all manufactured or sourced directly by RDG."
-        />
-        <Stagger className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((cat) => (
-            <StaggerItem key={cat.slug}>
-              <a
-                href="/products"
-                className="card-lift group block h-full overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-soft"
-              >
-                <div className="flex items-start justify-between">
-                  <span className="bg-brand flex h-12 w-12 items-center justify-center rounded-2xl font-display text-sm font-bold text-primary-foreground">
-                    {cat.name.slice(0, 2).toUpperCase()}
-                  </span>
-                  <span className="rounded-full bg-surface px-3 py-1 text-[11px] font-medium text-muted-foreground">
-                    {cat.items} products
-                  </span>
-                </div>
-                <h3 className="mt-5 font-display text-lg font-semibold text-foreground">
-                  {cat.name}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{cat.blurb}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  View Products
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </a>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
 export function FeaturedProducts() {
   return (
     <section className="bg-surface py-24">
@@ -101,17 +59,17 @@ export function FeaturedProducts() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             align="left"
-            eyebrow="Featured Products"
-            title="Bestsellers loved by customers and distributors"
+            eyebrow="Our Signature Product"
+            title="One carefully presented wellness drink"
           />
           <a
             href="/products"
             className="inline-flex items-center gap-2 rounded-full border border-primary/20 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-accent"
           >
-            Browse all products <ArrowRight className="h-4 w-4" />
+            View product details <ArrowRight className="h-4 w-4" />
           </a>
         </div>
-        <Stagger className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Stagger className="mx-auto mt-12 max-w-md">
           {products.map((p) => (
             <StaggerItem key={p.id}>
               <ProductCard product={p} />
@@ -138,15 +96,20 @@ export function WhyChoose() {
             const Icon = whyIcons[i % whyIcons.length]!;
             return (
               <StaggerItem key={item.title}>
-                <div className="card-lift h-full rounded-3xl border border-border bg-card p-6 shadow-soft">
-                  <span className="bg-leaf flex h-12 w-12 items-center justify-center rounded-2xl text-secondary-foreground">
+                <motion.div
+                  whileHover={{ y: -9, scale: 1.02 }}
+                  whileTap={{ scale: 0.985 }}
+                  transition={{ type: "spring", stiffness: 340, damping: 22 }}
+                  className="card-lift group h-full rounded-3xl border border-border bg-card p-6 shadow-soft"
+                >
+                  <span className="bg-leaf flex h-12 w-12 items-center justify-center rounded-2xl text-secondary-foreground transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110">
                     <Icon className="h-5 w-5" />
                   </span>
                   <h3 className="mt-5 font-display text-base font-semibold text-foreground">
                     {item.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
-                </div>
+                </motion.div>
               </StaggerItem>
             );
           })}
@@ -158,40 +121,52 @@ export function WhyChoose() {
 
 export function OpportunitySection() {
   return (
-    <section className="bg-surface py-24">
-      <div className="container-x grid items-center gap-14 lg:grid-cols-2">
-        <Reveal>
-          <div className="relative">
-            <div className="bg-brand absolute -inset-4 rounded-[2.5rem] opacity-10 blur-2xl" />
+    <section className="relative overflow-hidden bg-surface py-20 sm:py-24">
+      <div className="bg-brand absolute -top-48 -left-48 h-[34rem] w-[34rem] rounded-full opacity-[0.06] blur-3xl" />
+      <div className="container-x relative grid items-center gap-12 lg:items-stretch lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:gap-14">
+        <Reveal className="h-full">
+          <div className="relative h-full min-h-[22rem] overflow-hidden rounded-[2.25rem] border border-border/80 bg-[#edf8fb] shadow-card lg:min-h-[36rem]">
+            <img
+              src={opportunityImage}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover opacity-25 blur-2xl"
+            />
             <img
               src={opportunityImage}
               alt="Illustration of a growing direct selling distributor network"
               loading="lazy"
-              width={1280}
+              width={1536}
               height={1024}
-              className="relative rounded-[2rem] border border-border bg-card shadow-card"
+              className="relative z-10 h-full min-h-[22rem] w-full object-contain object-center lg:min-h-[36rem]"
             />
           </div>
         </Reveal>
         <div>
-          <SectionHeading
-            align="left"
-            eyebrow="Business Opportunity"
-            title="Direct selling, without the guesswork"
-            description="You buy products you already need, share them with people who already trust you, and earn every time your network repurchases. No stock pressure, no hidden fees."
-          />
-          <div className="mt-10 space-y-4">
+          <p className="text-xs font-semibold tracking-[0.22em] text-primary uppercase">
+            Business Opportunity
+          </p>
+          <h2 className="mt-3 max-w-xl font-display text-3xl leading-tight font-bold tracking-tight text-primary-dark sm:text-4xl">
+            Direct selling, without the guesswork
+          </h2>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            You share Anmol Ratan Juice with people who already trust you and earn when your network
+            repurchases. No stock pressure, no hidden fees.
+          </p>
+          <div className="mt-8 space-y-4">
             {journey.map((step, i) => (
               <Reveal key={step.step} delay={i * 0.06}>
-                <div className="flex gap-4 rounded-2xl border border-border bg-card p-4 shadow-soft">
-                  <span className="bg-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-primary-foreground">
+                <div className="flex items-center gap-4 rounded-2xl border border-border/80 bg-card/90 px-4 py-4 shadow-soft backdrop-blur-sm sm:px-5">
+                  <span className="bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-primary-foreground shadow-sm">
                     {i + 1}
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-display text-sm font-semibold text-foreground">
                       {step.step}
                     </p>
-                    <p className="text-sm text-muted-foreground">{step.desc}</p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                      {step.desc}
+                    </p>
                   </div>
                 </div>
               </Reveal>
@@ -199,7 +174,7 @@ export function OpportunitySection() {
           </div>
           <a
             href="/business-opportunity"
-            className="bg-brand mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
+            className="bg-brand mt-8 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
           >
             Understand the plan <ArrowRight className="h-4 w-4" />
           </a>
@@ -221,7 +196,7 @@ export function BonusGrid() {
         <Stagger className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {bonuses.map((b) => (
             <StaggerItem key={b.name}>
-              <div className="card-lift h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
+              <div className="card-sheen h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
                 <span className="bg-gold-grad inline-flex rounded-full px-3 py-1 text-[11px] font-bold text-gold-foreground">
                   {b.value}
                 </span>
@@ -302,7 +277,7 @@ export function EventsAndTraining() {
           <div className="mt-8 space-y-4">
             {events.slice(0, 3).map((e) => (
               <Reveal key={e.title}>
-                <div className="card-lift flex items-center gap-5 rounded-2xl border border-border bg-card p-5 shadow-soft">
+                <div className="card-tilt flex items-center gap-5 rounded-2xl border border-border bg-card p-5 shadow-soft">
                   <div className="bg-brand flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl text-primary-foreground">
                     <span className="font-display text-lg leading-none font-bold">
                       {new Date(e.date).getDate()}
@@ -339,7 +314,7 @@ export function EventsAndTraining() {
           <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
             {trainings.map((t) => (
               <StaggerItem key={t.title}>
-                <div className="card-lift h-full rounded-2xl border border-border bg-card p-5 shadow-soft">
+                <div className="card-glow h-full rounded-2xl border border-border bg-card p-5 shadow-soft">
                   <BookOpen className="h-5 w-5 text-secondary" />
                   <p className="mt-3 font-display text-sm font-semibold text-foreground">
                     {t.title}
@@ -383,7 +358,7 @@ export function RewardsTimeline() {
           <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {rewards.map((r) => (
               <StaggerItem key={r.title}>
-                <div className="relative rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
+                <div className="card-float relative rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
                   <span className="bg-gold-grad mx-auto -mt-14 flex h-16 w-16 items-center justify-center rounded-full text-gold-foreground shadow-gold">
                     <r.icon className="h-7 w-7" />
                   </span>
@@ -423,7 +398,7 @@ export function BlogPreview() {
             <StaggerItem key={post.slug}>
               <a
                 href="/blog"
-                className="card-lift block h-full overflow-hidden rounded-3xl border border-border bg-card shadow-soft"
+                className="card-sheen block h-full overflow-hidden rounded-3xl border border-border bg-card shadow-soft"
               >
                 <div className="bg-brand relative h-40 opacity-90">
                   <span className="glass absolute bottom-3 left-3 rounded-full px-3 py-1 text-[11px] font-semibold text-primary">
@@ -462,7 +437,7 @@ export function CTABand() {
             Start your RDG journey today — free registration, lifetime opportunity
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-primary-foreground/80">
-            Join 5,000+ distributors building income with products their families already use.
+            Join 5,000+ distributors building income with a product their families can enjoy.
           </p>
           <div className="relative mt-9 flex flex-wrap justify-center gap-4">
             <a

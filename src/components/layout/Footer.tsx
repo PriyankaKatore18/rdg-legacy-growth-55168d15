@@ -1,10 +1,10 @@
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Send, Youtube } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-transparent.png";
 import { company } from "@/data/site";
 
 const quickLinks = [
   { label: "About Us", to: "/about" },
-  { label: "Products", to: "/products" },
+  { label: "Anmol Ratan Juice", to: "/products" },
   { label: "Business Opportunity", to: "/business-opportunity" },
   { label: "Generation Plan", to: "/generation-plan" },
   { label: "Income Calculator", to: "/income-calculator" },
@@ -34,7 +34,7 @@ export function Footer() {
       <div className="container-x grid gap-10 py-12 sm:gap-12 sm:py-16 md:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-background">
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-background/90">
               <img
                 src={logo}
                 alt="RDG Future Way logo"
@@ -47,8 +47,8 @@ export function Footer() {
             <span className="font-display text-xl font-bold">RDG Future Way</span>
           </div>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-primary-foreground/70">
-            An Indian direct selling company delivering ayurvedic, healthcare, agricultural, organic
-            and lifestyle products — paired with a transparent generation income plan.
+            An Indian direct selling company presenting Anmol Ratan Juice — paired with a
+            transparent generation income plan.
           </p>
           <div className="mt-6 space-y-3 text-sm text-primary-foreground/80">
             <p className="flex gap-3">
@@ -59,10 +59,12 @@ export function Footer() {
               {company.secondaryPhone}
             </p>
             <p className="flex min-w-0 gap-3">
-              <Mail className="h-4 w-4 shrink-0 text-gold" /> <span className="break-words">{company.email}</span>
+              <Mail className="h-4 w-4 shrink-0 text-gold" />{" "}
+              <span className="break-words">{company.email}</span>
             </p>
             <p className="flex min-w-0 gap-3">
-              <span className="w-4 shrink-0 text-center text-gold">@</span> <span className="break-words">{company.website}</span>
+              <span className="w-4 shrink-0 text-center text-gold">@</span>{" "}
+              <span className="break-words">{company.website}</span>
             </p>
           </div>
           <div className="mt-6 flex gap-3">

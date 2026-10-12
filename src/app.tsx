@@ -12,6 +12,7 @@ import BecomeDistributor from "@/routes/become-distributor";
 import Downloads from "@/routes/downloads";
 import Events from "@/routes/events";
 import Faqs from "@/routes/faqs";
+import Franchise from "@/routes/franchise";
 import Gallery from "@/routes/gallery";
 import GenerationPlan from "@/routes/generation-plan";
 import IncomeCalculator from "@/routes/income-calculator";
@@ -33,6 +34,7 @@ const pages: Record<string, React.ComponentType> = {
   "/downloads": Downloads,
   "/events": Events,
   "/faqs": Faqs,
+  "/franchise": Franchise,
   "/gallery": Gallery,
   "/generation-plan": GenerationPlan,
   "/income-calculator": IncomeCalculator,

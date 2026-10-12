@@ -92,7 +92,7 @@ function Opportunity() {
           <Stagger className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {benefits.map((b) => (
               <StaggerItem key={b.title}>
-                <div className="card-lift h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
+                <div className="card-glow h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
                   <span className="bg-leaf flex h-12 w-12 items-center justify-center rounded-2xl text-secondary-foreground">
                     <b.icon className="h-5 w-5" />
                   </span>

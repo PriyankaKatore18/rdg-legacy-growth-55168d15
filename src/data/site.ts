@@ -30,17 +30,11 @@ export const navigation: NavItem[] = [
     ],
   },
   {
-    label: "Products",
+    label: "Anmol Ratan",
     to: "/products",
     children: [
-      { label: "All Categories", to: "/products", desc: "13 categories, 500+ SKUs" },
-      {
-        label: "Ayurvedic & Healthcare",
-        to: "/products",
-        desc: "Classical & proprietary formulations",
-      },
-      { label: "Agriculture & Seeds", to: "/products", desc: "Inputs that grow yields" },
-      { label: "Personal & Home Care", to: "/products", desc: "Daily essentials for the family" },
+      { label: "Anmol Ratan Juice", to: "/products", desc: "Herbal & mixed berry wellness juice" },
+      { label: "Product Details", to: "/products", desc: "Benefits, usage & quality notes" },
     ],
   },
   {
@@ -55,6 +49,7 @@ export const navigation: NavItem[] = [
       { label: "Generation Plan", to: "/generation-plan", desc: "Income levels & bonuses" },
       { label: "Income Calculator", to: "/income-calculator", desc: "Estimate your earnings" },
       { label: "Become a Distributor", to: "/become-distributor", desc: "Join in minutes" },
+      { label: "Franchise Opportunity", to: "/franchise", desc: "Explore local franchise options" },
     ],
   },
   {
@@ -72,168 +67,35 @@ export const navigation: NavItem[] = [
 export const stats = [
   { value: 50000, suffix: "+", label: "Happy Customers" },
   { value: 5000, suffix: "+", label: "Active Distributors" },
-  { value: 500, suffix: "+", label: "Products" },
+  { value: 1, suffix: "", label: "Signature Product" },
   { value: 25, suffix: "+", label: "Cities Served" },
-];
-
-export const categories = [
-  {
-    name: "Healthcare",
-    slug: "healthcare",
-    items: 64,
-    blurb: "Everyday health support for the whole family.",
-  },
-  {
-    name: "Pharmacy",
-    slug: "pharmacy",
-    items: 48,
-    blurb: "GMP-certified pharmaceutical formulations.",
-  },
-  {
-    name: "Ayurvedic",
-    slug: "ayurvedic",
-    items: 72,
-    blurb: "Classical churnas, syrups and tablets.",
-  },
-  {
-    name: "Organic Foods",
-    slug: "organic-foods",
-    items: 39,
-    blurb: "Chemical-free grains, oils and spices.",
-  },
-  { name: "Agriculture", slug: "agriculture", items: 41, blurb: "Soil health and crop nutrition." },
-  { name: "Seeds", slug: "seeds", items: 22, blurb: "High-germination hybrid seeds." },
-  { name: "Fertilizers", slug: "fertilizers", items: 27, blurb: "Bio & organic plant nutrition." },
-  { name: "Fashion", slug: "fashion", items: 35, blurb: "Everyday ethnic and casual wear." },
-  { name: "Clothing", slug: "clothing", items: 44, blurb: "Comfort fabrics at factory pricing." },
-  { name: "Personal Care", slug: "personal-care", items: 58, blurb: "Skin, hair and oral care." },
-  { name: "Home Care", slug: "home-care", items: 31, blurb: "Safe cleaning for modern homes." },
-  {
-    name: "Nutraceutical",
-    slug: "nutraceutical",
-    items: 29,
-    blurb: "Protein, vitamins and immunity.",
-  },
-  { name: "Animal Care", slug: "animal-care", items: 18, blurb: "Cattle and poultry wellness." },
-  {
-    name: "Daily Essentials",
-    slug: "daily-essentials",
-    items: 52,
-    blurb: "Groceries you reorder monthly.",
-  },
-  {
-    name: "Kitchen Products",
-    slug: "kitchen",
-    items: 24,
-    blurb: "Cookware and storage solutions.",
-  },
 ];
 
 export type Product = {
   id: string;
   name: string;
   category: string;
-  mrp: number;
-  dp: number;
-  cp: number;
-  pv: number;
-  bv: number;
-  rating: number;
+  subtitle: string;
+  description: string;
+  highlights: string[];
   badge?: string;
 };
 
 export const products: Product[] = [
   {
-    id: "rdg-imm-01",
-    name: "Immunity Booster Amla Tablets",
-    category: "Ayurvedic",
-    mrp: 640,
-    dp: 480,
-    cp: 545,
-    pv: 12,
-    bv: 420,
-    rating: 4.8,
-    badge: "Bestseller",
-  },
-  {
-    id: "rdg-pro-02",
-    name: "Plant Protein Nutri Powder",
-    category: "Nutraceutical",
-    mrp: 1650,
-    dp: 1250,
-    cp: 1420,
-    pv: 32,
-    bv: 1120,
-    rating: 4.7,
-    badge: "New",
-  },
-  {
-    id: "rdg-agr-03",
-    name: "Bio Organic Soil Enricher 5kg",
-    category: "Agriculture",
-    mrp: 900,
-    dp: 690,
-    cp: 780,
-    pv: 18,
-    bv: 620,
-    rating: 4.6,
-  },
-  {
-    id: "rdg-per-04",
-    name: "Neem Tulsi Herbal Face Wash",
-    category: "Personal Care",
-    mrp: 320,
-    dp: 235,
-    cp: 275,
-    pv: 6,
-    bv: 205,
-    rating: 4.9,
-    badge: "Top Rated",
-  },
-  {
-    id: "rdg-hom-05",
-    name: "Plant-Based Floor Cleaner 1L",
-    category: "Home Care",
-    mrp: 290,
-    dp: 210,
-    cp: 250,
-    pv: 5,
-    bv: 185,
-    rating: 4.5,
-  },
-  {
-    id: "rdg-org-06",
-    name: "Cold Pressed Mustard Oil 1L",
-    category: "Organic Foods",
-    mrp: 380,
-    dp: 295,
-    cp: 335,
-    pv: 7,
-    bv: 260,
-    rating: 4.7,
-  },
-  {
-    id: "rdg-pha-07",
-    name: "Joint Care Pain Relief Oil",
-    category: "Pharmacy",
-    mrp: 460,
-    dp: 340,
-    cp: 395,
-    pv: 9,
-    bv: 300,
-    rating: 4.8,
-    badge: "Bestseller",
-  },
-  {
-    id: "rdg-dai-08",
-    name: "Premium Whole Wheat Atta 5kg",
-    category: "Daily Essentials",
-    mrp: 420,
-    dp: 330,
-    cp: 375,
-    pv: 6,
-    bv: 290,
-    rating: 4.4,
+    id: "anmol-ratan-juice",
+    name: "Anmol Ratan Juice",
+    category: "Herbal & Mixed Berry Juice",
+    subtitle: "A refreshing herbal wellness drink with a mixed berry blend.",
+    description:
+      "Anmol Ratan Juice brings together a bright mixed-berry taste and a herbal wellness positioning for everyday family routines. The product label presents it as a natural choice for people who want a simple, fruit-forward drink as part of a balanced lifestyle.",
+    highlights: [
+      "100% natural positioning shown on the product label",
+      "Herbal and mixed berry blend",
+      "Rich berry flavour with a refreshing finish",
+      "Designed for everyday family wellness routines",
+    ],
+    badge: "Signature Product",
   },
 ];
 
@@ -310,7 +172,7 @@ export const whyChoose = [
   },
   {
     title: "Direct Company Products",
-    desc: "Every SKU is owned, formulated and dispatched by RDG.",
+    desc: "The signature product is presented, supported and dispatched through RDG.",
   },
   {
     title: "Income Opportunity",
@@ -432,8 +294,8 @@ export const events = [
 
 export const trainings = [
   {
-    title: "Product Training",
-    desc: "Know every SKU, its usage, dosage and cross-sell story.",
+    title: "Anmol Ratan Product Training",
+    desc: "Know the product story, label highlights, usage notes and responsible communication.",
     modules: 14,
   },
   {
@@ -510,7 +372,7 @@ export const posts = [
 
 export const downloads = [
   { title: "Company Brochure", size: "4.2 MB", type: "PDF" },
-  { title: "Product Catalogue 2026", size: "12.8 MB", type: "PDF" },
+  { title: "Anmol Ratan Juice Product Sheet", size: "12.8 MB", type: "PDF" },
   { title: "Generation Income Plan", size: "3.1 MB", type: "PDF" },
   { title: "Distributor Application Form", size: "0.6 MB", type: "PDF" },
   { title: "Price List (DP / MRP / PV)", size: "1.9 MB", type: "XLSX" },

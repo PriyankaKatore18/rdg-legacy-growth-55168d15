@@ -22,7 +22,7 @@ function SuccessStories() {
             {["Sunita's 4-Year Journey", "From Farmer to Platinum", "Building a Team of 900"].map(
               (v) => (
                 <StaggerItem key={v}>
-                  <div className="card-lift overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+                  <div className="card-sheen overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
                     <div className="bg-brand relative flex h-48 items-center justify-center">
                       <PlayCircle className="h-14 w-14 text-primary-foreground/90" />
                     </div>
@@ -41,7 +41,7 @@ function SuccessStories() {
           <Stagger className="mt-16 grid gap-6 md:grid-cols-2">
             {testimonials.map((t) => (
               <StaggerItem key={t.name}>
-                <div className="card-lift h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
+                <div className="card-glow h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
                   <span className="flex gap-0.5">
                     {Array.from({ length: t.rating }).map((_, i) => (
                       <Star key={i} className="h-4 w-4 fill-gold text-gold" />

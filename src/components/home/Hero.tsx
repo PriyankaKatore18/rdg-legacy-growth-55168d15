@@ -1,129 +1,93 @@
 import { motion } from "motion/react";
-import { ArrowRight, Leaf, PlayCircle, ShieldCheck, Sprout } from "lucide-react";
-import heroImage from "@/assets/hero.jpg";
+import { ArrowRight, Ban, Leaf, ShieldCheck, Sparkles } from "lucide-react";
+import heroImage from "@/assets/anmol-ratan-hero-v2.png";
 
-const floatingCards = [
-  {
-    icon: Leaf,
-    title: "Ayurvedic Immunity",
-    meta: "12 PV • ₹480 DP",
-    pos: "top-24 right-6 md:right-16",
-  },
-  {
-    icon: Sprout,
-    title: "Bio Soil Enricher",
-    meta: "18 PV • ₹690 DP",
-    pos: "bottom-28 right-24 md:right-56",
-  },
-  {
-    icon: ShieldCheck,
-    title: "GMP Certified",
-    meta: "Batch tested",
-    pos: "bottom-56 right-4 md:right-6",
-  },
+const highlights = [
+  { icon: Leaf, label: "100%", detail: "Natural" },
+  { icon: Ban, label: "No Added", detail: "Preservatives" },
+  { icon: ShieldCheck, label: "Immunity", detail: "Support" },
+  { icon: Sparkles, label: "Rich in", detail: "Antioxidants" },
 ];
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[100svh] items-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-20">
+    <section className="relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden pt-24 pb-8 sm:pt-28 sm:pb-10">
       <img
         src={heroImage}
-        alt="Indian family with ayurvedic wellness products beside an organic farm field"
-        width={1920}
-        height={1088}
-        className="absolute inset-0 h-full w-full object-cover"
+        alt="Anmol Ratan Juice bottle, berry juice and fresh mixed berries in a natural setting"
+        width={1984}
+        height={793}
+        className="absolute inset-0 h-full w-full object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/20" />
-      <div className="bg-brand animate-blob absolute -top-24 -left-32 h-[28rem] w-[28rem] rounded-full opacity-20 blur-3xl" />
-      <div className="bg-leaf animate-blob absolute bottom-0 left-1/3 h-96 w-96 rounded-full opacity-15 blur-3xl [animation-delay:4s]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/10 sm:via-background/68" />
+      <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-t from-background/45 via-transparent to-transparent" />
 
-      <div className="container-x relative grid items-center gap-10 lg:grid-cols-2">
-        <div>
-          <motion.span
+      <div className="container-x relative w-full">
+        <div className="max-w-3xl">
+          <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass inline-flex max-w-full items-center gap-2 rounded-full px-3 py-2 text-[11px] font-semibold tracking-wide text-primary sm:px-4 sm:text-xs"
+            className="inline-flex items-center gap-2 rounded-full border border-[#6a9d78]/45 bg-white/70 px-4 py-2 text-xs font-semibold tracking-wide text-[#205d48] shadow-sm backdrop-blur sm:text-sm"
           >
-            <span className="bg-gold-grad h-2 w-2 rounded-full" />
-            Direct Selling • Generation Income Plan
-          </motion.span>
+            <Leaf className="h-4 w-4 fill-[#2e8b57] text-[#2e8b57]" />
+            Natural Goodness <span className="text-[#6a9d78]">•</span> Herbal Care
+            <span className="text-[#6a9d78]">•</span> Better Tomorrow
+          </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08, duration: 0.7 }}
-            className="mt-6 text-3xl leading-[1.08] font-extrabold text-foreground sm:text-5xl lg:text-6xl"
+            className="mt-6 max-w-2xl text-4xl leading-[1.04] font-extrabold tracking-tight text-primary-dark sm:text-5xl lg:text-6xl"
           >
-            Empowering Every Family Through <span className="text-gradient">Quality Products</span>{" "}
-            & Business Opportunities
+            Pure Herbal Nutrition for a Healthier{" "}
+            <span className="text-[#24804f] italic">Tomorrow</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.16, duration: 0.7 }}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
+            className="mt-5 max-w-2xl text-base leading-relaxed text-primary-dark/75 sm:text-lg"
           >
-            Healthcare, Wellness, Agriculture & Lifestyle products with an innovative Generation
-            Income Plan — built for Indian families who want better products and a better future.
+            Anmol Ratan Juice is a herbal and mixed berry wellness drink for Indian families who
+            want a refreshing, fruit-forward addition to their everyday routine.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.24, duration: 0.7 }}
-            className="mt-9 flex flex-wrap items-center gap-4"
+            className="mt-7 grid max-w-2xl grid-cols-2 gap-y-5 sm:grid-cols-4 sm:gap-y-0"
           >
-            <a
-              href="/products"
-              className="bg-brand group inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 sm:w-auto sm:px-7"
-            >
-              Explore Products
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
-            <a
-              href="/become-distributor"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/25 bg-background/70 px-5 py-3.5 text-sm font-semibold text-primary backdrop-blur transition-colors hover:bg-accent sm:w-auto sm:px-7"
-            >
-              Become Distributor
-            </a>
-            <button
-              type="button"
-              className="inline-flex w-full items-center justify-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:w-auto"
-            >
-              <PlayCircle className="h-5 w-5" /> Watch company film
-            </button>
+            {highlights.map(({ icon: Icon, label, detail }, index) => (
+              <div
+                key={detail}
+                className={`flex items-center gap-3 pr-4 sm:block sm:px-5 sm:text-center ${index > 0 ? "sm:border-l sm:border-primary-dark/15" : ""}`}
+              >
+                <span className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#e3f0d9] text-[#237148] shadow-sm sm:h-12 sm:w-12">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="text-left sm:mt-2 sm:block sm:text-center">
+                  <span className="block text-xs font-bold text-[#164f3b] sm:text-sm">{label}</span>
+                  <span className="block text-xs font-semibold text-primary-dark/75 sm:text-sm">
+                    {detail}
+                  </span>
+                </span>
+              </div>
+            ))}
           </motion.div>
 
-          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-muted-foreground">
-            {["GMP & ISO Certified", "500+ Products", "25+ Cities", "Zero Joining Fee"].map((t) => (
-              <span key={t} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative hidden h-[32rem] lg:block">
-          {floatingCards.map((card, i) => (
-            <motion.div
-              key={card.title}
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: 0.4 + i * 0.15, duration: 0.6 }}
-              className={`glass animate-float absolute ${card.pos} w-60 rounded-2xl p-4 shadow-card`}
-              style={{ animationDelay: `${i * 1.2}s` }}
-            >
-              <span className="bg-brand flex h-10 w-10 items-center justify-center rounded-xl text-primary-foreground">
-                <card.icon className="h-5 w-5" />
-              </span>
-              <p className="mt-3 font-display text-sm font-semibold text-foreground">
-                {card.title}
-              </p>
-              <p className="text-xs text-muted-foreground">{card.meta}</p>
-            </motion.div>
-          ))}
+          <motion.a
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32, duration: 0.7 }}
+            href="/products"
+            className="bg-brand group mt-9 inline-flex items-center gap-4 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_16px_30px_-14px_rgba(18,92,196,0.55)] transition-transform hover:-translate-y-0.5"
+          >
+            Discover the Goodness
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </motion.a>
         </div>
       </div>
     </section>

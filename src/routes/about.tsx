@@ -32,14 +32,14 @@ function About() {
       <PageHeader
         eyebrow="About Us"
         title="An Indian company built on products people actually reorder"
-        description="RDG Future Way Pvt. Ltd. began with a simple belief: if the product is genuinely good and honestly priced, the business builds itself. Today that belief powers 15 categories, 500+ SKUs and thousands of family businesses."
+        description="RDG Future Way Pvt. Ltd. began with a simple belief: if a product is genuinely good and honestly presented, the business builds itself. Today the company is bringing Anmol Ratan Juice to families and distributors across India."
       />
 
       <section className="py-20">
         <div className="container-x grid gap-6 md:grid-cols-3">
           {pillars.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.08}>
-              <div className="card-lift h-full rounded-3xl border border-border bg-card p-8 shadow-soft">
+              <div className="card-tilt h-full rounded-3xl border border-border bg-card p-8 shadow-soft">
                 <span className="bg-brand flex h-12 w-12 items-center justify-center rounded-2xl text-primary-foreground">
                   <p.icon className="h-5 w-5" />
                 </span>
@@ -83,7 +83,7 @@ function About() {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="rounded-2xl border border-border bg-card p-6 shadow-soft"
+                  className="card-glow rounded-2xl border border-border bg-card p-6 shadow-soft"
                 >
                   <p className="font-display text-3xl font-extrabold text-gradient">
                     <CountUp to={s.value} suffix={s.suffix} />
@@ -101,13 +101,16 @@ function About() {
           <SectionHeading eyebrow="Milestones" title="The road so far" />
           <Stagger className="mt-14 grid gap-6 md:grid-cols-4">
             {[
-              { year: "2019", text: "RDG Future Way incorporated with 40 ayurvedic SKUs." },
+              {
+                year: "2019",
+                text: "RDG Future Way incorporated with a focus on trusted wellness.",
+              },
               { year: "2021", text: "Agriculture and organic food divisions launched." },
               { year: "2023", text: "Generation Plan v2 released with royalty pool." },
-              { year: "2026", text: "25+ cities, new logistics hub and 500+ products." },
+              { year: "2026", text: "25+ cities and Anmol Ratan Juice as the signature product." },
             ].map((m) => (
               <StaggerItem key={m.year}>
-                <div className="h-full rounded-3xl border border-border bg-card p-6 shadow-soft">
+                <div className="card-sheen h-full rounded-3xl border border-border bg-card p-6 shadow-soft">
                   <p className="font-display text-2xl font-bold text-primary">{m.year}</p>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.text}</p>
                 </div>

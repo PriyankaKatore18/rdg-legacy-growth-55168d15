@@ -1,14 +1,15 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { ChevronDown, Globe, Menu, Search, UserPlus, X } from "lucide-react";
-import logo from "@/assets/logo.png";
-import { company, navigation } from "@/data/site";
+import { ArrowRight, ChevronDown, Globe, Menu, Search, UserPlus, X } from "lucide-react";
+import logo from "@/assets/logo-transparent.png";
+import { navigation } from "@/data/site";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<string | null>(null);
+  const currentPath = typeof window === "undefined" ? "/" : window.location.pathname;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -17,170 +18,176 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const isActive = (to: string) => (to === "/" ? currentPath === "/" : currentPath.startsWith(to));
+
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className="hidden bg-primary-dark text-[13px] text-primary-foreground/90 md:block">
-        <div className="container-x flex h-9 items-center justify-between">
-          <p>Direct Selling • Ayurveda, Wellness, Agriculture & Lifestyle</p>
-          <div className="flex items-center gap-5">
-            <a href={`tel:${company.phone.replace(/\s/g, "")}`} className="hover:text-gold">
-              {company.phone}
-            </a>
-            <span className="opacity-40">|</span>
-            <a href={`mailto:${company.email}`} className="hover:text-gold">
-              {company.email}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={cn(
-          "transition-all duration-300",
-          scrolled ? "glass shadow-soft" : "bg-background/40 backdrop-blur-sm",
-        )}
-      >
-        <div className="container-x flex h-16 items-center justify-between gap-3 py-2 sm:h-18 sm:gap-4">
-          <a href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <img
-              src={logo}
-              alt="RDG Future Way logo"
-              width={44}
-              height={44}
-              className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11"
-            />
-            <span className="min-w-0 leading-tight">
-              <span className="block truncate font-display text-base font-bold text-primary-dark sm:text-lg">
-                RDG Future Way
+      <div className="w-full">
+        <div
+          className={cn(
+            "glass rounded-none border-x-0 border-t-0 border-white/70 bg-white/80 shadow-[0_16px_45px_-28px_rgba(6,31,77,0.55)] backdrop-blur-xl transition-all duration-300",
+            scrolled ? "shadow-[0_18px_42px_-22px_rgba(6,31,77,0.42)]" : "",
+          )}
+        >
+          <div className="flex min-h-[4.5rem] items-center gap-3 px-4 py-2 sm:gap-5 sm:px-7 lg:px-9">
+            <a href="/" className="flex min-w-0 shrink-0 items-center gap-3 sm:gap-4">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center sm:h-16 sm:w-16">
+                <img
+                  src={logo}
+                  alt="RDG Future Way logo"
+                  width={88}
+                  height={74}
+                  className="h-14 w-14 object-contain sm:h-16 sm:w-16"
+                />
               </span>
-              <span className="block text-[10px] tracking-[0.16em] text-muted-foreground uppercase sm:text-[11px] sm:tracking-[0.18em]">
-                Pvt. Ltd.
+              <span className="hidden h-11 w-px bg-primary/20 sm:block" />
+              <span className="hidden min-w-0 leading-tight sm:block">
+                <span className="block whitespace-nowrap font-display text-base font-extrabold tracking-tight text-primary-dark md:text-lg">
+                  RDG FUTURE WAY
+                </span>
+                <span className="mt-1 block text-[10px] font-medium tracking-[0.26em] text-primary uppercase md:text-[11px]">
+                  PVT. LTD.
+                </span>
               </span>
-            </span>
-          </a>
-
-          <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMenu(null)}>
-            {navigation.map((item) => (
-              <div key={item.label} className="relative" onMouseEnter={() => setMenu(item.label)}>
-                <a
-                  href={item.to}
-                  className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-primary"
-                >
-                  {item.label}
-                  {item.children && <ChevronDown className="h-3.5 w-3.5 opacity-60" />}
-                </a>
-                <AnimatePresence>
-                  {item.children && menu === item.label && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      transition={{ duration: 0.18 }}
-                      className="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-3"
-                    >
-                      <div className="glass overflow-hidden rounded-2xl p-2 shadow-card">
-                        {item.children.map((child) => (
-                          <a
-                            key={child.label}
-                            href={child.to}
-                            className="block rounded-xl px-4 py-3 transition-colors hover:bg-accent"
-                          >
-                            <span className="block text-sm font-semibold text-foreground">
-                              {child.label}
-                            </span>
-                            <span className="block text-xs text-muted-foreground">
-                              {child.desc}
-                            </span>
-                          </a>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Search"
-              className="hidden h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-primary md:flex"
-            >
-              <Search className="h-4.5 w-4.5" />
-            </button>
-            <button
-              type="button"
-              aria-label="Switch language"
-              className="hidden h-10 items-center gap-1.5 rounded-full px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-primary md:flex"
-            >
-              <Globe className="h-4 w-4" /> EN
-            </button>
-            <a
-              href="/become-distributor"
-              className="hidden rounded-full px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-accent xl:block"
-            >
-              Login
             </a>
-            <a
-              href="/become-distributor"
-              className="bg-brand hidden items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 sm:flex"
-            >
-              <UserPlus className="h-4 w-4" /> Become Distributor
-            </a>
-            <button
-              type="button"
-              aria-label="Toggle menu"
-              onClick={() => setOpen((v) => !v)}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border lg:hidden"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-      </div>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="glass overflow-hidden lg:hidden"
-          >
-            <div className="container-x max-h-[70vh] space-y-1 overflow-y-auto py-4">
+            <nav
+              className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
+              onMouseLeave={() => setMenu(null)}
+            >
               {navigation.map((item) => (
-                <div key={item.label}>
+                <div key={item.label} className="relative" onMouseEnter={() => setMenu(item.label)}>
                   <a
                     href={item.to}
-                    onClick={() => setOpen(false)}
-                    className="block rounded-xl px-3 py-2.5 font-display font-semibold text-foreground"
+                    className={cn(
+                      "relative flex items-center gap-1 rounded-full px-3 py-3 text-sm font-semibold whitespace-nowrap transition-colors xl:px-4",
+                      isActive(item.to)
+                        ? "text-primary"
+                        : "text-primary-dark/90 hover:bg-accent hover:text-primary",
+                    )}
                   >
                     {item.label}
+                    {item.children && <ChevronDown className="h-3.5 w-3.5 opacity-70" />}
+                    {isActive(item.to) && (
+                      <span className="absolute right-3 -bottom-1 left-3 h-1 rounded-full bg-primary" />
+                    )}
                   </a>
-                  {item.children?.map((child) => (
-                    <a
-                      key={child.label}
-                      href={child.to}
-                      onClick={() => setOpen(false)}
-                      className="block rounded-xl px-6 py-2 text-sm text-muted-foreground"
-                    >
-                      {child.label}
-                    </a>
-                  ))}
+                  <AnimatePresence>
+                    {item.children && menu === item.label && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.18 }}
+                        className="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-4"
+                      >
+                        <div className="glass overflow-hidden rounded-3xl bg-white/90 p-2 shadow-card">
+                          {item.children.map((child) => (
+                            <a
+                              key={child.label}
+                              href={child.to}
+                              className="block rounded-2xl px-4 py-3 transition-colors hover:bg-accent"
+                            >
+                              <span className="block text-sm font-semibold text-foreground">
+                                {child.label}
+                              </span>
+                              <span className="block text-xs text-muted-foreground">
+                                {child.desc}
+                              </span>
+                            </a>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
+            </nav>
+
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                aria-label="Search"
+                className="hidden h-10 w-10 items-center justify-center rounded-full text-primary-dark transition-colors hover:bg-accent hover:text-primary md:flex"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+              <span className="hidden h-8 w-px bg-primary/20 md:block" />
+              <button
+                type="button"
+                aria-label="Switch language"
+                className="hidden h-10 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-primary-dark transition-colors hover:bg-accent hover:text-primary md:flex"
+              >
+                <Globe className="h-4.5 w-4.5" /> EN <ChevronDown className="h-3.5 w-3.5" />
+              </button>
               <a
                 href="/become-distributor"
-                onClick={() => setOpen(false)}
-                className="bg-brand mt-3 block rounded-full px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
+                className="bg-brand hidden items-center gap-3 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 xl:flex"
               >
-                Become a Distributor
+                <UserPlus className="h-4 w-4" />
+                <span className="max-w-[7rem] whitespace-normal text-center leading-tight">
+                  Become Distributor
+                </span>
+                <ArrowRight className="h-4 w-4" />
               </a>
+              <button
+                type="button"
+                aria-label="Toggle menu"
+                onClick={() => setOpen((value) => !value)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/20 text-primary-dark transition-colors hover:bg-accent lg:hidden"
+              >
+                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="glass mt-3 overflow-hidden rounded-3xl bg-white/95 shadow-card lg:hidden"
+            >
+              <div className="max-h-[70vh] space-y-1 overflow-y-auto p-4">
+                {navigation.map((item) => (
+                  <div key={item.label}>
+                    <a
+                      href={item.to}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "block rounded-2xl px-4 py-3 font-display font-semibold",
+                        isActive(item.to) ? "bg-accent text-primary" : "text-foreground",
+                      )}
+                    >
+                      {item.label}
+                    </a>
+                    {item.children?.map((child) => (
+                      <a
+                        key={child.label}
+                        href={child.to}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-xl px-7 py-2 text-sm text-muted-foreground"
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+                <a
+                  href="/become-distributor"
+                  onClick={() => setOpen(false)}
+                  className="bg-brand mt-3 flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  <UserPlus className="h-4 w-4" /> Become a Distributor{" "}
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </header>
   );
 }

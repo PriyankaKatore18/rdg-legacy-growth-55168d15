@@ -44,7 +44,7 @@ function BecomeDistributor() {
           <div className="space-y-4">
             {[
               "Zero joining, renewal or franchise fee",
-              "Distributor pricing on all 500+ products",
+              "Distributor support for Anmol Ratan Juice",
               "Monthly bonus payouts by the 10th",
               "Free access to the RDG Training Academy",
               "Dedicated support in 7 Indian languages",
