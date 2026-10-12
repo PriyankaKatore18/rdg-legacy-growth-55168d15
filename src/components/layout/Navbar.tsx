@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown, Globe, Menu, Search, UserPlus, X } from "lucide-react";
 import logo from "@/assets/logo-transparent.png";
 import { navigation } from "@/data/site";
+import { languageOptions, useLanguage } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<string | null>(null);
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const { language, setLanguage } = useLanguage();
   const currentPath = typeof window === "undefined" ? "/" : window.location.pathname;
 
   useEffect(() => {
@@ -113,13 +116,42 @@ export function Navbar() {
                 <Search className="h-5 w-5" />
               </button>
               <span className="hidden h-8 w-px bg-primary/20 md:block" />
-              <button
-                type="button"
-                aria-label="Switch language"
-                className="hidden h-10 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-primary-dark transition-colors hover:bg-accent hover:text-primary md:flex"
-              >
-                <Globe className="h-4.5 w-4.5" /> EN <ChevronDown className="h-3.5 w-3.5" />
-              </button>
+              <div className="relative hidden md:block">
+                <button
+                  type="button"
+                  aria-label="Switch language"
+                  aria-expanded={languageOpen}
+                  onClick={() => setLanguageOpen((value) => !value)}
+                  className="flex h-10 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-primary-dark transition-colors hover:bg-accent hover:text-primary"
+                >
+                  <Globe className="h-4.5 w-4.5" /> {language.toUpperCase()}{" "}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                {languageOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-border bg-white p-1.5 shadow-card">
+                    {languageOptions.map((option) => (
+                      <button
+                        key={option.code}
+                        type="button"
+                        data-no-translate
+                        onClick={() => {
+                          setLanguage(option.code);
+                          setLanguageOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-accent",
+                          language === option.code
+                            ? "bg-accent font-semibold text-primary"
+                            : "text-foreground",
+                        )}
+                      >
+                        <span>{option.nativeLabel}</span>
+                        <span className="text-xs text-muted-foreground">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <a
                 href="/become-distributor"
                 className="bg-brand hidden items-center gap-3 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 xl:flex"
@@ -175,6 +207,29 @@ export function Navbar() {
                     ))}
                   </div>
                 ))}
+                <div className="mt-3 rounded-2xl border border-border bg-white/70 p-3">
+                  <p className="mb-2 text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
+                    Language
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {languageOptions.map((option) => (
+                      <button
+                        key={option.code}
+                        type="button"
+                        data-no-translate
+                        onClick={() => setLanguage(option.code)}
+                        className={cn(
+                          "rounded-xl border px-2 py-2 text-xs font-semibold transition-colors",
+                          language === option.code
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border text-foreground hover:bg-accent",
+                        )}
+                      >
+                        {option.nativeLabel}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <a
                   href="/become-distributor"
                   onClick={() => setOpen(false)}

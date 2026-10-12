@@ -161,6 +161,36 @@ export const awardRewards = [
   },
 ];
 
+export const planLevels = [
+  { level: 1, packageValue: 100, networkValue: 10000, reward: "Certificate + welcome kit" },
+  { level: 2, packageValue: 250, networkValue: 25000, reward: "RDG T-shirt + badge" },
+  { level: 3, packageValue: 500, networkValue: 50000, reward: "Smart watch" },
+  { level: 4, packageValue: 1000, networkValue: 100000, reward: "Bluetooth earbuds" },
+  { level: 5, packageValue: 2500, networkValue: 250000, reward: "Smartphone" },
+  { level: 6, packageValue: 5000, networkValue: 500000, reward: "LED TV" },
+  { level: 7, packageValue: 10000, networkValue: 1000000, reward: "Laptop" },
+  { level: 8, packageValue: 25000, networkValue: 2500000, reward: "Bike" },
+  { level: 9, packageValue: 50000, networkValue: 5000000, reward: "20 gm gold coin" },
+  { level: 10, packageValue: 100000, networkValue: 10000000, reward: "Hatchback car" },
+  { level: 11, packageValue: 250000, networkValue: 25000000, reward: "SUV car" },
+  { level: 12, packageValue: 500000, networkValue: 50000000, reward: "Luxury car" },
+  { level: 13, packageValue: 1000000, networkValue: 100000000, reward: "2 BHK flat" },
+  { level: 14, packageValue: 2500000, networkValue: 250000000, reward: "Luxury villa" },
+  {
+    level: 15,
+    packageValue: 5000000,
+    networkValue: 500000000,
+    reward: "Dream house + international tour + chairman award",
+  },
+] as const;
+
+export const directReferralPlans = [
+  { packageValue: 3500, referralIncome: 500 },
+  { packageValue: 7000, referralIncome: 1000 },
+  { packageValue: 9500, referralIncome: 1500 },
+  { packageValue: 14000, referralIncome: 2000 },
+] as const;
+
 export const whyChoose = [
   {
     title: "Quality Assurance",

@@ -22,6 +22,7 @@ import RefundPolicy from "@/routes/refund-policy";
 import ShippingPolicy from "@/routes/shipping-policy";
 import SuccessStories from "@/routes/success-stories";
 import Terms from "@/routes/terms";
+import { LanguageProvider } from "@/lib/i18n";
 
 const pages: Record<string, React.ComponentType> = {
   "/": Home,
@@ -120,13 +121,15 @@ export function App() {
   const Page = pages[path] ?? NotFound;
 
   return (
-    <AppErrorBoundary>
-      <SmoothScroll />
-      <Navbar />
-      <main>
-        <Page />
-      </main>
-      <Footer />
-    </AppErrorBoundary>
+    <LanguageProvider>
+      <AppErrorBoundary>
+        <SmoothScroll />
+        <Navbar />
+        <main>
+          <Page />
+        </main>
+        <Footer />
+      </AppErrorBoundary>
+    </LanguageProvider>
   );
 }

@@ -115,12 +115,12 @@ function Franchise() {
       </PageHeader>
 
       <section className="py-16 sm:py-20">
-        <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+        <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-stretch">
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            className="bg-brand relative overflow-hidden rounded-[2rem] p-8 text-primary-foreground shadow-lift sm:p-10"
+            className="bg-brand relative h-full overflow-hidden rounded-[2rem] p-8 text-primary-foreground shadow-lift sm:p-10"
           >
             <div className="bg-gold-grad absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-30 blur-3xl" />
             <div className="relative">

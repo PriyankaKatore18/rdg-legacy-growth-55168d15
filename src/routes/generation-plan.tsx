@@ -1,166 +1,228 @@
+import {
+  ArrowRight,
+  Calculator,
+  CheckCircle2,
+  Gift,
+  Network,
+  ShieldCheck,
+  Trophy,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
-import { awardRewards, bonuses, incomePackages, ranks } from "@/data/site";
+import { directReferralPlans, planLevels } from "@/data/site";
 
-const title = "Generation Plan — Income Levels, Bonuses & Rewards | RDG Future Way";
-const description =
-  "The RDG Future Way generation plan explained: retail profit, performance bonus, matching bonus, generation income, leadership bonus, royalty, car fund and foreign tours.";
+const money = (value: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
 
-const tree = [
-  { level: "You", nodes: 1, payout: "Retail + Performance" },
-  { level: "Generation 1", nodes: 3, payout: "20% matching" },
-  { level: "Generation 2", nodes: 9, payout: "12% generation" },
-  { level: "Generation 3", nodes: 27, payout: "8% generation" },
+const overview = [
+  { icon: Network, value: "15", label: "Plan levels" },
+  { icon: Calculator, value: "ID × IDs", label: "Network formula" },
+  { icon: Trophy, value: "15", label: "Recognition milestones" },
 ];
 
 function GenerationPlan() {
   return (
     <>
       <PageHeader
-        eyebrow="Generation Plan"
-        title="A published, transparent income plan"
-        description="No capping tricks, no forced matching. Income flows through active generations of your network and is paid on the 10th of every month."
-      />
+        eyebrow="Business Plans"
+        title="A clear view of the 15-level income and reward structure"
+        description="Explore the ID package values, 100-ID network examples, single-leg referral references and milestone rewards shown in the supplied RDG plan material."
+      >
+        <a
+          href="/income-calculator"
+          className="bg-brand inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          Open plan calculator <ArrowRight className="h-4 w-4" />
+        </a>
+      </PageHeader>
 
-      <section className="py-16">
+      <section className="py-16 sm:py-20">
+        <div className="container-x grid gap-5 sm:grid-cols-3">
+          {overview.map(({ icon: Icon, value, label }, index) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: index * 0.08 }}
+              className="card-glow rounded-3xl border border-border bg-card p-6 shadow-soft"
+            >
+              <span className="bg-brand flex h-11 w-11 items-center justify-center rounded-2xl text-primary-foreground">
+                <Icon className="h-5 w-5" />
+              </span>
+              <p className="mt-5 font-display text-3xl font-extrabold text-gradient">{value}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-surface py-20 sm:py-24">
         <div className="container-x">
           <SectionHeading
-            eyebrow="Ayurvedic ID package"
-            title="15-level package structure"
-            description="The reference material presents an ID package value and a 100-ID network value for each level. These figures are shown for information only and are subject to the official plan terms."
+            eyebrow="ID package income plan"
+            title="15 levels, shown with the 100-ID formula"
+            description="Network value is calculated as the selected ID package value multiplied by the number of active IDs. The table below shows the supplied 100-ID reference for every level."
           />
-          <div className="mt-10 overflow-x-auto rounded-3xl border border-border shadow-soft">
-            <table className="w-full min-w-[38rem] text-left text-sm">
-              <thead className="bg-primary-dark text-primary-foreground">
-                <tr>
-                  <th className="px-5 py-4 font-semibold">Level</th>
-                  <th className="px-5 py-4 font-semibold">ID package</th>
-                  <th className="px-5 py-4 font-semibold">100 IDs total</th>
-                  <th className="px-5 py-4 font-semibold">Formula</th>
-                </tr>
-              </thead>
-              <tbody className="bg-card">
-                {incomePackages.map((item) => (
-                  <tr key={item.level} className="border-t border-border">
-                    <td className="px-5 py-3 font-semibold text-foreground">{item.level}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{item.package}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{item.network}</td>
-                    <td className="px-5 py-3 text-muted-foreground">ID × 100</td>
+          <div className="mt-12 overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[52rem] text-left text-sm">
+                <thead className="bg-primary-dark text-primary-foreground">
+                  <tr>
+                    <th className="px-5 py-4 font-semibold">Level</th>
+                    <th className="px-5 py-4 font-semibold">ID package</th>
+                    <th className="px-5 py-4 font-semibold">100 IDs network value</th>
+                    <th className="px-5 py-4 font-semibold">Formula</th>
+                    <th className="px-5 py-4 font-semibold">Milestone reward</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {planLevels.map((item) => (
+                    <tr
+                      key={item.level}
+                      className="border-t border-border transition-colors hover:bg-accent/50"
+                    >
+                      <td className="px-5 py-4 font-display font-bold text-primary">
+                        {item.level}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-foreground">
+                        {money(item.packageValue)}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-secondary">
+                        {money(item.networkValue)}
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground">
+                        {money(item.packageValue)} × 100
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground">{item.reward}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20">
+      <section className="py-20 sm:py-24">
+        <div className="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+          <div>
+            <SectionHeading
+              align="left"
+              eyebrow="Single-leg referral plan"
+              title="Reference referral income by package"
+              description="These are the four package-to-referral values visible in the supplied single-leg plan image."
+            />
+            <div className="mt-8 space-y-4">
+              {directReferralPlans.map((item, index) => (
+                <motion.div
+                  key={item.packageValue}
+                  initial={{ opacity: 0, x: -18 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ delay: index * 0.08 }}
+                  className="card-tilt flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-soft"
+                >
+                  <div>
+                    <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+                      Package
+                    </p>
+                    <p className="mt-1 font-display text-lg font-bold text-foreground">
+                      {money(item.packageValue)}
+                    </p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-primary" />
+                  <div className="text-right">
+                    <p className="text-xs font-semibold tracking-[0.16em] text-secondary uppercase">
+                      Referral reference
+                    </p>
+                    <p className="mt-1 font-display text-lg font-bold text-secondary">
+                      {money(item.referralIncome)}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-brand flex h-full flex-col rounded-[2rem] p-8 text-primary-foreground shadow-lift sm:p-10">
+            <Gift className="h-8 w-8 text-gold" />
+            <h2 className="mt-5 font-display text-2xl font-bold">Rewards are tracked separately</h2>
+            <p className="mt-4 leading-relaxed text-primary-foreground/80">
+              The reward ladder moves from a certificate and welcome kit through devices, vehicles,
+              homes, travel and the chairman award as the listed qualification value increases.
+            </p>
+            <ul className="mt-7 space-y-3 text-sm text-primary-foreground/85">
+              {[
+                "15 recognition milestones across the plan",
+                "Qualification linked to the listed network value",
+                "Referral income and rewards shown as separate references",
+                "Fulfilment subject to eligibility and written RDG terms",
+              ].map((point) => (
+                <li key={point} className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#rewards"
+              className="mt-auto inline-flex w-fit items-center gap-2 rounded-full bg-primary-foreground px-5 py-3 text-sm font-semibold text-primary-dark transition-transform hover:-translate-y-0.5"
+            >
+              View reward milestones <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="rewards" className="bg-surface scroll-mt-24 py-20 sm:py-24">
         <div className="container-x">
-          <SectionHeading eyebrow="Network structure" title="How the generation tree grows" />
-          <div className="mt-14 space-y-6">
-            {tree.map((row, i) => (
-              <Reveal key={row.level} delay={i * 0.1}>
-                <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="font-display font-semibold text-foreground">{row.level}</p>
-                    <span className="bg-gold-grad rounded-full px-3 py-1 text-[11px] font-bold text-gold-foreground">
-                      {row.payout}
-                    </span>
-                  </div>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {Array.from({ length: row.nodes }).map((_, n) => (
-                      <motion.span
-                        key={n}
-                        initial={{ opacity: 0, scale: 0.6 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: n * 0.02, duration: 0.3 }}
-                        className="bg-brand h-8 w-8 rounded-full opacity-80"
-                      />
-                    ))}
-                  </div>
+          <SectionHeading
+            eyebrow="Award & reward plan"
+            title="From welcome kit to leadership recognition"
+            description="Reward names below are transcribed from the supplied plan image. Fulfilment is subject to official qualification and company terms."
+          />
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {planLevels.map((item, index) => (
+              <motion.div
+                key={item.level}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: (index % 3) * 0.06 }}
+                className="card-sheen flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft"
+              >
+                <span className="bg-gold-grad flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-gold-foreground">
+                  {item.level}
+                </span>
+                <div>
+                  <p className="text-xs font-semibold tracking-wide text-primary uppercase">
+                    Qualification {money(item.networkValue)}
+                  </p>
+                  <p className="mt-1 font-display text-sm font-semibold text-foreground">
+                    {item.reward}
+                  </p>
                 </div>
-              </Reveal>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="bg-surface py-20">
-        <div className="container-x">
-          <SectionHeading eyebrow="Income streams" title="Six ways your business pays you" />
-          <Stagger className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {bonuses.map((b) => (
-              <StaggerItem key={b.name}>
-                <div className="card-lift h-full rounded-3xl border border-border bg-card p-7 shadow-soft">
-                  <p className="font-display text-2xl font-bold text-gradient">{b.value}</p>
-                  <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-                    {b.name}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{b.detail}</p>
-                </div>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
-      </section>
-
-      <section className="py-20">
-        <div className="container-x">
-          <SectionHeading eyebrow="Rank ladder" title="Qualifications and rewards" />
-          <div className="mt-12 overflow-x-auto rounded-3xl border border-border shadow-soft">
-            <table className="w-full min-w-[36rem] text-left text-sm">
-              <thead className="bg-primary-dark text-primary-foreground">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Rank</th>
-                  <th className="px-6 py-4 font-semibold">Group BV</th>
-                  <th className="px-6 py-4 font-semibold">Reward</th>
-                </tr>
-              </thead>
-              <tbody className="bg-card">
-                {ranks.map((r) => (
-                  <tr key={r.rank} className="border-t border-border">
-                    <td className="px-6 py-4 font-display font-semibold text-foreground">
-                      {r.rank}
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">{r.bv}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{r.reward}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mx-auto mt-12 flex max-w-3xl items-start gap-3 rounded-2xl border border-primary/15 bg-primary/5 p-5 text-sm leading-relaxed text-muted-foreground">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <p>
+              The calculator shows plan references and simple arithmetic from the supplied material.
+              It does not calculate guaranteed profit because product cost, operating expenses,
+              taxes and final payout terms were not provided in the plan images.
+            </p>
           </div>
-          <div className="mt-12 overflow-x-auto rounded-3xl border border-border shadow-soft">
-            <table className="w-full min-w-[42rem] text-left text-sm">
-              <thead className="bg-primary-dark text-primary-foreground">
-                <tr>
-                  <th className="px-5 py-4 font-semibold">Level</th>
-                  <th className="px-5 py-4 font-semibold">Qualification</th>
-                  <th className="px-5 py-4 font-semibold">Reference reward</th>
-                </tr>
-              </thead>
-              <tbody className="bg-card">
-                {awardRewards.map((item) => (
-                  <tr key={item.level} className="border-t border-border">
-                    <td className="px-5 py-3 font-semibold text-foreground">{item.level}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{item.qualification}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{item.reward}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-5 text-center text-xs text-muted-foreground">
-            Rewards are illustrative references from the supplied company material. Qualification,
-            verification and fulfilment are governed by RDG policies.
-          </p>
           <div className="mt-10 text-center">
             <a
               href="/income-calculator"
-              className="bg-brand inline-flex rounded-full px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-card"
+              className="bg-brand inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
             >
-              Estimate your income
+              Calculate your plan references <Calculator className="h-4 w-4" />
             </a>
           </div>
         </div>
