@@ -290,7 +290,7 @@ function Calculator() {
           </div>
           <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-muted-foreground">
             Percentage and pool labels are displayed as plan references. They are not added to the
-            numeric result because the supplied material does not define the qualifying BV rules,
+            numeric result because the supplied material does not define every qualifying rule,
             payout caps, timing, taxes or final settlement conditions.
           </p>
         </div>

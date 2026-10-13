@@ -24,7 +24,7 @@ const Terms = () => (
       },
       {
         heading: "Orders and pricing",
-        body: "Prices, PV/BV values and offers may change without notice. Orders are confirmed only after payment realisation.",
+        body: "Prices, plan references and offers may change without notice. Orders are confirmed only after payment realisation.",
       },
       {
         heading: "Termination",

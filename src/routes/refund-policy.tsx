@@ -24,7 +24,7 @@ const RefundPolicy = () => (
       },
       {
         heading: "Bonus adjustment",
-        body: "PV/BV earned on returned products is reversed in the next bonus cycle.",
+        body: "Any plan-linked referral or reward adjustment is reviewed in the next applicable payout cycle.",
       },
       {
         heading: "Non-returnable items",

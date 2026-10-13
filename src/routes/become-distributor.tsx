@@ -15,7 +15,7 @@ const money = (value: number) =>
 
 const title = "Become a Distributor — Join RDG Future Way Free";
 const description =
-  "Register free as an RDG Future Way distributor. Get wholesale pricing, PV/BV income, training support and access to the generation income plan.";
+  "Register free as an RDG Future Way distributor. Get wholesale pricing, training support and access to the generation income plan.";
 
 type FormValues = {
   fullName: string;

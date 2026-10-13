@@ -221,7 +221,7 @@ export const whyChoose = [
 
 export const journey = [
   { step: "Join", desc: "Register free with a valid ID and start your RDG ID." },
-  { step: "Buy Products", desc: "Purchase at distributor price and accumulate PV/BV." },
+  { step: "Buy Products", desc: "Purchase at distributor price and build product experience." },
   { step: "Refer Members", desc: "Share products and enrol customers you already know." },
   { step: "Build Team", desc: "Duplicate the system across generations of your network." },
   { step: "Earn Income", desc: "Retail profit, performance and matching bonuses each month." },
@@ -232,7 +232,7 @@ export const bonuses = [
   { name: "Retail Profit", detail: "15–30% margin on every product you sell.", value: "Up to 30%" },
   {
     name: "Performance Bonus",
-    detail: "Paid on personal + group BV each month.",
+    detail: "Paid on personal and group performance each month.",
     value: "5% – 25%",
   },
   {
@@ -254,12 +254,24 @@ export const bonuses = [
 ];
 
 export const ranks = [
-  { rank: "Star", bv: "5,000 BV", reward: "Welcome kit + digital certificate" },
-  { rank: "Silver", bv: "25,000 BV", reward: "Leadership bonus pool entry" },
-  { rank: "Gold", bv: "1,00,000 BV", reward: "Domestic tour + gadget fund" },
-  { rank: "Platinum", bv: "5,00,000 BV", reward: "Car fund ₹15,000/month" },
-  { rank: "Diamond", bv: "20,00,000 BV", reward: "House fund + foreign tour" },
-  { rank: "Crown", bv: "1,00,00,000 BV", reward: "Royalty pool + Hall of Fame" },
+  {
+    rank: "Star",
+    qualification: "5,000 network value",
+    reward: "Welcome kit + digital certificate",
+  },
+  { rank: "Silver", qualification: "25,000 network value", reward: "Leadership bonus pool entry" },
+  { rank: "Gold", qualification: "1,00,000 network value", reward: "Domestic tour + gadget fund" },
+  { rank: "Platinum", qualification: "5,00,000 network value", reward: "Car fund ₹15,000/month" },
+  {
+    rank: "Diamond",
+    qualification: "20,00,000 network value",
+    reward: "House fund + foreign tour",
+  },
+  {
+    rank: "Crown",
+    qualification: "1,00,00,000 network value",
+    reward: "Royalty pool + Hall of Fame",
+  },
 ];
 
 export const testimonials = [
@@ -407,7 +419,7 @@ export const downloads = [
   { title: "Anmol Ratan Juice Product Sheet", size: "12.8 MB", type: "PDF" },
   { title: "Generation Income Plan", size: "3.1 MB", type: "PDF" },
   { title: "Distributor Application Form", size: "0.6 MB", type: "PDF" },
-  { title: "Price List (DP / MRP / PV)", size: "1.9 MB", type: "XLSX" },
+  { title: "Price List (DP / MRP)", size: "1.9 MB", type: "XLSX" },
   { title: "Business Presentation", size: "9.4 MB", type: "PPTX" },
   { title: "Training Material Pack", size: "22.5 MB", type: "ZIP" },
 ];
