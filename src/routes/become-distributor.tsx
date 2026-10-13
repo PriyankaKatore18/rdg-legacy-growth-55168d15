@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { ArrowRight, CheckCircle2, CircleDollarSign, Network, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { LocationMap } from "@/components/shared/LocationMap";
 import { bonuses, directReferralPlans } from "@/data/site";
 import { submitPublicEnquiry } from "@/lib/public-api";
 
@@ -163,6 +164,24 @@ function BecomeDistributor() {
               sales, active IDs, qualification and the official RDG terms.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section className="py-16 sm:py-20">
+        <div className="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+              RDG location
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold text-foreground">
+              Connect with the distributor support team
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              Submit your details above and use the verified RDG location below as a reference for
+              your onboarding and distributor support conversation.
+            </p>
+          </div>
+          <LocationMap />
         </div>
       </section>
 

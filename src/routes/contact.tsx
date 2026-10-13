@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Building2, Mail, MapPin, Phone } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { LocationMap } from "@/components/shared/LocationMap";
 import { company } from "@/data/site";
 import { submitPublicEnquiry } from "@/lib/public-api";
 
 const title = "Contact RDG Future Way — Head Office, Branches & Support";
 const description =
-  "Contact RDG Future Way Pvt. Ltd. for product, distributor or business enquiries. Head office in Indore with branches across India.";
+  "Contact RDG Future Way Pvt. Ltd. for product, distributor or business enquiries. Find the company location on the map and connect with our support team.";
 
 type Values = { name: string; email: string; phone: string; message: string };
 
@@ -53,14 +54,7 @@ function Contact() {
                 </div>
               </div>
             ))}
-            <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
-              <iframe
-                title="RDG Future Way head office location"
-                src="https://www.google.com/maps?q=Indore,Madhya Pradesh&output=embed"
-                loading="lazy"
-                className="h-64 w-full border-0"
-              />
-            </div>
+            <LocationMap />
           </div>
 
           <form

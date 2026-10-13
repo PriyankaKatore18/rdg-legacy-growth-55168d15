@@ -14,6 +14,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
+import { LocationMap } from "@/components/shared/LocationMap";
 import { submitPublicEnquiry } from "@/lib/public-api";
 
 type FranchiseForm = {
@@ -255,6 +256,20 @@ function Franchise() {
               </p>
             </form>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-surface py-20 sm:py-24">
+        <div className="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <SectionHeading
+              align="left"
+              eyebrow="RDG location"
+              title="Plan your local opportunity with the right team"
+              description="Use the verified RDG location below when planning your franchise conversation, territory and support requirements."
+            />
+          </div>
+          <LocationMap />
         </div>
       </section>
 
