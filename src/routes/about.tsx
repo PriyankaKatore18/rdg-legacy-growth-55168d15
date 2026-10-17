@@ -1,9 +1,10 @@
 import { CheckCircle2, Eye, Flag, Quote, Target } from "lucide-react";
-import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
+import { SectionHeading } from "@/components/layout/PageHeader";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { CountUp } from "@/components/motion/CountUp";
 import { stats } from "@/data/site";
 import { company } from "@/data/site";
+import aboutBreadcrumbImage from "@/assets/about-breadcrumb.png";
 import certificatesImage from "@/assets/about-certificates.png";
 import foundersImage from "@/assets/about-founders.png";
 
@@ -32,11 +33,21 @@ const pillars = [
 function About() {
   return (
     <>
-      <PageHeader
-        eyebrow="About Us"
-        title="An Indian company built on products people actually reorder"
-        description="RDG Future Way Pvt. Ltd. began with a simple belief: if a product is genuinely good and honestly presented, the business builds itself. Today the company is bringing Anmol Ratan Juice to families and distributors across India."
-      />
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={aboutBreadcrumbImage}
+          alt="About Us"
+          width={2067}
+          height={761}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
+
+      <section className="py-14 sm:py-16">
+        <div className="container-x">
+          <SectionHeading align="left" eyebrow="Our story" title={title} description={description} />
+        </div>
+      </section>
 
       <section className="py-20">
         <div className="container-x grid gap-6 md:grid-cols-3">

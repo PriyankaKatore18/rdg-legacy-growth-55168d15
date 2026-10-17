@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Building2, Mail, MapPin, Phone } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import contactBreadcrumbImage from "@/assets/contact.png";
 import { LocationMap } from "@/components/shared/LocationMap";
 import { company } from "@/data/site";
 import { submitPublicEnquiry } from "@/lib/public-api";
@@ -24,11 +24,15 @@ function Contact() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Contact"
-        title="We're a call, mail or visit away"
-        description="Product questions, distributor support or partnership enquiries — our team responds within one working day."
-      />
+      <section className="w-full overflow-hidden bg-surface" aria-label="Contact">
+        <img
+          src={contactBreadcrumbImage}
+          alt="Contact RDG Future Way"
+          width={2048}
+          height={760}
+          className="block h-auto w-full"
+        />
+      </section>
 
       <section className="py-16">
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr]">

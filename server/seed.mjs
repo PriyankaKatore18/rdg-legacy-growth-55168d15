@@ -34,6 +34,84 @@ const settings = {
     "Discover Anmol Ratan Juice, RDG Future Way's herbal and mixed berry wellness product and business opportunity.",
 };
 
+const galleryItems = [
+  [
+    "Annual Leadership Meet",
+    "Events",
+    "/uploads/gallery-leadership-meet.jpg",
+    "Speaker addressing an RDG business conference.",
+  ],
+  [
+    "Corporate Head Office",
+    "Office",
+    "/uploads/gallery-head-office.jpg",
+    "RDG corporate head office.",
+  ],
+  [
+    "Product Launch Stage",
+    "Events",
+    "/uploads/gallery-product-launch.jpg",
+    "RDG product launch event.",
+  ],
+  [
+    "Distributor Training Camp",
+    "Training",
+    "/uploads/gallery-training-camp.jpg",
+    "Distributor training workshop.",
+  ],
+  [
+    "Manufacturing Facility",
+    "Office",
+    "/uploads/gallery-manufacturing.jpg",
+    "RDG manufacturing facility.",
+  ],
+];
+
+const downloads = [
+  ["company-brochure", "Company Brochure", "4.2 MB", "PDF"],
+  ["anmol-ratan-juice-product-sheet", "Anmol Ratan Juice Product Sheet", "12.8 MB", "PDF"],
+  ["generation-income-plan", "Generation Income Plan", "3.1 MB", "PDF"],
+  ["distributor-application-form", "Distributor Application Form", "0.6 MB", "PDF"],
+  ["price-list-dp-mrp", "Price List (DP / MRP)", "1.9 MB", "XLSX"],
+  ["business-presentation", "Business Presentation", "9.4 MB", "PPTX"],
+  ["training-material-pack", "Training Material Pack", "22.5 MB", "ZIP"],
+];
+
+const events = [
+  [
+    "national-leadership-summit-2026",
+    "National Leadership Summit 2026",
+    "2026-09-12",
+    "Indore",
+    "Seminar",
+    1200,
+  ],
+  [
+    "ayurveda-product-launch-immunity-series",
+    "Ayurveda Product Launch — Immunity Series",
+    "2026-08-22",
+    "Bhopal",
+    "Launch",
+    400,
+  ],
+  [
+    "kisan-samriddhi-business-meet",
+    "Kisan Samriddhi Business Meet",
+    "2026-10-05",
+    "Nagpur",
+    "Business Meet",
+    600,
+  ],
+  [
+    "rewards-recognition-night",
+    "Rewards & Recognition Night",
+    "2026-11-18",
+    "Jaipur",
+    "Award Night",
+    900,
+  ],
+];
+
 export async function seedDatabase() {
   await migrate();
   const email = process.env.ADMIN_EMAIL;
@@ -70,6 +148,35 @@ export async function seedDatabase() {
     await query(
       "INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)",
       [key, JSON.stringify(value)],
+    );
+  }
+
+  for (const [title, tag, imageUrl, altText] of galleryItems) {
+    await query(
+      "INSERT IGNORE INTO gallery_items (title, tag, image_url, alt_text, status, sort_order) VALUES (?, ?, ?, ?, 'published', ?)",
+      [title, tag, imageUrl, altText, galleryItems.findIndex((item) => item[0] === title)],
+    );
+  }
+
+  for (const [slug, title, sizeLabel, fileType] of downloads) {
+    await query(
+      "INSERT IGNORE INTO downloads (slug, title, size_label, file_type, status, sort_order) VALUES (?, ?, ?, ?, 'published', ?)",
+      [slug, title, sizeLabel, fileType, downloads.findIndex((item) => item[0] === slug)],
+    );
+  }
+
+  for (const [slug, title, eventDate, city, eventType, seats] of events) {
+    await query(
+      "INSERT IGNORE INTO events (slug, title, event_date, city, event_type, seats, status, sort_order) VALUES (?, ?, ?, ?, ?, ?, 'published', ?)",
+      [
+        slug,
+        title,
+        eventDate,
+        city,
+        eventType,
+        seats,
+        events.findIndex((item) => item[0] === slug),
+      ],
     );
   }
 }

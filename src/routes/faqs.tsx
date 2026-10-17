@@ -1,10 +1,10 @@
-import { PageHeader } from "@/components/layout/PageHeader";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import faqBreadcrumbImage from "@/assets/faq.png";
 import { faqs } from "@/data/site";
 
 const title = "FAQs — Joining, Payouts, Products & Returns | RDG Future Way";
@@ -14,11 +14,15 @@ const description =
 function Faqs() {
   return (
     <>
-      <PageHeader
-        eyebrow="FAQs"
-        title="Straight answers, no fine print"
-        description="If your question isn't here, our support team replies within one working day."
-      />
+      <section className="w-full overflow-hidden bg-surface" aria-label="FAQs">
+        <img
+          src={faqBreadcrumbImage}
+          alt="RDG Future Way FAQs"
+          width={2048}
+          height={760}
+          className="block h-auto w-full"
+        />
+      </section>
       <section className="py-16">
         <div className="container-x max-w-3xl">
           <Accordion type="single" collapsible className="space-y-4">

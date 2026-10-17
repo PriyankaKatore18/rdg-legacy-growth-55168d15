@@ -13,7 +13,8 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
+import { SectionHeading } from "@/components/layout/PageHeader";
+import franchiseBreadcrumbImage from "@/assets/franchise-breadcrumb.png";
 import { LocationMap } from "@/components/shared/LocationMap";
 import { submitPublicEnquiry } from "@/lib/public-api";
 
@@ -105,18 +106,15 @@ function Franchise() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Franchise Opportunity"
-        title="Build a local business with the RDG Future Way brand."
-        description="Bring Anmol Ratan Juice to your market with a structured franchise conversation, practical launch support and a wellness brand built for long-term growth."
-      >
-        <a
-          href="#franchise-enquiry"
-          className="bg-brand inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
-        >
-          Request franchise details <ArrowRight className="h-4 w-4" />
-        </a>
-      </PageHeader>
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={franchiseBreadcrumbImage}
+          alt="Franchise opportunity with RDG Future Way"
+          width={2048}
+          height={760}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
 
       <section className="py-16 sm:py-20">
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-stretch">

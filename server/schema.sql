@@ -107,6 +107,56 @@ CREATE TABLE IF NOT EXISTS media_assets (
   CONSTRAINT fk_media_user FOREIGN KEY (uploaded_by) REFERENCES admin_users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS downloads (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(190) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  file_name VARCHAR(255) NULL,
+  file_url VARCHAR(500) NULL,
+  file_type VARCHAR(40) NOT NULL DEFAULT 'PDF',
+  mime_type VARCHAR(120) NULL,
+  size_bytes BIGINT UNSIGNED NULL,
+  size_label VARCHAR(40) NULL,
+  status ENUM('draft', 'published') NOT NULL DEFAULT 'published',
+  sort_order INT NOT NULL DEFAULT 0,
+  uploaded_by BIGINT UNSIGNED NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_downloads_status_order (status, sort_order, created_at),
+  CONSTRAINT fk_downloads_user FOREIGN KEY (uploaded_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS events (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(190) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  event_date DATE NOT NULL,
+  city VARCHAR(120) NOT NULL,
+  event_type VARCHAR(120) NOT NULL,
+  seats INT UNSIGNED NOT NULL DEFAULT 0,
+  registration_url VARCHAR(500) NULL,
+  status ENUM('draft', 'published') NOT NULL DEFAULT 'published',
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_events_status_date (status, event_date, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS gallery_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  tag VARCHAR(120) NOT NULL DEFAULT 'General',
+  image_url VARCHAR(500) NOT NULL,
+  alt_text VARCHAR(255) NULL,
+  status ENUM('draft', 'published') NOT NULL DEFAULT 'published',
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_gallery_status_order (status, sort_order, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS contact_enquiries (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   enquiry_type ENUM('contact', 'distributor', 'franchise', 'other') NOT NULL DEFAULT 'contact',
@@ -124,6 +174,45 @@ CREATE TABLE IF NOT EXISTS contact_enquiries (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_enquiries_status_created (status, created_at),
   CONSTRAINT fk_enquiry_user FOREIGN KEY (assigned_to) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS distributors (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  distributor_code VARCHAR(80) NOT NULL UNIQUE,
+  name VARCHAR(160) NOT NULL,
+  email VARCHAR(190) NULL,
+  phone VARCHAR(40) NULL,
+  city VARCHAR(120) NULL,
+  sponsor_code VARCHAR(80) NULL,
+  status ENUM('active', 'inactive', 'blocked') NOT NULL DEFAULT 'active',
+  notes TEXT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_distributors_status (status),
+  INDEX idx_distributors_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS distributor_transactions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  distributor_id BIGINT UNSIGNED NOT NULL,
+  transaction_type ENUM('id_purchase', 'payment', 'income', 'refund', 'adjustment') NOT NULL,
+  reference_no VARCHAR(120) NULL,
+  id_count INT UNSIGNED NOT NULL DEFAULT 0,
+  package_level INT UNSIGNED NULL,
+  package_value DECIMAL(12,2) NULL,
+  amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+  payment_method VARCHAR(60) NULL,
+  payment_status ENUM('pending', 'paid', 'failed', 'refunded') NOT NULL DEFAULT 'pending',
+  transaction_date DATE NOT NULL,
+  notes TEXT NULL,
+  created_by BIGINT UNSIGNED NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_transactions_distributor_date (distributor_id, transaction_date),
+  INDEX idx_transactions_status (payment_status),
+  INDEX idx_transactions_type (transaction_type),
+  CONSTRAINT fk_transaction_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE CASCADE,
+  CONSTRAINT fk_transaction_user FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS navigation_items (

@@ -1,16 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import blogBreadcrumbImage from "@/assets/blog-breadcrumb.png";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
-import { posts } from "@/data/site";
+import { posts as fallbackPosts } from "@/data/site";
+import { getPublicBlogPosts } from "@/lib/cms";
 
 const title = "Blog — Health Tips, Business Tips, Agriculture & Wellness | RDG";
 const description =
   "Practical articles from RDG Future Way on ayurvedic health, direct selling business growth, agriculture, wellness, lifestyle and company news.";
 
 function Blog() {
+  const [posts, setPosts] = useState(fallbackPosts);
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("All");
+  useEffect(() => {
+    getPublicBlogPosts().then((data) => {
+      if (data) setPosts(data);
+    });
+  }, []);
   const cats = ["All", ...Array.from(new Set(posts.map((p) => p.category)))];
   const list = posts.filter(
     (p) =>
@@ -19,11 +26,15 @@ function Blog() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Blog"
-        title="Ideas that grow health and income"
-        description="Written by our product team, agronomists and top-performing distributors."
-      />
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={blogBreadcrumbImage}
+          alt="RDG Future Way Blog"
+          width={2048}
+          height={760}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
 
       <section className="py-16">
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_16rem]">

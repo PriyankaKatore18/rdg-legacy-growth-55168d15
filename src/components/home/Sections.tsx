@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Award,
@@ -20,6 +21,7 @@ import { CountUp } from "@/components/motion/CountUp";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/layout/PageHeader";
 import { ProductCard } from "@/components/shared/ProductCard";
+import { getPublicProducts } from "@/lib/cms";
 import opportunityImage from "@/assets/opportunity-network-v2.png";
 import {
   bonuses,
@@ -53,6 +55,26 @@ export function StatsBand() {
 }
 
 export function FeaturedProducts() {
+  const [items, setItems] = useState(products);
+
+  useEffect(() => {
+    getPublicProducts().then((data) => {
+      if (data) {
+        setItems(
+          data.map((item) => ({
+            id: String(item.id),
+            name: item.name,
+            category: item.category || "RDG Product",
+            subtitle: item.subtitle || "Discover the RDG product range.",
+            description: item.description || "",
+            highlights: item.highlights || [],
+            badge: item.name === "Anmol Ratan Juice" ? "Signature Product" : "RDG Product",
+          })),
+        );
+      }
+    });
+  }, []);
+
   return (
     <section className="bg-surface py-24">
       <div className="container-x">
@@ -70,7 +92,7 @@ export function FeaturedProducts() {
           </a>
         </div>
         <Stagger className="mx-auto mt-12 max-w-md">
-          {products.map((p) => (
+          {items.map((p) => (
             <StaggerItem key={p.id}>
               <ProductCard product={p} />
             </StaggerItem>

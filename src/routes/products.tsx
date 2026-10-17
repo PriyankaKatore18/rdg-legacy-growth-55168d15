@@ -7,11 +7,12 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
+import { useEffect, useMemo, useState } from "react";
+import { SectionHeading } from "@/components/layout/PageHeader";
 import { ProductVisual } from "@/components/shared/ProductCard";
 import { products } from "@/data/site";
-
-const product = products[0]!;
+import { getPublicProducts } from "@/lib/cms";
+import productsBreadcrumbImage from "@/assets/products-breadcrumb.png";
 
 const labelBenefits = [
   {
@@ -44,13 +45,153 @@ const productDetails = [
 ];
 
 function Products() {
+  const [activeCategory, setActiveCategory] = useState("All Collections");
+  const [catalogProducts, setCatalogProducts] = useState(products);
+  useEffect(() => {
+    getPublicProducts().then((data) => {
+      if (data) {
+        setCatalogProducts(
+          data.map((item) => ({
+            id: String(item.id),
+            name: item.name,
+            category: item.category || "RDG Product",
+            subtitle: item.subtitle || "Discover the RDG product range.",
+            description: item.description || "",
+            highlights: item.highlights || [],
+            badge: item.name === "Anmol Ratan Juice" ? "Signature Product" : "RDG Product",
+          })),
+        );
+      }
+    });
+  }, []);
+  const product = catalogProducts[0] ?? products[0]!;
+  const catalogItems = useMemo(
+    () =>
+      catalogProducts.map((item) => ({
+        ...item,
+        icon: Sparkles,
+        visual: true,
+      })),
+    [catalogProducts],
+  );
+  const categories = [
+    "All Collections",
+    ...Array.from(new Set(catalogItems.map((item) => item.category))),
+  ];
+  const visibleItems = useMemo(
+    () =>
+      activeCategory === "All Collections"
+        ? catalogItems
+        : catalogItems.filter((item) => item.category === activeCategory),
+    [activeCategory, catalogItems],
+  );
+
   return (
     <>
-      <PageHeader
-        eyebrow="Our Signature Product"
-        title="Anmol Ratan Juice"
-        description="A refreshing herbal and mixed berry juice created for simple, everyday wellness routines. Discover the product story, label highlights and how to enquire with RDG."
-      />
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={productsBreadcrumbImage}
+          alt="Products for wellness and opportunity"
+          width={2066}
+          height={761}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
+
+      <section className="pb-16">
+        <div className="container-x">
+          <div className="rounded-[2rem] border border-border bg-card p-4 shadow-soft sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+                  Browse categories
+                </p>
+                <h2 className="mt-2 font-display text-2xl font-bold text-foreground sm:text-3xl">
+                  Find what fits your journey
+                </h2>
+              </div>
+              <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+                Wellness products, business packages and recognition milestones are organised in one
+                place.
+              </p>
+            </div>
+
+            <div
+              className="mt-6 flex flex-wrap gap-2"
+              role="tablist"
+              aria-label="Product categories"
+            >
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategory === category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                    activeCategory === category
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border bg-surface text-muted-foreground hover:border-primary/40 hover:text-primary"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            {visibleItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={item.id}
+                  className="card-lift flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft"
+                >
+                  {item.visual ? (
+                    <ProductVisual compact />
+                  ) : (
+                    <div className="bg-gradient-to-br from-primary/10 via-accent to-secondary/10 flex h-52 items-center justify-center">
+                      <span className="bg-brand flex h-20 w-20 items-center justify-center rounded-3xl text-primary-foreground shadow-card">
+                        <Icon className="h-9 w-9" />
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-6">
+                    <span className="bg-gold-grad inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold text-gold-foreground">
+                      {item.badge}
+                    </span>
+                    <p className="mt-4 text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+                      {item.category}
+                    </p>
+                    <h3 className="mt-2 font-display text-xl font-semibold text-foreground">
+                      {item.name}
+                    </h3>
+                    <p className="mt-2 text-sm font-medium text-foreground/75">{item.subtitle}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      {item.description}
+                    </p>
+                    <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
+                      {item.highlights.slice(0, 3).map((highlight) => (
+                        <li key={highlight} className="flex gap-2">
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-secondary" />
+                          {highlight}
+                        </li>
+                      ))}
+                    </ul>
+                    <a
+                      href="/contact"
+                      className="bg-brand mt-6 inline-flex w-fit items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
+                    >
+                      Buy this <ArrowRight className="h-4 w-4" />
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       <section className="pb-20">
         <div className="container-x grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">

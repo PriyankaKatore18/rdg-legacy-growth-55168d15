@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { motion } from "motion/react";
+import generationPlanBreadcrumbImage from "@/assets/generation-plan-breadcrumb.png";
 import rankPlanImage from "@/assets/ai-rank-plan.png";
 import { bonuses, directReferralPlans, planLevels } from "@/data/site";
 
@@ -67,7 +68,16 @@ const heroStats = [
 function GenerationPlan() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-primary-dark pt-32 pb-16 text-primary-foreground sm:pt-40 sm:pb-20 md:pt-48">
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={generationPlanBreadcrumbImage}
+          alt="Income Plan and Generation Plan"
+          width={2048}
+          height={760}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
+      <section className="hidden relative isolate overflow-hidden bg-primary-dark pt-32 pb-16 text-primary-foreground sm:pt-40 sm:pb-20 md:pt-48">
         <div className="absolute -top-48 right-[-10rem] -z-10 h-[34rem] w-[34rem] rounded-full bg-primary opacity-50 blur-3xl" />
         <div className="absolute bottom-[-16rem] left-[-12rem] -z-10 h-[32rem] w-[32rem] rounded-full bg-gold opacity-20 blur-3xl" />
         <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] lg:block">
@@ -88,7 +98,7 @@ function GenerationPlan() {
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-primary-foreground/75 sm:text-lg">
               A clear reference guide to the single-leg income and generation plan—package values,
-              direct referral examples and the recognition ladder in one place.
+              product package details and the recognition ladder in one place.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
@@ -214,20 +224,20 @@ function GenerationPlan() {
         <div className="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div>
             <p className="text-xs font-semibold tracking-[0.22em] text-primary uppercase">
-              Single-leg income reference
+              Product package reference
             </p>
             <h2 className="mt-3 font-display text-3xl font-bold text-foreground md:text-4xl">
-              See the direct referral examples.
+              See the package product details.
             </h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              These package-to-referral values are the four references visible in the supplied plan
-              material. Use them as plan arithmetic, then confirm final payout terms with RDG.
+              These are the four product packages requested for the RDG plan. Each package contains
+              a defined number of products; confirm final product and payout terms with RDG.
             </p>
             <div className="mt-8 rounded-3xl bg-brand p-6 text-primary-foreground shadow-lift sm:p-8">
               <ShieldCheck className="h-7 w-7 text-gold" />
               <h3 className="mt-5 font-display text-xl font-bold">Transparent by design</h3>
               <p className="mt-3 text-sm leading-relaxed text-primary-foreground/75">
-                Network value, referral reference and rewards are kept separate so the page does not
+                Product packages, qualification values and rewards are kept separate so the page does not
                 present qualification values as guaranteed personal income.
               </p>
               <a
@@ -260,19 +270,18 @@ function GenerationPlan() {
                 <ArrowRight className="h-5 w-5 shrink-0 text-primary" />
                 <div className="text-right">
                   <p className="text-xs font-semibold tracking-[0.16em] text-secondary uppercase">
-                    Referral reference
+                    Products included
                   </p>
                   <p className="mt-2 font-display text-2xl font-extrabold text-secondary">
-                    {money(item.referralIncome)}
+                    {item.productCount}
                   </p>
                 </div>
               </motion.div>
             ))}
             <p className="rounded-2xl border border-primary/15 bg-primary/5 p-5 text-sm leading-relaxed text-muted-foreground">
-              <strong className="text-foreground">Formula example:</strong> 10 direct referrals ×{" "}
-              {money(directReferralPlans[0].referralIncome)} ={" "}
-              {money(directReferralPlans[0].referralIncome * 10)} gross reference before any
-              expenses, taxes or payout adjustments.
+              <strong className="text-foreground">Package example:</strong>{" "}
+              {money(directReferralPlans[0].packageValue)} package = {directReferralPlans[0].productCount}{" "}
+              products. Final product, tax and payout terms should be confirmed with RDG.
             </p>
           </div>
         </div>
@@ -289,7 +298,7 @@ function GenerationPlan() {
             </h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
               These plan components are qualification-based and separate from the single-leg
-              referral references above.
+              product packages above.
             </p>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

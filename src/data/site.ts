@@ -32,12 +32,8 @@ export const navigation: NavItem[] = [
     ],
   },
   {
-    label: "Anmol Ratan",
+    label: "Products",
     to: "/products",
-    children: [
-      { label: "Anmol Ratan Juice", to: "/products", desc: "Herbal & mixed berry wellness juice" },
-      { label: "Product Details", to: "/products", desc: "Benefits, usage & quality notes" },
-    ],
   },
   {
     label: "Opportunity",
@@ -187,10 +183,10 @@ export const planLevels = [
 ] as const;
 
 export const directReferralPlans = [
-  { packageValue: 3500, referralIncome: 500 },
-  { packageValue: 7000, referralIncome: 1000 },
-  { packageValue: 9500, referralIncome: 1500 },
-  { packageValue: 14000, referralIncome: 2000 },
+  { packageValue: 3500, productCount: 5 },
+  { packageValue: 7000, productCount: 10 },
+  { packageValue: 9500, productCount: 15 },
+  { packageValue: 14000, productCount: 20 },
 ] as const;
 
 export const whyChoose = [
@@ -236,20 +232,9 @@ export const bonuses = [
     value: "5% – 25%",
   },
   {
-    name: "Matching Bonus",
-    detail: "Earn on the performance of your direct legs.",
-    value: "Up to 20%",
-  },
-  {
     name: "Generation Bonus",
     detail: "Income across 7 active generations deep.",
     value: "7 Levels",
-  },
-  { name: "Leadership Bonus", detail: "Unlocked at Silver rank and above.", value: "3% Pool" },
-  {
-    name: "Royalty Income",
-    detail: "Company turnover share for qualified leaders.",
-    value: "2% Pool",
   },
 ];
 
@@ -451,14 +436,3 @@ export const faqs = [
   },
 ];
 
-export const galleryItems = [
-  { title: "Annual Leadership Meet", tag: "Events" },
-  { title: "Corporate Head Office", tag: "Office" },
-  { title: "Product Launch Stage", tag: "Events" },
-  { title: "Distributor Training Camp", tag: "Training" },
-  { title: "Manufacturing Facility", tag: "Office" },
-  { title: "Tree Plantation Drive", tag: "CSR" },
-  { title: "Car Achievers Handover", tag: "Rewards" },
-  { title: "Kisan Awareness Program", tag: "CSR" },
-  { title: "Foreign Tour — Dubai", tag: "Rewards" },
-];

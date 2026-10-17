@@ -1,6 +1,6 @@
 import { Briefcase, MapPin } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
+import careerBreadcrumbImage from "@/assets/career-breadcrumb.png";
 
 const title = "Career at RDG Future Way — Join Our Team";
 const description =
@@ -18,11 +18,15 @@ const jobs = [
 function Career() {
   return (
     <>
-      <PageHeader
-        eyebrow="Career"
-        title="Build a company that builds people"
-        description="We hire for ownership and honesty. If you want your work to reach lakhs of households, we should talk."
-      />
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={careerBreadcrumbImage}
+          alt="Career at RDG Future Way"
+          width={2065}
+          height={761}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
       <section className="py-16">
         <div className="container-x">
           <Stagger className="grid gap-5 md:grid-cols-2">

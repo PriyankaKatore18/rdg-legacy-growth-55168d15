@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { ArrowRight, CheckCircle2, CircleDollarSign, Network, ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import distributorBreadcrumbImage from "@/assets/distributor-breadcrumb.png";
 import { LocationMap } from "@/components/shared/LocationMap";
 import { bonuses, directReferralPlans } from "@/data/site";
 import { submitPublicEnquiry } from "@/lib/public-api";
@@ -58,11 +58,15 @@ function BecomeDistributor() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Become a Distributor"
-        title="Free registration. Lifetime opportunity."
-        description="Fill the form and a regional business coach will call you within 24 hours with your ID, starter kit options and your first training session."
-      />
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={distributorBreadcrumbImage}
+          alt="Become a distributor with RDG Future Way"
+          width={2048}
+          height={760}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
 
       <section className="bg-surface py-14 sm:py-18">
         <div className="container-x">
@@ -74,7 +78,7 @@ function BecomeDistributor() {
               Understand how the RDG plan is calculated
             </h2>
             <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-              The plan has a direct referral reference plus qualification-based retail, team and
+              The plan has product packages plus qualification-based retail, team and
               leadership income streams. Use the exact package values below as a starting point;
               final eligibility and payout terms are confirmed by RDG.
             </p>
@@ -88,10 +92,10 @@ function BecomeDistributor() {
                 </span>
                 <div>
                   <h3 className="font-display text-xl font-bold text-foreground">
-                    Direct referral reference
+                    Product packages
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Package value → listed referral reference
+                    Package value → products included
                   </p>
                 </div>
               </div>
@@ -105,9 +109,9 @@ function BecomeDistributor() {
                       Package {money(item.packageValue)}
                     </p>
                     <p className="mt-2 font-display text-2xl font-extrabold text-secondary">
-                      {money(item.referralIncome)}
+                      {item.productCount} products
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">referral reference</p>
+                    <p className="mt-1 text-xs text-muted-foreground">included in package</p>
                   </div>
                 ))}
               </div>

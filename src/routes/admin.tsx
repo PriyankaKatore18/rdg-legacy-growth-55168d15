@@ -4,8 +4,12 @@ import {
   Activity,
   ArrowUpRight,
   BarChart3,
+  Bell,
+  CalendarDays,
   CheckCircle2,
   ChevronRight,
+  CreditCard,
+  Download,
   FileText,
   Image as ImageIcon,
   LayoutDashboard,
@@ -15,12 +19,15 @@ import {
   Package,
   Pencil,
   Plus,
+  Receipt,
   Search,
   Settings2,
   ShieldCheck,
   Trash2,
   Upload,
+  UserPlus,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 
@@ -30,9 +37,13 @@ type Tab =
   | "pages"
   | "banners"
   | "products"
+  | "events"
   | "blog"
   | "enquiries"
-  | "media"
+  | "distributors"
+  | "transactions"
+  | "gallery"
+  | "downloads"
   | "settings"
   | "activity";
 type RecordItem = Record<string, any>;
@@ -186,9 +197,13 @@ export function AdminDashboard() {
     { id: "pages", label: "Website Pages", icon: FileText, group: "Content" },
     { id: "banners", label: "Hero Banners", icon: ImageIcon, group: "Content" },
     { id: "products", label: "Products", icon: Package, group: "Content" },
+    { id: "events", label: "Events", icon: CalendarDays, group: "Content" },
     { id: "blog", label: "Blog / Insights", icon: Newspaper, group: "Content" },
     { id: "enquiries", label: "Contact Enquiries", icon: Users, group: "Operations" },
-    { id: "media", label: "Media Library", icon: Upload, group: "Operations" },
+    { id: "distributors", label: "Distributors / IDs", icon: UserPlus, group: "Operations" },
+    { id: "transactions", label: "Transactions & Payments", icon: Receipt, group: "Operations" },
+    { id: "gallery", label: "Gallery", icon: ImageIcon, group: "Operations" },
+    { id: "downloads", label: "Downloads", icon: Download, group: "Operations" },
     { id: "settings", label: "Website Settings", icon: Settings2, group: "System" },
     { id: "activity", label: "Activity Logs", icon: Activity, group: "System" },
   ];
@@ -315,9 +330,13 @@ export function AdminDashboard() {
           {tab === "pages" && <PagesView setError={setError} />}
           {tab === "banners" && <BannersView setError={setError} />}
           {tab === "products" && <ProductsView setError={setError} />}
+          {tab === "events" && <EventsView setError={setError} />}
           {tab === "blog" && <BlogView setError={setError} />}
           {tab === "enquiries" && <EnquiriesView setError={setError} />}
-          {tab === "media" && <MediaView setError={setError} />}
+          {tab === "distributors" && <DistributorsView setError={setError} />}
+          {tab === "transactions" && <TransactionsView setError={setError} />}
+          {tab === "gallery" && <GalleryView setError={setError} />}
+          {tab === "downloads" && <DownloadsView setError={setError} />}
           {tab === "settings" && <SettingsView setError={setError} />}
           {tab === "activity" && <ActivityView setError={setError} />}
         </div>
@@ -359,6 +378,42 @@ function DashboardView({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
       icon: Users,
       color: "text-destructive",
     },
+    {
+      label: "Distributors",
+      value: data.metrics.distributors,
+      icon: UserPlus,
+      color: "text-primary",
+    },
+    {
+      label: "Paid IDs",
+      value: data.metrics.totalIds,
+      icon: CreditCard,
+      color: "text-secondary",
+    },
+    {
+      label: "Paid amount",
+      value: `Rs ${Number(data.metrics.totalPaidAmount || 0).toLocaleString("en-IN")}`,
+      icon: Wallet,
+      color: "text-gold-foreground",
+    },
+    {
+      label: "Pending payments",
+      value: `Rs ${Number(data.metrics.pendingPayments || 0).toLocaleString("en-IN")}`,
+      icon: Receipt,
+      color: "text-destructive",
+    },
+    {
+      label: "Distributor income",
+      value: `Rs ${Number(data.metrics.totalIncome || 0).toLocaleString("en-IN")}`,
+      icon: Wallet,
+      color: "text-secondary",
+    },
+    {
+      label: "Levels passed",
+      value: data.metrics.passedLevels || 0,
+      icon: Bell,
+      color: "text-gold-foreground",
+    },
   ];
   return (
     <div className="mx-auto max-w-7xl">
@@ -390,6 +445,61 @@ function DashboardView({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
           </div>
         ))}
       </div>
+      <section className="mt-8 rounded-2xl border border-gold/35 bg-gold/10 p-6 shadow-soft">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="font-display text-lg font-bold">ID level notifications</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every 100 paid IDs passes one level according to the RDG package chart.
+            </p>
+          </div>
+          <Bell className="h-5 w-5 shrink-0 text-gold-foreground" />
+        </div>
+        <div className="mt-5 space-y-3">
+          {data.levelNotifications?.length ? (
+            data.levelNotifications.map((item: any) => (
+              <div
+                key={`${item.distributorId}-${item.completedLevel}`}
+                className="flex flex-col gap-3 rounded-xl border border-gold/25 bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold">{item.message}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {item.name}
+                      {" · "}
+                      {item.distributorCode}
+                      {" · "}
+                      {item.totalIds.toLocaleString("en-IN")} paid IDs
+                    </p>
+                  </div>
+                </div>
+                <div className="shrink-0 text-left sm:text-right">
+                  <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                    Current level
+                  </p>
+                  <p className="mt-1 font-display text-xl font-bold text-primary">
+                    Level {item.completedLevel}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    ID value Rs {Number(item.currentPackageValue).toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </div>
+            ))
+          ) : data.levelProgress?.length ? (
+            <div className="rounded-xl border border-gold/25 bg-card p-4 text-sm text-muted-foreground">
+              No level passed yet. Record a paid ID purchase; a notification will appear here after
+              every 100 IDs.
+            </div>
+          ) : (
+            <EmptyState label="Add a distributor and paid ID purchase to start level tracking." />
+          )}
+        </div>
+      </section>
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
           <div className="flex items-center justify-between">
@@ -406,6 +516,8 @@ function DashboardView({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
               { label: "Manage pages", tab: "pages" as Tab, icon: FileText },
               { label: "Manage hero banners", tab: "banners" as Tab, icon: ImageIcon },
               { label: "Review enquiries", tab: "enquiries" as Tab, icon: Users },
+              { label: "Manage distributors", tab: "distributors" as Tab, icon: UserPlus },
+              { label: "Record a payment", tab: "transactions" as Tab, icon: Receipt },
               { label: "Update global settings", tab: "settings" as Tab, icon: Settings2 },
             ].map(({ label, tab, icon: Icon }) => (
               <button
@@ -947,6 +1059,173 @@ function ProductsView({ setError }: { setError: (value: string) => void }) {
   );
 }
 
+function EventsView({ setError }: { setError: (value: string) => void }) {
+  const [items, setItems] = useState<RecordItem[]>([]);
+  const [editing, setEditing] = useState<RecordItem | null>(null);
+  const blank = {
+    title: "",
+    slug: "",
+    description: "",
+    eventDate: "",
+    city: "",
+    eventType: "",
+    seats: 0,
+    registrationUrl: "",
+    status: "published",
+    sortOrder: 0,
+  };
+  const [form, setForm] = useState<RecordItem>(blank);
+  const load = () =>
+    api("/api/admin/events")
+      .then(setItems)
+      .catch((e) => setError(e.message));
+  useEffect(() => {
+    load();
+  }, []);
+
+  function open(item?: RecordItem) {
+    setEditing(item || {});
+    setForm(item ? { ...item } : blank);
+  }
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    try {
+      await api(editing?.id ? `/api/admin/events/${editing.id}` : "/api/admin/events", {
+        method: editing?.id ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          seats: Number(form.seats || 0),
+          sortOrder: Number(form.sortOrder || 0),
+        }),
+      });
+      setEditing(null);
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  async function remove(id: number) {
+    if (!confirm("Delete this event?")) return;
+    try {
+      await api(`/api/admin/events/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  return (
+    <ModuleShell
+      title="Events"
+      description="Create and manage seminars, launches, business meets and recognition events shown on the public Events page."
+      action={
+        <button onClick={() => open()} className={buttonPrimary}>
+          <Plus className="h-4 w-4" />
+          Add event
+        </button>
+      }
+    >
+      {editing && (
+        <Editor title={editing.id ? "Edit event" : "New event"} onClose={() => setEditing(null)}>
+          <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
+            <TextField
+              label="Event title"
+              value={form.title}
+              onChange={(value) => setForm({ ...form, title: value })}
+              required
+            />
+            <TextField
+              label="Slug"
+              value={form.slug}
+              onChange={(value) => setForm({ ...form, slug: value })}
+              required
+            />
+            <TextField
+              label="Date"
+              type="date"
+              value={form.eventDate}
+              onChange={(value) => setForm({ ...form, eventDate: value })}
+              required
+            />
+            <TextField
+              label="City"
+              value={form.city}
+              onChange={(value) => setForm({ ...form, city: value })}
+              required
+            />
+            <TextField
+              label="Event type"
+              value={form.eventType}
+              onChange={(value) => setForm({ ...form, eventType: value })}
+              placeholder="Seminar, Launch, Business Meet"
+              required
+            />
+            <TextField
+              label="Seats"
+              type="number"
+              value={form.seats}
+              onChange={(value) => setForm({ ...form, seats: Number(value) })}
+            />
+            <TextField
+              label="Registration URL"
+              value={form.registrationUrl}
+              onChange={(value) => setForm({ ...form, registrationUrl: value })}
+              wide
+              placeholder="https://..."
+            />
+            <TextAreaField
+              label="Description"
+              value={form.description}
+              onChange={(value) => setForm({ ...form, description: value })}
+              wide
+            />
+            <SelectField
+              label="Status"
+              value={form.status}
+              options={["published", "draft"]}
+              onChange={(value) => setForm({ ...form, status: value })}
+            />
+            <TextField
+              label="Display order"
+              type="number"
+              value={form.sortOrder}
+              onChange={(value) => setForm({ ...form, sortOrder: Number(value) })}
+            />
+            <div className="flex justify-end gap-3 sm:col-span-2">
+              <button type="button" className={buttonSecondary} onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+              <button className={buttonPrimary}>Save event</button>
+            </div>
+          </form>
+        </Editor>
+      )}
+      <DataTable headers={["Event", "Date / location", "Status", "Actions"]}>
+        {items.map((item) => (
+          <tr key={item.id} className="border-t border-border">
+            <td className="px-4 py-4">
+              <p className="font-semibold">{item.title}</p>
+              <p className="text-xs text-muted-foreground">{item.eventType}</p>
+            </td>
+            <td className="px-4 py-4 text-sm text-muted-foreground">
+              {item.eventDate} • {item.city}
+            </td>
+            <td className="px-4 py-4">
+              <StatusBadge status={item.status} />
+            </td>
+            <td className="px-4 py-4">
+              <RowActions onEdit={() => open(item)} onDelete={() => remove(item.id)} />
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+    </ModuleShell>
+  );
+}
+
 function BlogView({ setError }: { setError: (value: string) => void }) {
   const [items, setItems] = useState<RecordItem[]>([]);
   const [editing, setEditing] = useState<RecordItem | null>(null);
@@ -1122,6 +1401,683 @@ function BlogView({ setError }: { setError: (value: string) => void }) {
   );
 }
 
+function DistributorsView({ setError }: { setError: (value: string) => void }) {
+  const [items, setItems] = useState<RecordItem[]>([]);
+  const [editing, setEditing] = useState<RecordItem | null>(null);
+  const [search, setSearch] = useState("");
+  const blank = {
+    distributorCode: "",
+    name: "",
+    email: "",
+    phone: "",
+    city: "",
+    sponsorCode: "",
+    status: "active",
+    notes: "",
+  };
+  const [form, setForm] = useState<RecordItem>(blank);
+
+  const load = () =>
+    api(`/api/admin/distributors?search=${encodeURIComponent(search)}`)
+      .then(setItems)
+      .catch((e) => setError(e.message));
+  useEffect(() => {
+    load();
+  }, [search]);
+  function open(item?: RecordItem) {
+    setEditing(item || null);
+    setForm(
+      item
+        ? {
+            distributorCode: item.distributor_code || item.distributorCode || "",
+            name: item.name || "",
+            email: item.email || "",
+            phone: item.phone || "",
+            city: item.city || "",
+            sponsorCode: item.sponsor_code || item.sponsorCode || "",
+            status: item.status || "active",
+            notes: item.notes || "",
+          }
+        : blank,
+    );
+  }
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    try {
+      await api(editing ? `/api/admin/distributors/${editing.id}` : "/api/admin/distributors", {
+        method: editing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      setEditing(null);
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  async function remove(id: number) {
+    if (!confirm("Delete this distributor and its transaction history?")) return;
+    try {
+      await api(`/api/admin/distributors/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  return (
+    <ModuleShell
+      title="Distributors & ID accounts"
+      description="Maintain distributor IDs, contact details and the live totals calculated from their transaction ledger."
+      action={
+        <button onClick={() => open()} className={buttonPrimary}>
+          <Plus className="h-4 w-4" /> Add distributor
+        </button>
+      }
+    >
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+        <label className="relative block max-w-md flex-1">
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className={`${fieldClass} mt-0 pl-9`}
+            placeholder="Search ID, name, phone or email"
+          />
+        </label>
+        <p className="self-center text-sm text-muted-foreground">
+          {items.length} distributor{items.length === 1 ? "" : "s"}
+        </p>
+      </div>
+      {editing && (
+        <Editor
+          title={editing ? "Edit distributor" : "Add distributor"}
+          onClose={() => setEditing(null)}
+        >
+          <form onSubmit={save} className="grid gap-5 sm:grid-cols-2">
+            <TextField
+              label="Distributor ID"
+              value={form.distributorCode}
+              onChange={(value) => setForm({ ...form, distributorCode: value })}
+              required
+            />
+            <TextField
+              label="Full name"
+              value={form.name}
+              onChange={(value) => setForm({ ...form, name: value })}
+              required
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={form.email}
+              onChange={(value) => setForm({ ...form, email: value })}
+            />
+            <TextField
+              label="Phone"
+              value={form.phone}
+              onChange={(value) => setForm({ ...form, phone: value })}
+            />
+            <TextField
+              label="City"
+              value={form.city}
+              onChange={(value) => setForm({ ...form, city: value })}
+            />
+            <TextField
+              label="Sponsor ID"
+              value={form.sponsorCode}
+              onChange={(value) => setForm({ ...form, sponsorCode: value })}
+            />
+            <SelectField
+              label="Account status"
+              value={form.status}
+              options={["active", "inactive", "blocked"]}
+              onChange={(value) => setForm({ ...form, status: value })}
+            />
+            <TextAreaField
+              label="Notes"
+              value={form.notes}
+              onChange={(value) => setForm({ ...form, notes: value })}
+              wide
+              rows={3}
+            />
+            <div className="flex justify-end gap-3 sm:col-span-2">
+              <button type="button" className={buttonSecondary} onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+              <button className={buttonPrimary}>Save distributor</button>
+            </div>
+          </form>
+        </Editor>
+      )}
+      <DataTable
+        headers={[
+          "Distributor",
+          "Contact",
+          "IDs purchased",
+          "Level",
+          "Paid",
+          "Pending",
+          "Income",
+          "Status",
+          "Actions",
+        ]}
+      >
+        {items.map((item) => (
+          <tr key={item.id} className="border-t border-border">
+            <td className="px-4 py-4">
+              <p className="font-semibold">{item.name}</p>
+              <p className="text-xs text-muted-foreground">{item.distributor_code}</p>
+            </td>
+            <td className="px-4 py-4 text-sm text-muted-foreground">
+              <p>{item.phone || "—"}</p>
+              <p>{item.city || item.email || ""}</p>
+            </td>
+            <td className="px-4 py-4 font-semibold">
+              {Number(item.totalIds || 0).toLocaleString("en-IN")}
+            </td>
+            <td className="px-4 py-4">
+              <p className="font-semibold text-primary">
+                {item.completedLevel ? `Level ${item.completedLevel}` : "Not passed"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {item.remainingIds
+                  ? `${Number(item.remainingIds).toLocaleString("en-IN")} IDs to next`
+                  : "Top level reached"}
+              </p>
+            </td>
+            <td className="px-4 py-4 text-sm">
+              Rs {Number(item.totalPaid || 0).toLocaleString("en-IN")}
+            </td>
+            <td className="px-4 py-4 text-sm text-amber-700">
+              Rs {Number(item.totalPending || 0).toLocaleString("en-IN")}
+            </td>
+            <td className="px-4 py-4 text-sm">
+              Rs {Number(item.totalIncome || 0).toLocaleString("en-IN")}
+            </td>
+            <td className="px-4 py-4">
+              <StatusBadge status={item.status} />
+            </td>
+            <td className="px-4 py-4">
+              <RowActions onEdit={() => open(item)} onDelete={() => remove(item.id)} />
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+      {!items.length && (
+        <div className="mt-4">
+          <EmptyState label="No distributors found. Add the first distributor ID to start tracking accounts." />
+        </div>
+      )}
+    </ModuleShell>
+  );
+}
+
+function TransactionsView({ setError }: { setError: (value: string) => void }) {
+  const [items, setItems] = useState<RecordItem[]>([]);
+  const [distributors, setDistributors] = useState<RecordItem[]>([]);
+  const [editing, setEditing] = useState<RecordItem | null>(null);
+  const [distributorFilter, setDistributorFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const blank = {
+    distributorId: "",
+    transactionType: "id_purchase",
+    referenceNo: "",
+    idCount: "0",
+    packageLevel: "",
+    packageValue: "",
+    amount: "0",
+    paymentMethod: "cash",
+    paymentStatus: "pending",
+    transactionDate: new Date().toISOString().slice(0, 10),
+    notes: "",
+  };
+  const [form, setForm] = useState<RecordItem>(blank);
+  const loadDistributors = () =>
+    api("/api/admin/distributors")
+      .then(setDistributors)
+      .catch((e) => setError(e.message));
+  const load = () => {
+    const params = new URLSearchParams();
+    if (distributorFilter !== "all") params.set("distributorId", distributorFilter);
+    if (typeFilter !== "all") params.set("transactionType", typeFilter);
+    if (statusFilter !== "all") params.set("paymentStatus", statusFilter);
+    api(`/api/admin/transactions${params.toString() ? `?${params.toString()}` : ""}`)
+      .then(setItems)
+      .catch((e) => setError(e.message));
+  };
+  useEffect(() => {
+    loadDistributors();
+  }, []);
+  useEffect(() => {
+    load();
+  }, [distributorFilter, typeFilter, statusFilter]);
+  function open(item?: RecordItem) {
+    setEditing(item || null);
+    setForm(
+      item
+        ? {
+            distributorId: String(item.distributor_id || item.distributorId || ""),
+            transactionType: item.transaction_type || item.transactionType || "id_purchase",
+            referenceNo: item.reference_no || item.referenceNo || "",
+            idCount: String(item.id_count ?? item.idCount ?? 0),
+            packageLevel: item.package_level ?? item.packageLevel ?? "",
+            packageValue: item.package_value ?? item.packageValue ?? "",
+            amount: item.amount ?? 0,
+            paymentMethod: item.payment_method || item.paymentMethod || "cash",
+            paymentStatus: item.payment_status || item.paymentStatus || "pending",
+            transactionDate: String(item.transaction_date || item.transactionDate || "").slice(
+              0,
+              10,
+            ),
+            notes: item.notes || "",
+          }
+        : { ...blank, distributorId: distributors[0]?.id ? String(distributors[0].id) : "" },
+    );
+  }
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    try {
+      await api(editing ? `/api/admin/transactions/${editing.id}` : "/api/admin/transactions", {
+        method: editing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          distributorId: Number(form.distributorId),
+          idCount: Number(form.idCount || 0),
+          packageLevel: form.packageLevel === "" ? null : Number(form.packageLevel),
+          packageValue: form.packageValue === "" ? null : Number(form.packageValue),
+          amount: Number(form.amount || 0),
+        }),
+      });
+      setEditing(null);
+      await Promise.all([load(), loadDistributors()]);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  async function remove(id: number) {
+    if (!confirm("Delete this transaction record?")) return;
+    try {
+      await api(`/api/admin/transactions/${id}`, { method: "DELETE" });
+      await Promise.all([load(), loadDistributors()]);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  const totalIds = items.reduce((sum, item) => sum + Number(item.id_count || 0), 0);
+  const paid = items
+    .filter((item) => item.payment_status === "paid")
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const pending = items
+    .filter((item) => item.payment_status === "pending")
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  return (
+    <ModuleShell
+      title="Transactions & payments"
+      description="Record every ID purchase, distributor payment, income, refund and adjustment. The totals are calculated automatically per distributor."
+      action={
+        <div className="flex flex-wrap gap-2">
+          <a href="/api/admin/transactions/export" className={buttonSecondary}>
+            Export CSV <ArrowUpRight className="h-4 w-4" />
+          </a>
+          <button onClick={() => open()} className={buttonPrimary}>
+            <Plus className="h-4 w-4" /> Add transaction
+          </button>
+        </div>
+      }
+    >
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        {[
+          ["Filtered IDs", totalIds, "text-primary"],
+          ["Paid amount", `Rs ${paid.toLocaleString("en-IN")}`, "text-secondary"],
+          ["Pending amount", `Rs ${pending.toLocaleString("en-IN")}`, "text-amber-700"],
+        ].map(([label, value, color]) => (
+          <div
+            key={String(label)}
+            className="rounded-2xl border border-border bg-card p-4 shadow-soft"
+          >
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              {label}
+            </p>
+            <p className={`mt-2 font-display text-2xl font-bold ${color}`}>{value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mb-5 grid gap-3 md:grid-cols-3">
+        <label className="block text-sm font-semibold">
+          Distributor
+          <select
+            value={distributorFilter}
+            onChange={(event) => setDistributorFilter(event.target.value)}
+            className={fieldClass}
+          >
+            <option value="all">All distributors</option>
+            {distributors.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.distributor_code} — {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <SelectField
+          label="Transaction type"
+          value={typeFilter}
+          options={["all", "id_purchase", "payment", "income", "refund", "adjustment"]}
+          onChange={setTypeFilter}
+        />
+        <SelectField
+          label="Payment status"
+          value={statusFilter}
+          options={["all", "pending", "paid", "failed", "refunded"]}
+          onChange={setStatusFilter}
+        />
+      </div>
+      {editing && (
+        <Editor
+          title={editing ? "Edit transaction" : "Add transaction"}
+          onClose={() => setEditing(null)}
+        >
+          <form onSubmit={save} className="grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm font-semibold sm:col-span-2">
+              Distributor
+              <select
+                value={form.distributorId}
+                onChange={(event) => setForm({ ...form, distributorId: event.target.value })}
+                className={fieldClass}
+                required
+              >
+                <option value="">Select distributor</option>
+                {distributors.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.distributor_code} — {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <SelectField
+              label="Transaction type"
+              value={form.transactionType}
+              options={["id_purchase", "payment", "income", "refund", "adjustment"]}
+              onChange={(value) => setForm({ ...form, transactionType: value })}
+            />
+            <SelectField
+              label="Payment status"
+              value={form.paymentStatus}
+              options={["pending", "paid", "failed", "refunded"]}
+              onChange={(value) => setForm({ ...form, paymentStatus: value })}
+            />
+            <TextField
+              label="Transaction date"
+              type="date"
+              value={form.transactionDate}
+              onChange={(value) => setForm({ ...form, transactionDate: value })}
+              required
+            />
+            <TextField
+              label="Reference / receipt no."
+              value={form.referenceNo}
+              onChange={(value) => setForm({ ...form, referenceNo: value })}
+            />
+            <TextField
+              label="ID count"
+              type="number"
+              value={form.idCount}
+              onChange={(value) => setForm({ ...form, idCount: value })}
+            />
+            <TextField
+              label="Package level"
+              type="number"
+              value={form.packageLevel}
+              onChange={(value) => setForm({ ...form, packageLevel: value })}
+            />
+            <TextField
+              label="Package value"
+              type="number"
+              value={form.packageValue}
+              onChange={(value) => setForm({ ...form, packageValue: value })}
+            />
+            <TextField
+              label="Amount (Rs)"
+              type="number"
+              value={form.amount}
+              onChange={(value) => setForm({ ...form, amount: value })}
+              required
+            />
+            <TextField
+              label="Payment method"
+              value={form.paymentMethod}
+              onChange={(value) => setForm({ ...form, paymentMethod: value })}
+            />
+            <TextAreaField
+              label="Notes"
+              value={form.notes}
+              onChange={(value) => setForm({ ...form, notes: value })}
+              wide
+              rows={3}
+            />
+            <div className="flex justify-end gap-3 sm:col-span-2">
+              <button type="button" className={buttonSecondary} onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+              <button className={buttonPrimary}>Save transaction</button>
+            </div>
+          </form>
+        </Editor>
+      )}
+      <DataTable
+        headers={[
+          "Date",
+          "Distributor",
+          "Type",
+          "IDs / Level",
+          "Amount",
+          "Status",
+          "Method",
+          "Actions",
+        ]}
+      >
+        {items.map((item) => (
+          <tr key={item.id} className="border-t border-border">
+            <td className="px-4 py-4 text-sm text-muted-foreground">
+              {new Date(item.transaction_date).toLocaleDateString("en-IN")}
+            </td>
+            <td className="px-4 py-4">
+              <p className="font-semibold">{item.distributorName}</p>
+              <p className="text-xs text-muted-foreground">{item.distributorCode}</p>
+            </td>
+            <td className="px-4 py-4 text-sm capitalize">
+              {item.transaction_type.replace("_", " ")}
+            </td>
+            <td className="px-4 py-4 text-sm">
+              {item.id_count || 0}
+              {item.package_level ? ` / L${item.package_level}` : ""}
+            </td>
+            <td className="px-4 py-4 text-sm font-semibold">
+              Rs {Number(item.amount || 0).toLocaleString("en-IN")}
+            </td>
+            <td className="px-4 py-4">
+              <StatusBadge status={item.payment_status} />
+            </td>
+            <td className="px-4 py-4 text-sm text-muted-foreground">
+              {item.payment_method || "—"}
+            </td>
+            <td className="px-4 py-4">
+              <RowActions onEdit={() => open(item)} onDelete={() => remove(item.id)} />
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+      {!items.length && (
+        <div className="mt-4">
+          <EmptyState label="No transactions found for the selected filters." />
+        </div>
+      )}
+    </ModuleShell>
+  );
+}
+
+function GalleryView({ setError }: { setError: (value: string) => void }) {
+  const [items, setItems] = useState<RecordItem[]>([]);
+  const [editing, setEditing] = useState<RecordItem | null>(null);
+  const blank = {
+    title: "",
+    tag: "Events",
+    imageUrl: "",
+    altText: "",
+    status: "published",
+    sortOrder: 0,
+  };
+  const [form, setForm] = useState<RecordItem>(blank);
+  const load = () =>
+    api("/api/admin/gallery")
+      .then(setItems)
+      .catch((e) => setError(e.message));
+  useEffect(() => {
+    load();
+  }, []);
+  function open(item?: RecordItem) {
+    setEditing(item || null);
+    setForm(
+      item
+        ? {
+            title: item.title || "",
+            tag: item.tag || "General",
+            imageUrl: item.imageUrl || "",
+            altText: item.altText || "",
+            status: item.status || "published",
+            sortOrder: item.sortOrder || 0,
+          }
+        : blank,
+    );
+  }
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    try {
+      await api(editing ? `/api/admin/gallery/${editing.id}` : "/api/admin/gallery", {
+        method: editing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, sortOrder: Number(form.sortOrder || 0) }),
+      });
+      setEditing(null);
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  async function remove(id: number) {
+    if (!confirm("Delete this gallery item?")) return;
+    try {
+      await api(`/api/admin/gallery/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  return (
+    <ModuleShell
+      title="Gallery manager"
+      description="Manage gallery photos, categories, captions and publishing status. Upload images first in Media Library, then paste their URL here."
+      action={
+        <button onClick={() => open()} className={buttonPrimary}>
+          <Plus className="h-4 w-4" /> Add gallery item
+        </button>
+      }
+    >
+      {editing && (
+        <Editor
+          title={editing ? "Edit gallery item" : "Add gallery item"}
+          onClose={() => setEditing(null)}
+        >
+          <form onSubmit={save} className="grid gap-5 sm:grid-cols-2">
+            <TextField
+              label="Title"
+              value={form.title}
+              onChange={(value) => setForm({ ...form, title: value })}
+              required
+            />
+            <TextField
+              label="Category / tag"
+              value={form.tag}
+              onChange={(value) => setForm({ ...form, tag: value })}
+              required
+            />
+            <TextField
+              label="Image URL"
+              value={form.imageUrl}
+              onChange={(value) => setForm({ ...form, imageUrl: value })}
+              wide
+              required
+            />
+            <TextField
+              label="Alt text"
+              value={form.altText}
+              onChange={(value) => setForm({ ...form, altText: value })}
+            />
+            <SelectField
+              label="Status"
+              value={form.status}
+              options={["published", "draft"]}
+              onChange={(value) => setForm({ ...form, status: value })}
+            />
+            <TextField
+              label="Sort order"
+              type="number"
+              value={form.sortOrder}
+              onChange={(value) => setForm({ ...form, sortOrder: value })}
+            />
+            <div className="flex justify-end gap-3 sm:col-span-2">
+              <button type="button" className={buttonSecondary} onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+              <button className={buttonPrimary}>Save gallery item</button>
+            </div>
+          </form>
+        </Editor>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <article
+            key={item.id}
+            className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft"
+          >
+            <img
+              src={item.imageUrl}
+              alt={item.altText || item.title}
+              className="h-44 w-full object-cover"
+            />
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-display font-semibold">{item.title}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.tag}</p>
+                </div>
+                <StatusBadge status={item.status} />
+              </div>
+              <div className="mt-4 flex gap-2">
+                <button onClick={() => open(item)} className={buttonSecondary}>
+                  <Pencil className="h-3.5 w-3.5" /> Edit
+                </button>
+                <button
+                  onClick={() => remove(item.id)}
+                  className="rounded-xl border border-destructive/20 px-3 py-2 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="mr-1 inline h-3.5 w-3.5" /> Delete
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      {!items.length && (
+        <div className="mt-4">
+          <EmptyState label="No gallery records yet. Add a gallery item after uploading an image." />
+        </div>
+      )}
+    </ModuleShell>
+  );
+}
+
 function EnquiriesView({ setError }: { setError: (value: string) => void }) {
   const [items, setItems] = useState<RecordItem[]>([]);
   const [status, setStatus] = useState("all");
@@ -1174,7 +2130,12 @@ function EnquiriesView({ setError }: { setError: (value: string) => void }) {
                 {item.email || item.phone || "No contact details"}
               </p>
             </td>
-            <td className="px-4 py-4 text-sm capitalize">{item.enquiry_type}</td>
+            <td className="px-4 py-4 text-sm capitalize">
+              {item.enquiry_type === "other" &&
+              String(item.message || "").startsWith("Event registration:")
+                ? "Event registration"
+                : item.enquiry_type}
+            </td>
             <td className="max-w-sm px-4 py-4 text-sm text-muted-foreground">
               {item.message || "—"}
             </td>
@@ -1192,6 +2153,173 @@ function EnquiriesView({ setError }: { setError: (value: string) => void }) {
             </td>
             <td className="px-4 py-4 text-xs text-muted-foreground">
               {new Date(item.created_at).toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+    </ModuleShell>
+  );
+}
+
+function DownloadsView({ setError }: { setError: (value: string) => void }) {
+  const [items, setItems] = useState<RecordItem[]>([]);
+  const [editing, setEditing] = useState<RecordItem | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+  const blank = {
+    title: "",
+    slug: "",
+    description: "",
+    fileType: "",
+    status: "published",
+    sortOrder: 0,
+  };
+  const [form, setForm] = useState<RecordItem>(blank);
+  const load = () =>
+    api("/api/admin/downloads")
+      .then(setItems)
+      .catch((e) => setError(e.message));
+  useEffect(() => {
+    load();
+  }, []);
+
+  function open(item?: RecordItem) {
+    setEditing(item || {});
+    setForm(item ? { ...item, fileType: item.fileType || "" } : blank);
+    setFile(null);
+  }
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      const payload = new FormData();
+      payload.append("title", form.title);
+      payload.append("slug", form.slug);
+      payload.append("description", form.description || "");
+      payload.append("fileType", form.fileType || "");
+      payload.append("status", form.status);
+      payload.append("sortOrder", String(form.sortOrder || 0));
+      if (file) payload.append("file", file);
+      await api(editing?.id ? `/api/admin/downloads/${editing.id}` : "/api/admin/downloads", {
+        method: editing?.id ? "PUT" : "POST",
+        body: payload,
+      });
+      setEditing(null);
+      setFile(null);
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function remove(id: number) {
+    if (!confirm("Delete this download?")) return;
+    try {
+      await api(`/api/admin/downloads/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  return (
+    <ModuleShell
+      title="Downloads"
+      description="Add, edit, delete and publish PDFs or other files shown on the public Downloads page."
+      action={
+        <button onClick={() => open()} className={buttonPrimary}>
+          <Plus className="h-4 w-4" />
+          Add download
+        </button>
+      }
+    >
+      {editing && (
+        <Editor
+          title={editing.id ? "Edit download" : "New download"}
+          onClose={() => setEditing(null)}
+        >
+          <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
+            <TextField
+              label="Title"
+              value={form.title}
+              onChange={(value) => setForm({ ...form, title: value })}
+              required
+            />
+            <TextField
+              label="Slug"
+              value={form.slug}
+              onChange={(value) => setForm({ ...form, slug: value })}
+              required
+            />
+            <TextAreaField
+              label="Description"
+              value={form.description}
+              onChange={(value) => setForm({ ...form, description: value })}
+              wide
+            />
+            <TextField
+              label="File type"
+              value={form.fileType}
+              onChange={(value) => setForm({ ...form, fileType: value.toUpperCase() })}
+              placeholder="PDF, XLSX, PPTX"
+            />
+            <TextField
+              label="Display order"
+              type="number"
+              value={form.sortOrder}
+              onChange={(value) => setForm({ ...form, sortOrder: Number(value) })}
+            />
+            <SelectField
+              label="Status"
+              value={form.status}
+              options={["draft", "published"]}
+              onChange={(value) => setForm({ ...form, status: value })}
+            />
+            <label className="text-sm font-semibold sm:col-span-2">
+              {editing.id ? "Replace file (optional)" : "File (optional for later upload)"}
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.7z,.jpg,.jpeg,.png,.webp,.gif"
+                onChange={(event) => setFile(event.target.files?.[0] || null)}
+                className={`${fieldClass} file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1 file:text-xs file:font-semibold file:text-white`}
+              />
+              {editing.fileName && (
+                <span className="mt-2 block text-xs font-normal text-muted-foreground">
+                  Current file: {editing.fileName}
+                </span>
+              )}
+            </label>
+            <div className="flex justify-end gap-3 sm:col-span-2">
+              <button type="button" className={buttonSecondary} onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+              <button disabled={saving} className={buttonPrimary}>
+                <Upload className="h-4 w-4" />
+                {saving ? "Saving…" : "Save download"}
+              </button>
+            </div>
+          </form>
+        </Editor>
+      )}
+      <DataTable headers={["Download", "File", "Status", "Actions"]}>
+        {items.map((item) => (
+          <tr key={item.id} className="border-t border-border">
+            <td className="px-4 py-4">
+              <p className="font-semibold">{item.title}</p>
+              <p className="text-xs text-muted-foreground">/{item.slug}</p>
+            </td>
+            <td className="px-4 py-4 text-sm text-muted-foreground">
+              {item.fileName || "No file uploaded"}
+              {item.sizeLabel ? ` • ${item.sizeLabel}` : ""}
+            </td>
+            <td className="px-4 py-4">
+              <StatusBadge status={item.status} />
+            </td>
+            <td className="px-4 py-4">
+              <RowActions onEdit={() => open(item)} onDelete={() => remove(item.id)} />
             </td>
           </tr>
         ))}

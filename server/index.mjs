@@ -112,6 +112,49 @@ async function activity(user, action, entityType, entityId, metadata = {}) {
   );
 }
 
+const idLevelPlan = [
+  [100, 10000],
+  [250, 25000],
+  [500, 50000],
+  [1000, 100000],
+  [2500, 250000],
+  [5000, 500000],
+  [10000, 1000000],
+  [25000, 2500000],
+  [50000, 5000000],
+  [100000, 10000000],
+  [250000, 25000000],
+  [500000, 50000000],
+  [1000000, 100000000],
+  [2500000, 250000000],
+  [5000000, 500000000],
+].map(([packageValue, networkValue], index) => ({
+  level: index + 1,
+  packageValue,
+  networkValue,
+}));
+
+function getIdLevelProgress(value) {
+  const totalIds = Math.max(0, Number(value) || 0);
+  const completedLevel = Math.min(Math.floor(totalIds / 100), idLevelPlan.length);
+  const current = completedLevel ? idLevelPlan[completedLevel - 1] : null;
+  const next = idLevelPlan[completedLevel] || null;
+  const remainingIds = next ? Math.max(next.level * 100 - totalIds, 0) : 0;
+  return {
+    totalIds,
+    completedLevel,
+    currentPackageValue: current?.packageValue || 0,
+    currentNetworkValue: current?.networkValue || 0,
+    nextLevel: next?.level || null,
+    nextPackageValue: next?.packageValue || null,
+    remainingIds,
+    levelPassed: completedLevel > 0,
+    message: completedLevel
+      ? `Level ${completedLevel} passed — 100 IDs completed. Discount/benefit eligibility for the ₹${current.packageValue.toLocaleString("en-IN")} ID package is unlocked.`
+      : `Complete ${remainingIds || 100} paid IDs to pass Level 1 and unlock the first ID package benefit.`,
+  };
+}
+
 const idSchema = z.coerce.number().int().positive();
 const pageSchema = z.object({
   title: z.string().trim().min(2).max(255),
@@ -157,6 +200,36 @@ const productSchema = z.object({
   status: z.enum(["draft", "published"]),
   sortOrder: z.coerce.number().int().min(0).default(0),
 });
+const downloadSchema = z.object({
+  title: z.string().trim().min(2).max(255),
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(190)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  description: z.string().max(2000).optional().nullable(),
+  fileType: z.string().trim().max(40).optional().nullable(),
+  status: z.enum(["draft", "published"]),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+});
+const eventSchema = z.object({
+  title: z.string().trim().min(2).max(255),
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(190)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  description: z.string().max(2000).optional().nullable(),
+  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  city: z.string().trim().min(1).max(120),
+  eventType: z.string().trim().min(1).max(120),
+  seats: z.coerce.number().int().min(0).default(0),
+  registrationUrl: z.string().max(500).optional().nullable(),
+  status: z.enum(["draft", "published"]),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+});
 const blogSchema = z.object({
   title: z.string().trim().min(2).max(255),
   slug: z
@@ -186,6 +259,37 @@ const enquirySchema = z.object({
   businessType: z.string().max(160).optional().nullable(),
   investmentRange: z.string().max(120).optional().nullable(),
   message: z.string().max(5000).optional().nullable(),
+});
+const distributorSchema = z.object({
+  distributorCode: z.string().trim().min(1).max(80),
+  name: z.string().trim().min(2).max(160),
+  email: z.string().email().max(190).optional().nullable().or(z.literal("")),
+  phone: z.string().max(40).optional().nullable(),
+  city: z.string().max(120).optional().nullable(),
+  sponsorCode: z.string().max(80).optional().nullable(),
+  status: z.enum(["active", "inactive", "blocked"]).default("active"),
+  notes: z.string().max(5000).optional().nullable(),
+});
+const transactionSchema = z.object({
+  distributorId: z.coerce.number().int().positive(),
+  transactionType: z.enum(["id_purchase", "payment", "income", "refund", "adjustment"]),
+  referenceNo: z.string().max(120).optional().nullable(),
+  idCount: z.coerce.number().int().min(0).default(0),
+  packageLevel: z.coerce.number().int().min(0).optional().nullable(),
+  packageValue: z.coerce.number().min(0).optional().nullable(),
+  amount: z.coerce.number().min(0),
+  paymentMethod: z.string().max(60).optional().nullable(),
+  paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]).default("pending"),
+  transactionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  notes: z.string().max(5000).optional().nullable(),
+});
+const gallerySchema = z.object({
+  title: z.string().trim().min(2).max(255),
+  tag: z.string().trim().min(1).max(120),
+  imageUrl: z.string().trim().min(1).max(500),
+  altText: z.string().max(255).optional().nullable(),
+  status: z.enum(["draft", "published"]),
+  sortOrder: z.coerce.number().int().min(0).default(0),
 });
 
 app.get(
@@ -245,23 +349,48 @@ app.get(
   "/api/admin/dashboard",
   requireAuth,
   asyncRoute(async (_req, res) => {
-    const [[pageCounts]] = await Promise.all([
+    const [
+      [[pageCounts]],
+      [[productCounts]],
+      [[blogCounts]],
+      [[enquiryCounts]],
+      [[distributorCounts]],
+      [[transactionCounts]],
+      [distributorLevelRows],
+    ] = await Promise.all([
       query(
         "SELECT COUNT(*) AS total, SUM(status = 'published') AS published, SUM(status = 'draft') AS drafts FROM pages",
       ),
-    ]);
-    const [[productCounts]] = await Promise.all([
       query("SELECT COUNT(*) AS total FROM products WHERE status = 'published'"),
-    ]);
-    const [[blogCounts]] = await Promise.all([
       query("SELECT COUNT(*) AS total FROM blog_posts WHERE status = 'published'"),
-    ]);
-    const [[enquiryCounts]] = await Promise.all([
       query("SELECT COUNT(*) AS total, SUM(status = 'new') AS unread FROM contact_enquiries"),
+      query("SELECT COUNT(*) AS total FROM distributors"),
+      query(
+        `SELECT
+             COALESCE(SUM(CASE WHEN transaction_type = 'id_purchase' AND payment_status = 'paid' THEN id_count ELSE 0 END), 0) AS totalIds,
+             COALESCE(SUM(CASE WHEN transaction_type IN ('payment', 'id_purchase') AND payment_status = 'paid' THEN amount ELSE 0 END), 0) AS totalPaidAmount,
+             COALESCE(SUM(CASE WHEN payment_status = 'pending' THEN amount ELSE 0 END), 0) AS pendingPayments,
+             COALESCE(SUM(CASE WHEN transaction_type = 'income' AND payment_status = 'paid' THEN amount ELSE 0 END), 0) AS totalIncome
+           FROM distributor_transactions`,
+      ),
+      query(
+        `SELECT d.id, d.distributor_code AS distributorCode, d.name, d.created_at,
+           COALESCE(SUM(CASE WHEN t.transaction_type = 'id_purchase' AND t.payment_status = 'paid' THEN t.id_count ELSE 0 END), 0) AS totalIds
+         FROM distributors d
+         LEFT JOIN distributor_transactions t ON t.distributor_id = d.id
+         GROUP BY d.id, d.distributor_code, d.name, d.created_at
+         ORDER BY totalIds DESC, d.created_at DESC`,
+      ),
     ]);
     const [recent] = await query(
       "SELECT id, action, entity_type AS entityType, entity_id AS entityId, created_at AS createdAt FROM activity_logs ORDER BY created_at DESC LIMIT 8",
     );
+    const levelProgress = distributorLevelRows.map((item) => ({
+      distributorId: item.id,
+      distributorCode: item.distributorCode,
+      name: item.name,
+      ...getIdLevelProgress(item.totalIds),
+    }));
     return ok(res, {
       metrics: {
         pages: Number(pageCounts.total || 0),
@@ -271,8 +400,16 @@ app.get(
         blogPosts: Number(blogCounts.total || 0),
         enquiries: Number(enquiryCounts.total || 0),
         unreadEnquiries: Number(enquiryCounts.unread || 0),
+        distributors: Number(distributorCounts.total || 0),
+        totalIds: Number(transactionCounts.totalIds || 0),
+        totalPaidAmount: Number(transactionCounts.totalPaidAmount || 0),
+        pendingPayments: Number(transactionCounts.pendingPayments || 0),
+        totalIncome: Number(transactionCounts.totalIncome || 0),
+        passedLevels: levelProgress.reduce((sum, item) => sum + item.completedLevel, 0),
       },
       recent,
+      levelProgress,
+      levelNotifications: levelProgress.filter((item) => item.levelPassed).slice(0, 8),
     });
   }),
 );
@@ -299,6 +436,385 @@ app.get(
       params,
     );
     return ok(res, rows);
+  }),
+);
+
+app.get(
+  "/api/admin/distributors",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const search = String(req.query.search || "").trim();
+    const params = [];
+    const where = [];
+    if (search) {
+      where.push(
+        "(d.distributor_code LIKE ? OR d.name LIKE ? OR d.phone LIKE ? OR d.email LIKE ?)",
+      );
+      const term = `%${search}%`;
+      params.push(term, term, term, term);
+    }
+    const [rows] = await query(
+      `SELECT d.*,
+        COALESCE(SUM(CASE WHEN t.transaction_type = 'id_purchase' AND t.payment_status = 'paid' THEN t.id_count ELSE 0 END), 0) AS totalIds,
+        COALESCE(SUM(CASE WHEN t.payment_status = 'paid' AND t.transaction_type IN ('payment', 'id_purchase') THEN t.amount ELSE 0 END), 0) AS totalPaid,
+        COALESCE(SUM(CASE WHEN t.payment_status = 'pending' THEN t.amount ELSE 0 END), 0) AS totalPending,
+        COALESCE(SUM(CASE WHEN t.transaction_type = 'income' AND t.payment_status = 'paid' THEN t.amount ELSE 0 END), 0) AS totalIncome,
+        COUNT(t.id) AS transactionCount
+       FROM distributors d
+       LEFT JOIN distributor_transactions t ON t.distributor_id = d.id
+       ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+       GROUP BY d.id
+       ORDER BY d.created_at DESC`,
+      params,
+    );
+    return ok(
+      res,
+      rows.map((item) => ({ ...item, ...getIdLevelProgress(item.totalIds) })),
+    );
+  }),
+);
+
+app.post(
+  "/api/admin/distributors",
+  requireAuth,
+  allowRoles("super_admin", "enquiry_manager"),
+  asyncRoute(async (req, res) => {
+    const input = validate(distributorSchema, req.body, res);
+    if (!input) return;
+    try {
+      const [result] = await query(
+        "INSERT INTO distributors (distributor_code, name, email, phone, city, sponsor_code, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          input.distributorCode,
+          input.name,
+          input.email || null,
+          input.phone || null,
+          input.city || null,
+          input.sponsorCode || null,
+          input.status,
+          input.notes || null,
+        ],
+      );
+      await activity(req.user, "create", "distributor", result.insertId, { name: input.name });
+      return ok(res, { id: result.insertId }, 201);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY")
+        return fail(res, "That distributor ID already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.put(
+  "/api/admin/distributors/:id",
+  requireAuth,
+  allowRoles("super_admin", "enquiry_manager"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const input = validate(distributorSchema, req.body, res);
+    if (!input) return;
+    try {
+      const [result] = await query(
+        "UPDATE distributors SET distributor_code = ?, name = ?, email = ?, phone = ?, city = ?, sponsor_code = ?, status = ?, notes = ? WHERE id = ?",
+        [
+          input.distributorCode,
+          input.name,
+          input.email || null,
+          input.phone || null,
+          input.city || null,
+          input.sponsorCode || null,
+          input.status,
+          input.notes || null,
+          id,
+        ],
+      );
+      if (!result.affectedRows) return fail(res, "Distributor not found.", 404);
+      await activity(req.user, "update", "distributor", id, { name: input.name });
+      return ok(res, { id });
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY")
+        return fail(res, "That distributor ID already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.delete(
+  "/api/admin/distributors/:id",
+  requireAuth,
+  allowRoles("super_admin"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [result] = await query("DELETE FROM distributors WHERE id = ?", [id]);
+    if (!result.affectedRows) return fail(res, "Distributor not found.", 404);
+    await activity(req.user, "delete", "distributor", id);
+    return ok(res, { id });
+  }),
+);
+
+app.get(
+  "/api/admin/distributors/:id/transactions",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [rows] = await query(
+      `SELECT t.*, d.distributor_code AS distributorCode, d.name AS distributorName
+       FROM distributor_transactions t
+       INNER JOIN distributors d ON d.id = t.distributor_id
+       WHERE t.distributor_id = ?
+       ORDER BY t.transaction_date DESC, t.id DESC`,
+      [id],
+    );
+    return ok(res, rows);
+  }),
+);
+
+function transactionFilters(queryParams) {
+  const where = [];
+  const params = [];
+  if (queryParams.distributorId) {
+    where.push("t.distributor_id = ?");
+    params.push(Number(queryParams.distributorId));
+  }
+  if (
+    ["id_purchase", "payment", "income", "refund", "adjustment"].includes(
+      queryParams.transactionType,
+    )
+  ) {
+    where.push("t.transaction_type = ?");
+    params.push(queryParams.transactionType);
+  }
+  if (["pending", "paid", "failed", "refunded"].includes(queryParams.paymentStatus)) {
+    where.push("t.payment_status = ?");
+    params.push(queryParams.paymentStatus);
+  }
+  return { where, params };
+}
+
+const transactionSelect = `SELECT t.*, d.distributor_code AS distributorCode, d.name AS distributorName
+  FROM distributor_transactions t INNER JOIN distributors d ON d.id = t.distributor_id`;
+
+app.get(
+  "/api/admin/transactions",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const { where, params } = transactionFilters(req.query);
+    const [rows] = await query(
+      `${transactionSelect} ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY t.transaction_date DESC, t.id DESC`,
+      params,
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.get(
+  "/api/admin/transactions/export",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const { where, params } = transactionFilters(req.query);
+    const [rows] = await query(
+      `${transactionSelect} ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY t.transaction_date DESC, t.id DESC`,
+      params,
+    );
+    const escapeCsv = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+    const header = [
+      "Date",
+      "Distributor ID",
+      "Distributor",
+      "Type",
+      "Reference",
+      "IDs",
+      "Package level",
+      "Package value",
+      "Amount",
+      "Payment method",
+      "Payment status",
+      "Notes",
+    ];
+    const lines = rows.map((item) =>
+      [
+        item.transaction_date,
+        item.distributorCode,
+        item.distributorName,
+        item.transaction_type,
+        item.reference_no,
+        item.id_count,
+        item.package_level,
+        item.package_value,
+        item.amount,
+        item.payment_method,
+        item.payment_status,
+        item.notes,
+      ]
+        .map(escapeCsv)
+        .join(","),
+    );
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", "attachment; filename=rdg-transactions.csv");
+    return res.send([header.map(escapeCsv).join(","), ...lines].join("\n"));
+  }),
+);
+
+app.post(
+  "/api/admin/transactions",
+  requireAuth,
+  allowRoles("super_admin", "enquiry_manager"),
+  asyncRoute(async (req, res) => {
+    const input = validate(transactionSchema, req.body, res);
+    if (!input) return;
+    const [[distributor]] = await query("SELECT id FROM distributors WHERE id = ? LIMIT 1", [
+      input.distributorId,
+    ]);
+    if (!distributor) return fail(res, "Select a valid distributor.", 422);
+    const [result] = await query(
+      `INSERT INTO distributor_transactions
+       (distributor_id, transaction_type, reference_no, id_count, package_level, package_value, amount, payment_method, payment_status, transaction_date, notes, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        input.distributorId,
+        input.transactionType,
+        input.referenceNo || null,
+        input.idCount,
+        input.packageLevel || null,
+        input.packageValue ?? null,
+        input.amount,
+        input.paymentMethod || null,
+        input.paymentStatus,
+        input.transactionDate,
+        input.notes || null,
+        req.user.id,
+      ],
+    );
+    await activity(req.user, "create", "transaction", result.insertId, {
+      distributorId: input.distributorId,
+      amount: input.amount,
+      type: input.transactionType,
+    });
+    return ok(res, { id: result.insertId }, 201);
+  }),
+);
+
+app.put(
+  "/api/admin/transactions/:id",
+  requireAuth,
+  allowRoles("super_admin", "enquiry_manager"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const input = validate(transactionSchema, req.body, res);
+    if (!input) return;
+    const [[distributor]] = await query("SELECT id FROM distributors WHERE id = ? LIMIT 1", [
+      input.distributorId,
+    ]);
+    if (!distributor) return fail(res, "Select a valid distributor.", 422);
+    const [result] = await query(
+      `UPDATE distributor_transactions SET distributor_id = ?, transaction_type = ?, reference_no = ?, id_count = ?, package_level = ?, package_value = ?, amount = ?, payment_method = ?, payment_status = ?, transaction_date = ?, notes = ? WHERE id = ?`,
+      [
+        input.distributorId,
+        input.transactionType,
+        input.referenceNo || null,
+        input.idCount,
+        input.packageLevel || null,
+        input.packageValue ?? null,
+        input.amount,
+        input.paymentMethod || null,
+        input.paymentStatus,
+        input.transactionDate,
+        input.notes || null,
+        id,
+      ],
+    );
+    if (!result.affectedRows) return fail(res, "Transaction not found.", 404);
+    await activity(req.user, "update", "transaction", id, {
+      distributorId: input.distributorId,
+      amount: input.amount,
+    });
+    return ok(res, { id });
+  }),
+);
+
+app.delete(
+  "/api/admin/transactions/:id",
+  requireAuth,
+  allowRoles("super_admin"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [result] = await query("DELETE FROM distributor_transactions WHERE id = ?", [id]);
+    if (!result.affectedRows) return fail(res, "Transaction not found.", 404);
+    await activity(req.user, "delete", "transaction", id);
+    return ok(res, { id });
+  }),
+);
+
+app.get(
+  "/api/admin/gallery",
+  requireAuth,
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, title, tag, image_url AS imageUrl, alt_text AS altText, status, sort_order AS sortOrder, created_at AS createdAt, updated_at AS updatedAt FROM gallery_items ORDER BY sort_order ASC, created_at DESC",
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.post(
+  "/api/admin/gallery",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const input = validate(gallerySchema, req.body, res);
+    if (!input) return;
+    const [result] = await query(
+      "INSERT INTO gallery_items (title, tag, image_url, alt_text, status, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        input.title,
+        input.tag,
+        input.imageUrl,
+        input.altText || null,
+        input.status,
+        input.sortOrder,
+      ],
+    );
+    await activity(req.user, "create", "gallery_item", result.insertId, { title: input.title });
+    return ok(res, { id: result.insertId }, 201);
+  }),
+);
+
+app.put(
+  "/api/admin/gallery/:id",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const input = validate(gallerySchema, req.body, res);
+    if (!input) return;
+    const [result] = await query(
+      "UPDATE gallery_items SET title = ?, tag = ?, image_url = ?, alt_text = ?, status = ?, sort_order = ? WHERE id = ?",
+      [
+        input.title,
+        input.tag,
+        input.imageUrl,
+        input.altText || null,
+        input.status,
+        input.sortOrder,
+        id,
+      ],
+    );
+    if (!result.affectedRows) return fail(res, "Gallery item not found.", 404);
+    await activity(req.user, "update", "gallery_item", id, { title: input.title });
+    return ok(res, { id });
+  }),
+);
+
+app.delete(
+  "/api/admin/gallery/:id",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [result] = await query("DELETE FROM gallery_items WHERE id = ?", [id]);
+    if (!result.affectedRows) return fail(res, "Gallery item not found.", 404);
+    await activity(req.user, "delete", "gallery_item", id);
+    return ok(res, { id });
   }),
 );
 
@@ -554,6 +1070,97 @@ app.delete(
 );
 
 app.get(
+  "/api/admin/events",
+  requireAuth,
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, slug, title, description, DATE_FORMAT(event_date, '%Y-%m-%d') AS eventDate, city, event_type AS eventType, seats, registration_url AS registrationUrl, status, sort_order AS sortOrder, created_at AS createdAt, updated_at AS updatedAt FROM events ORDER BY sort_order ASC, event_date ASC, created_at DESC",
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.post(
+  "/api/admin/events",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const input = validate(eventSchema, req.body, res);
+    if (!input) return;
+    try {
+      const [result] = await query(
+        "INSERT INTO events (slug, title, description, event_date, city, event_type, seats, registration_url, status, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          input.slug,
+          input.title,
+          input.description || null,
+          input.eventDate,
+          input.city,
+          input.eventType,
+          input.seats,
+          input.registrationUrl || null,
+          input.status,
+          input.sortOrder,
+        ],
+      );
+      await activity(req.user, "create", "event", result.insertId, { title: input.title });
+      return ok(res, { id: result.insertId }, 201);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") return fail(res, "That event slug already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.put(
+  "/api/admin/events/:id",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const input = validate(eventSchema, req.body, res);
+    if (!input) return;
+    try {
+      const [result] = await query(
+        "UPDATE events SET slug = ?, title = ?, description = ?, event_date = ?, city = ?, event_type = ?, seats = ?, registration_url = ?, status = ?, sort_order = ? WHERE id = ?",
+        [
+          input.slug,
+          input.title,
+          input.description || null,
+          input.eventDate,
+          input.city,
+          input.eventType,
+          input.seats,
+          input.registrationUrl || null,
+          input.status,
+          input.sortOrder,
+          id,
+        ],
+      );
+      if (!result.affectedRows) return fail(res, "Event not found.", 404);
+      await activity(req.user, "update", "event", id, { title: input.title });
+      return ok(res, { id });
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") return fail(res, "That event slug already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.delete(
+  "/api/admin/events/:id",
+  requireAuth,
+  allowRoles("super_admin"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [result] = await query("DELETE FROM events WHERE id = ?", [id]);
+    if (!result.affectedRows) return fail(res, "Event not found.", 404);
+    await activity(req.user, "delete", "event", id);
+    return ok(res, { id });
+  }),
+);
+
+app.get(
   "/api/admin/blog-posts",
   requireAuth,
   asyncRoute(async (_req, res) => {
@@ -749,6 +1356,37 @@ const upload = multer({
   fileFilter: (_req, file, callback) =>
     callback(null, /^(image\/(jpeg|png|webp|gif)|application\/pdf)$/.test(file.mimetype)),
 });
+const downloadUpload = multer({
+  storage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (_req, file, callback) =>
+    callback(
+      null,
+      /^(application\/pdf|application\/zip|application\/x-7z-compressed|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation)|application\/vnd\.ms-(excel|powerpoint)|image\/(jpeg|png|webp|gif))$/.test(
+        file.mimetype,
+      ),
+    ),
+});
+
+function fileTypeFromName(name) {
+  const extension = path
+    .extname(name || "")
+    .replace(/^\./, "")
+    .toUpperCase();
+  return extension || "FILE";
+}
+
+function fileSizeLabel(sizeBytes) {
+  if (!sizeBytes) return null;
+  const units = ["B", "KB", "MB", "GB"];
+  let size = Number(sizeBytes);
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  return `${size >= 10 || unit === 0 ? Math.round(size) : size.toFixed(1)} ${units[unit]}`;
+}
 
 app.get(
   "/api/admin/media",
@@ -802,6 +1440,119 @@ app.delete(
     await query("DELETE FROM media_assets WHERE id = ?", [id]);
     await fs.unlink(path.join(uploadDir, rows[0].filename)).catch(() => undefined);
     await activity(req.user, "delete", "media", id);
+    return ok(res, { id });
+  }),
+);
+
+app.get(
+  "/api/admin/downloads",
+  requireAuth,
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      `SELECT id, slug, title, description, file_name AS fileName, file_url AS fileUrl, file_type AS fileType, mime_type AS mimeType, size_bytes AS sizeBytes, size_label AS sizeLabel, status, sort_order AS sortOrder, created_at AS createdAt, updated_at AS updatedAt FROM downloads ORDER BY sort_order ASC, created_at DESC`,
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.post(
+  "/api/admin/downloads",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  downloadUpload.single("file"),
+  asyncRoute(async (req, res) => {
+    const input = validate(downloadSchema, req.body, res);
+    if (!input) return;
+    const file = req.file;
+    const fileName = file?.filename || null;
+    const fileUrl = file ? `/uploads/${file.filename}` : null;
+    const fileType = input.fileType || (file ? fileTypeFromName(file.originalname) : "FILE");
+    const [result] = await query(
+      "INSERT INTO downloads (slug, title, description, file_name, file_url, file_type, mime_type, size_bytes, size_label, status, sort_order, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        input.slug,
+        input.title,
+        input.description || null,
+        fileName,
+        fileUrl,
+        fileType,
+        file?.mimetype || null,
+        file?.size || null,
+        file ? fileSizeLabel(file.size) : null,
+        input.status,
+        input.sortOrder,
+        req.user.id,
+      ],
+    );
+    await activity(req.user, "create", "download", result.insertId, { title: input.title });
+    return ok(res, { id: result.insertId }, 201);
+  }),
+);
+
+app.put(
+  "/api/admin/downloads/:id",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  downloadUpload.single("file"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const input = validate(downloadSchema, req.body, res);
+    if (!input) return;
+    const [rows] = await query(
+      "SELECT file_name AS fileName, file_url AS fileUrl, file_type AS fileType, mime_type AS mimeType, size_bytes AS sizeBytes, size_label AS sizeLabel FROM downloads WHERE id = ? LIMIT 1",
+      [id],
+    );
+    const existing = rows[0];
+    if (!existing) return fail(res, "Download not found.", 404);
+
+    const file = req.file;
+    const fileName = file?.filename || existing.fileName;
+    const fileUrl = file ? `/uploads/${file.filename}` : existing.fileUrl;
+    const fileType =
+      input.fileType || (file ? fileTypeFromName(file.originalname) : existing.fileType);
+    const mimeType = file?.mimetype || existing.mimeType;
+    const sizeBytes = file?.size || existing.sizeBytes;
+    const sizeLabel = file ? fileSizeLabel(file.size) : existing.sizeLabel;
+
+    await query(
+      "UPDATE downloads SET slug = ?, title = ?, description = ?, file_name = ?, file_url = ?, file_type = ?, mime_type = ?, size_bytes = ?, size_label = ?, status = ?, sort_order = ?, uploaded_by = ? WHERE id = ?",
+      [
+        input.slug,
+        input.title,
+        input.description || null,
+        fileName,
+        fileUrl,
+        fileType,
+        mimeType,
+        sizeBytes,
+        sizeLabel,
+        input.status,
+        input.sortOrder,
+        file ? req.user.id : null,
+        id,
+      ],
+    );
+    if (file && existing.fileName && existing.fileName !== file.filename)
+      await fs.unlink(path.join(uploadDir, existing.fileName)).catch(() => undefined);
+    await activity(req.user, "update", "download", id, { title: input.title });
+    return ok(res, { id });
+  }),
+);
+
+app.delete(
+  "/api/admin/downloads/:id",
+  requireAuth,
+  allowRoles("super_admin"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [rows] = await query("SELECT file_name AS fileName FROM downloads WHERE id = ? LIMIT 1", [
+      id,
+    ]);
+    if (!rows[0]) return fail(res, "Download not found.", 404);
+    await query("DELETE FROM downloads WHERE id = ?", [id]);
+    if (rows[0].fileName)
+      await fs.unlink(path.join(uploadDir, rows[0].fileName)).catch(() => undefined);
+    await activity(req.user, "delete", "download", id);
     return ok(res, { id });
   }),
 );
@@ -881,6 +1632,62 @@ app.post(
 );
 
 app.get(
+  "/api/public/gallery",
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, title, tag, image_url AS imageUrl, alt_text AS altText FROM gallery_items WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.get(
+  "/api/public/downloads",
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, slug, title, description, file_name AS fileName, file_url AS fileUrl, file_type AS fileType, mime_type AS mimeType, size_bytes AS sizeBytes, size_label AS sizeLabel FROM downloads WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.get(
+  "/api/public/events",
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, slug, title, description, DATE_FORMAT(event_date, '%Y-%m-%d') AS eventDate, city, event_type AS eventType, seats, registration_url AS registrationUrl FROM events WHERE status = 'published' ORDER BY sort_order ASC, event_date ASC, created_at DESC",
+    );
+    return ok(res, rows);
+  }),
+);
+
+app.get(
+  "/api/public/products",
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, name, slug, category, subtitle, description, highlights, price, image_url AS imageUrl FROM products WHERE status = 'published' ORDER BY sort_order ASC, updated_at DESC",
+    );
+    return ok(
+      res,
+      rows.map((row) => ({ ...row, highlights: parseJson(row.highlights, []) })),
+    );
+  }),
+);
+
+app.get(
+  "/api/public/blog-posts",
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      "SELECT id, title, slug, excerpt, category, COALESCE(DATE_FORMAT(published_at, '%Y-%m-%d'), DATE_FORMAT(created_at, '%Y-%m-%d')) AS date, 5 AS readMinutes FROM blog_posts WHERE status = 'published' ORDER BY COALESCE(published_at, created_at) DESC",
+    );
+    return ok(
+      res,
+      rows.map((row) => ({ ...row, read: row.readMinutes })),
+    );
+  }),
+);
+
+app.get(
   "/api/public/site-config",
   asyncRoute(async (_req, res) => {
     const [settingsRows] = await query(
@@ -908,11 +1715,26 @@ app.get("/api/docs", (_req, res) =>
       "/api/admin/products",
       "/api/admin/blog-posts",
       "/api/admin/enquiries",
+      "/api/admin/distributors",
+      "/api/admin/distributors/:id/transactions",
+      "/api/admin/transactions",
+      "/api/admin/transactions/export",
+      "/api/admin/gallery",
       "/api/admin/media",
+      "/api/admin/downloads",
+      "/api/admin/events",
       "/api/admin/settings",
       "/api/admin/activity-logs",
     ],
-    public: ["POST /api/public/enquiries", "GET /api/public/site-config"],
+    public: [
+      "POST /api/public/enquiries",
+      "GET /api/public/gallery",
+      "GET /api/public/downloads",
+      "GET /api/public/events",
+      "GET /api/public/products",
+      "GET /api/public/blog-posts",
+      "GET /api/public/site-config",
+    ],
   }),
 );
 

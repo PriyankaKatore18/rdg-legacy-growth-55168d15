@@ -1,12 +1,9 @@
 import { ArrowRight, Banknote, Compass, GraduationCap, Trophy, Users } from "lucide-react";
-import { PageHeader, SectionHeading } from "@/components/layout/PageHeader";
+import { SectionHeading } from "@/components/layout/PageHeader";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import opportunityBreadcrumbImage from "@/assets/opportunity-breadcrumb.png";
 import opportunityImage from "@/assets/opportunity.jpg";
 import { journey } from "@/data/site";
-
-const title = "Business Opportunity — Direct Selling with RDG Future Way";
-const description =
-  "Learn how direct selling works at RDG Future Way: low investment, repurchase income, training support, leadership growth, rewards and recognition.";
 
 const benefits = [
   {
@@ -36,18 +33,15 @@ const benefits = [
 function Opportunity() {
   return (
     <>
-      <PageHeader
-        eyebrow="Business Opportunity"
-        title="A business you can start this week, from home"
-        description="Direct selling removes advertising, distributors and retail margins from the price — and pays that saving to the people who actually recommend the product. That's you."
-      >
-        <a
-          href="/become-distributor"
-          className="bg-brand inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-primary-foreground shadow-card"
-        >
-          Start free registration <ArrowRight className="h-4 w-4" />
-        </a>
-      </PageHeader>
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={opportunityBreadcrumbImage}
+          alt="Business opportunity with RDG Future Way"
+          width={2058}
+          height={764}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
 
       <section className="py-20">
         <div className="container-x grid items-center gap-14 lg:grid-cols-2">

@@ -1,20 +1,20 @@
 import { PlayCircle, Star } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { testimonials } from "@/data/site";
-
-const title = "Success Stories — RDG Future Way Distributors & Customers";
-const description =
-  "Read and watch stories from RDG Future Way distributors and customers who transformed their health and income through direct selling.";
+import successStoriesBreadcrumbImage from "@/assets/success-stories-breadcrumb.png";
 
 function SuccessStories() {
   return (
     <>
-      <PageHeader
-        eyebrow="Success Stories"
-        title="Ordinary people, extraordinary consistency"
-        description="Every leader below started as a customer. What changed was not luck — it was a repeatable system, applied every month."
-      />
+      <section className="relative w-full overflow-hidden bg-white sm:h-[clamp(390px,29vw,560px)]">
+        <img
+          src={successStoriesBreadcrumbImage}
+          alt="Success Stories"
+          width={2065}
+          height={761}
+          className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
+        />
+      </section>
 
       <section className="py-16">
         <div className="container-x">
@@ -28,9 +28,7 @@ function SuccessStories() {
                     </div>
                     <div className="p-6">
                       <p className="font-display font-semibold text-foreground">{v}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Video testimonial • 6 min
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">Video testimonial - 6 min</p>
                     </div>
                   </div>
                 </StaggerItem>
@@ -47,7 +45,7 @@ function SuccessStories() {
                       <Star key={i} className="h-4 w-4 fill-gold text-gold" />
                     ))}
                   </span>
-                  <p className="mt-4 leading-relaxed text-foreground">“{t.quote}”</p>
+                  <p className="mt-4 leading-relaxed text-foreground">&quot;{t.quote}&quot;</p>
                   <p className="mt-6 font-display font-semibold text-foreground">{t.name}</p>
                   <p className="text-sm text-muted-foreground">{t.role}</p>
                 </div>
