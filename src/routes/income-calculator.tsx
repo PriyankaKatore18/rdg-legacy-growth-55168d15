@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowRight, Calculator as CalculatorIcon, Info, Network, Wallet } from "lucide-react";
+import bottleImage from "@/assets/anmol-ratan-juice-bottle.png";
 import incomeCalculatorBreadcrumbImage from "@/assets/income-calculator-breadcrumb.png";
 import { bonuses, directReferralPlans, planLevels } from "@/data/site";
 
@@ -120,7 +121,8 @@ function Calculator() {
                 className="mt-4 w-full accent-primary"
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                Formula: {money(result.level.packageValue)} × {result.packageCount} packages = {money(result.distributorIncome)}
+                Formula: {money(result.level.packageValue)} × {result.packageCount} packages ={" "}
+                {money(result.distributorIncome)}
               </p>
             </div>
 
@@ -146,8 +148,30 @@ function Calculator() {
               <p className="mt-2 text-xs text-muted-foreground">
                 Selected package includes {result.directPlan.productCount} products.
               </p>
-            </div>
 
+              <div className="mt-5 grid gap-4 rounded-2xl border border-border bg-surface p-4 sm:grid-cols-[6.5rem_1fr] sm:items-center">
+                <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#f7fbe9] via-[#fff7d6] to-[#d7eff7]">
+                  <img
+                    src={bottleImage}
+                    alt="Anmol Ratan Juice bottle"
+                    width={1024}
+                    height={1536}
+                    className="h-28 w-auto object-contain drop-shadow-xl"
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                    Main product
+                  </p>
+                  <h3 className="mt-1 font-display text-lg font-semibold text-foreground">
+                    Anmol Ratan Juice
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Included in the selected product package.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="bg-brand rounded-3xl p-6 text-primary-foreground shadow-lift sm:p-8">
@@ -165,8 +189,16 @@ function Calculator() {
             </motion.div>
 
             <div className="mt-8 space-y-3 text-sm">
-              <ResultRow icon={Network} label="Distributor income" value={result.distributorIncome} />
-              <ResultRow icon={Wallet} label="Selected package" value={result.directPlan.packageValue} />
+              <ResultRow
+                icon={Network}
+                label="Distributor income"
+                value={result.distributorIncome}
+              />
+              <ResultRow
+                icon={Wallet}
+                label="Selected package"
+                value={result.directPlan.packageValue}
+              />
             </div>
 
             <div className="mt-8 rounded-2xl bg-primary-foreground/10 p-4">
@@ -216,7 +248,8 @@ function Calculator() {
             </h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
               The calculator shows the requested 100-package milestone income and the product count
-              in each available package. Other streams require their own sales and qualification conditions.
+              in each available package. Other streams require their own sales and qualification
+              conditions.
             </p>
           </div>
           <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">

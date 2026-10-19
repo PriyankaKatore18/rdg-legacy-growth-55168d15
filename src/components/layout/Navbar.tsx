@@ -1,8 +1,19 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { ArrowRight, ChevronDown, Globe, Menu, Search, UserPlus, X } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  Globe,
+  Menu,
+  Search,
+  ShoppingCart,
+  UserPlus,
+  UserRound,
+  X,
+} from "lucide-react";
 import logo from "@/assets/logo-transparent.png";
 import { navigation } from "@/data/site";
+import { getCustomerCart, getCustomerMe, type Customer } from "@/lib/customer-api";
 import { languageOptions, useLanguage } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +22,8 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<string | null>(null);
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [cartCount, setCartCount] = useState(0);
   const { language, setLanguage } = useLanguage();
   const currentPath = typeof window === "undefined" ? "/" : window.location.pathname;
 
@@ -19,6 +32,13 @@ export function Navbar() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    getCustomerMe().then(setCustomer);
+    getCustomerCart()
+      .then((items) => setCartCount(items.reduce((total, item) => total + item.quantity, 0)))
+      .catch(() => setCartCount(0));
   }, []);
 
   const isActive = (to: string) => (to === "/" ? currentPath === "/" : currentPath.startsWith(to));
@@ -108,6 +128,24 @@ export function Navbar() {
             </nav>
 
             <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <a
+                href="/cart"
+                aria-label="Shopping cart"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full text-primary-dark transition-colors hover:bg-accent hover:text-primary"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-bold text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </a>
+              <a
+                href={customer ? "/cart" : "/customer/login"}
+                className="hidden items-center gap-1.5 rounded-full px-2 py-2 text-xs font-semibold text-primary-dark transition-colors hover:bg-accent hover:text-primary sm:flex"
+              >
+                <UserRound className="h-4 w-4" /> {customer ? customer.name.split(" ")[0] : "Login"}
+              </a>
               <button
                 type="button"
                 aria-label="Search"
@@ -153,7 +191,7 @@ export function Navbar() {
                 )}
               </div>
               <a
-                href="/become-distributor"
+                href="/distributor/login"
                 className="bg-brand hidden items-center gap-3 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5 xl:flex"
               >
                 <UserPlus className="h-4 w-4" />
@@ -231,13 +269,29 @@ export function Navbar() {
                   </div>
                 </div>
                 <a
-                  href="/become-distributor"
+                  href="/distributor/login"
                   onClick={() => setOpen(false)}
                   className="bg-brand mt-3 flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
                 >
                   <UserPlus className="h-4 w-4" /> Become a Distributor{" "}
                   <ArrowRight className="h-4 w-4" />
                 </a>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <a
+                    href="/customer/login"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full border border-primary/20 px-4 py-3 text-sm font-semibold text-primary"
+                  >
+                    <UserRound className="h-4 w-4" /> {customer ? "Account" : "Customer login"}
+                  </a>
+                  <a
+                    href="/cart"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full border border-primary/20 px-4 py-3 text-sm font-semibold text-primary"
+                  >
+                    <ShoppingCart className="h-4 w-4" /> Cart {cartCount ? `(${cartCount})` : ""}
+                  </a>
+                </div>
               </div>
             </motion.div>
           )}

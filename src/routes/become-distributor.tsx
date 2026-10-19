@@ -13,9 +13,9 @@ const money = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const title = "Become a Distributor — Join RDG Future Way Free";
+const title = "Become a Distributor — RDG Future Way";
 const description =
-  "Register free as an RDG Future Way distributor. Get wholesale pricing, training support and access to the generation income plan.";
+  "Join RDG Future Way as a distributor with a ₹500 annual subscription. Get wholesale pricing, training support and access to the generation income plan.";
 
 type FormValues = {
   fullName: string;
@@ -78,9 +78,9 @@ function BecomeDistributor() {
               Understand how the RDG plan is calculated
             </h2>
             <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-              The plan has product packages plus qualification-based retail, team and
-              leadership income streams. Use the exact package values below as a starting point;
-              final eligibility and payout terms are confirmed by RDG.
+              The plan has product packages plus qualification-based retail, team and leadership
+              income streams. Use the exact package values below as a starting point; final
+              eligibility and payout terms are confirmed by RDG.
             </p>
           </div>
 
@@ -94,9 +94,7 @@ function BecomeDistributor() {
                   <h3 className="font-display text-xl font-bold text-foreground">
                     Product packages
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Package value → products included
-                  </p>
+                  <p className="text-sm text-muted-foreground">Package value → products included</p>
                 </div>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -193,7 +191,7 @@ function BecomeDistributor() {
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr]">
           <div className="space-y-4">
             {[
-              "Zero joining, renewal or franchise fee",
+              "₹500 annual distributor subscription; no separate franchise fee",
               "Distributor support for Anmol Ratan Juice",
               "Monthly bonus payouts by the 10th",
               "Free access to the RDG Training Academy",

@@ -12,7 +12,7 @@ import helmet from "helmet";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import { z } from "zod";
-import { closePool, migrate, query } from "./db.mjs";
+import { closePool, migrate, query, transaction } from "./db.mjs";
 import { seedDatabase } from "./seed.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -97,6 +97,57 @@ async function requireAuth(req, res, next) {
   }
 }
 
+function customerTokenFromRequest(req) {
+  const header = req.headers.authorization;
+  return req.cookies.rdg_customer_token || (header?.startsWith("Bearer ") ? header.slice(7) : null);
+}
+
+function distributorTokenFromRequest(req) {
+  const header = req.headers.authorization;
+  return (
+    req.cookies.rdg_distributor_token || (header?.startsWith("Bearer ") ? header.slice(7) : null)
+  );
+}
+
+async function requireCustomerAuth(req, res, next) {
+  const token = customerTokenFromRequest(req);
+  if (!token) return fail(res, "Customer login required.", 401);
+  try {
+    const payload = jwt.verify(token, jwtSecret);
+    const [rows] = await query(
+      "SELECT id, name, email, phone FROM customers WHERE id = ? LIMIT 1",
+      [payload.sub],
+    );
+    if (!rows[0]) return fail(res, "Customer account not found.", 401);
+    req.customer = rows[0];
+    next();
+  } catch {
+    return fail(res, "Your customer session has expired.", 401);
+  }
+}
+
+async function requireDistributorAuth(req, res, next) {
+  const token = distributorTokenFromRequest(req);
+  if (!token) return fail(res, "Distributor login required.", 401);
+  try {
+    const payload = jwt.verify(token, jwtSecret);
+    const [rows] = await query(
+      `SELECT a.id AS accountId, a.username, d.id, d.distributor_code AS distributorCode,
+         d.name, d.email, d.phone, d.city, d.sponsor_code AS sponsorCode, d.status
+       FROM distributor_accounts a
+       INNER JOIN distributors d ON d.id = a.distributor_id
+       WHERE a.id = ? AND d.status = 'active'
+       LIMIT 1`,
+      [payload.sub],
+    );
+    if (!rows[0]) return fail(res, "Distributor account not found or inactive.", 401);
+    req.distributor = rows[0];
+    next();
+  } catch {
+    return fail(res, "Your distributor session has expired.", 401);
+  }
+}
+
 function allowRoles(...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role))
@@ -156,6 +207,34 @@ function getIdLevelProgress(value) {
 }
 
 const idSchema = z.coerce.number().int().positive();
+const customerRegisterSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+  email: z.string().email().max(190),
+  phone: z.string().trim().max(40).optional().nullable(),
+  password: z.string().min(8).max(120),
+});
+const customerLoginSchema = z.object({
+  email: z.string().email().max(190),
+  password: z.string().min(1).max(120),
+});
+const distributorRegisterSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+  username: z
+    .string()
+    .trim()
+    .min(4)
+    .max(80)
+    .regex(/^[a-zA-Z0-9._-]+$/, "Use only letters, numbers, dot, underscore or hyphen."),
+  email: z.string().email().max(190),
+  phone: z.string().trim().min(10).max(40),
+  city: z.string().trim().min(2).max(120),
+  sponsorCode: z.string().trim().max(80).optional().nullable(),
+  password: z.string().min(8).max(120),
+});
+const distributorLoginSchema = z.object({
+  username: z.string().trim().min(1).max(80),
+  password: z.string().min(1).max(120),
+});
 const pageSchema = z.object({
   title: z.string().trim().min(2).max(255),
   slug: z
@@ -343,6 +422,324 @@ app.get(
   "/api/auth/me",
   requireAuth,
   asyncRoute(async (req, res) => ok(res, { user: req.user })),
+);
+
+function customerProfile(customer) {
+  return {
+    id: customer.id,
+    name: customer.name,
+    email: customer.email,
+    phone: customer.phone,
+  };
+}
+
+function setCustomerCookie(res, token) {
+  res.cookie("rdg_customer_token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+}
+
+function distributorProfile(distributor) {
+  return {
+    id: distributor.id,
+    accountId: distributor.accountId,
+    username: distributor.username,
+    distributorCode: distributor.distributorCode,
+    name: distributor.name,
+    email: distributor.email,
+    phone: distributor.phone,
+    city: distributor.city,
+    sponsorCode: distributor.sponsorCode,
+    status: distributor.status,
+  };
+}
+
+function setDistributorCookie(res, token) {
+  res.cookie("rdg_distributor_token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+}
+
+async function getCustomerCart(customerId) {
+  const [rows] = await query(
+    `SELECT c.id AS cartItemId, c.product_id AS productId, c.quantity,
+       p.name, p.slug, p.category, p.subtitle, p.description, p.highlights,
+       p.price, p.image_url AS imageUrl
+     FROM customer_cart_items c
+     INNER JOIN products p ON p.id = c.product_id
+     WHERE c.customer_id = ? AND p.status = 'published'
+     ORDER BY c.updated_at DESC`,
+    [customerId],
+  );
+  return rows.map((row) => ({
+    ...row,
+    price: row.price === null ? null : Number(row.price),
+    highlights: parseJson(row.highlights, []),
+  }));
+}
+
+app.post(
+  "/api/customer/auth/register",
+  loginLimiter,
+  asyncRoute(async (req, res) => {
+    const input = customerRegisterSchema.safeParse(req.body);
+    if (!input.success)
+      return fail(res, "Enter a name, valid email and password of 8+ characters.", 422);
+    const email = input.data.email.toLowerCase();
+    try {
+      const passwordHash = await bcrypt.hash(input.data.password, 12);
+      const [result] = await query(
+        "INSERT INTO customers (name, email, phone, password_hash) VALUES (?, ?, ?, ?)",
+        [input.data.name, email, input.data.phone || null, passwordHash],
+      );
+      const customer = {
+        id: result.insertId,
+        name: input.data.name,
+        email,
+        phone: input.data.phone || null,
+      };
+      const token = jwt.sign({ sub: customer.id, scope: "customer", email }, jwtSecret, {
+        expiresIn: "30d",
+      });
+      setCustomerCookie(res, token);
+      return ok(res, { customer: customerProfile(customer) }, 201);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY")
+        return fail(res, "An account with this email already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.post(
+  "/api/customer/auth/login",
+  loginLimiter,
+  asyncRoute(async (req, res) => {
+    const input = customerLoginSchema.safeParse(req.body);
+    if (!input.success) return fail(res, "Email and password are required.", 422);
+    const [rows] = await query("SELECT * FROM customers WHERE email = ? LIMIT 1", [
+      input.data.email.toLowerCase(),
+    ]);
+    const customer = rows[0];
+    if (!customer || !(await bcrypt.compare(input.data.password, customer.password_hash))) {
+      return fail(res, "Invalid customer email or password.", 401);
+    }
+    const token = jwt.sign(
+      { sub: customer.id, scope: "customer", email: customer.email },
+      jwtSecret,
+      { expiresIn: "30d" },
+    );
+    setCustomerCookie(res, token);
+    return ok(res, { customer: customerProfile(customer) });
+  }),
+);
+
+app.post(
+  "/api/customer/auth/logout",
+  asyncRoute(async (_req, res) => {
+    res.clearCookie("rdg_customer_token");
+    return ok(res, { loggedOut: true });
+  }),
+);
+
+app.get(
+  "/api/customer/auth/me",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => ok(res, { customer: customerProfile(req.customer) })),
+);
+
+app.post(
+  "/api/distributor/auth/register",
+  loginLimiter,
+  asyncRoute(async (req, res) => {
+    const input = distributorRegisterSchema.safeParse(req.body);
+    if (!input.success)
+      return fail(
+        res,
+        "Enter your name, username, email, mobile number, city and a password of 8+ characters.",
+        422,
+      );
+
+    const email = input.data.email.toLowerCase();
+    const username = input.data.username.toLowerCase();
+    const passwordHash = await bcrypt.hash(input.data.password, 12);
+    const distributorCode = `RDG-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
+
+    try {
+      const distributor = await transaction(async (connection) => {
+        const [distributorResult] = await connection.execute(
+          `INSERT INTO distributors
+             (distributor_code, name, email, phone, city, sponsor_code, status)
+           VALUES (?, ?, ?, ?, ?, ?, 'active')`,
+          [
+            distributorCode,
+            input.data.name,
+            email,
+            input.data.phone,
+            input.data.city,
+            input.data.sponsorCode || null,
+          ],
+        );
+        const [accountResult] = await connection.execute(
+          `INSERT INTO distributor_accounts (distributor_id, username, password_hash)
+           VALUES (?, ?, ?)`,
+          [distributorResult.insertId, username, passwordHash],
+        );
+        return {
+          id: distributorResult.insertId,
+          accountId: accountResult.insertId,
+          username,
+          distributorCode,
+          name: input.data.name,
+          email,
+          phone: input.data.phone,
+          city: input.data.city,
+          sponsorCode: input.data.sponsorCode || null,
+          status: "active",
+        };
+      });
+      return ok(res, { distributor: distributorProfile(distributor) }, 201);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY")
+        return fail(res, "That username is already registered. Please choose another.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.post(
+  "/api/distributor/auth/login",
+  loginLimiter,
+  asyncRoute(async (req, res) => {
+    const input = distributorLoginSchema.safeParse(req.body);
+    if (!input.success) return fail(res, "Username and password are required.", 422);
+    const [rows] = await query(
+      `SELECT a.*, d.id AS distributorId, d.distributor_code AS distributorCode,
+         d.name, d.email, d.phone, d.city, d.sponsor_code AS sponsorCode, d.status
+       FROM distributor_accounts a
+       INNER JOIN distributors d ON d.id = a.distributor_id
+       WHERE a.username = ?
+       LIMIT 1`,
+      [input.data.username.toLowerCase()],
+    );
+    const account = rows[0];
+    if (
+      !account ||
+      account.status !== "active" ||
+      !(await bcrypt.compare(input.data.password, account.password_hash))
+    ) {
+      return fail(res, "Invalid username or password.", 401);
+    }
+    const distributor = {
+      id: account.distributorId,
+      accountId: account.id,
+      username: account.username,
+      distributorCode: account.distributorCode,
+      name: account.name,
+      email: account.email,
+      phone: account.phone,
+      city: account.city,
+      sponsorCode: account.sponsorCode,
+      status: account.status,
+    };
+    const token = jwt.sign(
+      { sub: account.id, scope: "distributor", username: account.username },
+      jwtSecret,
+      { expiresIn: "30d" },
+    );
+    await query("UPDATE distributor_accounts SET last_login = NOW() WHERE id = ?", [account.id]);
+    setDistributorCookie(res, token);
+    return ok(res, { distributor: distributorProfile(distributor) });
+  }),
+);
+
+app.post(
+  "/api/distributor/auth/logout",
+  asyncRoute(async (_req, res) => {
+    res.clearCookie("rdg_distributor_token");
+    return ok(res, { loggedOut: true });
+  }),
+);
+
+app.get(
+  "/api/distributor/auth/me",
+  requireDistributorAuth,
+  asyncRoute(async (req, res) => ok(res, { distributor: distributorProfile(req.distributor) })),
+);
+
+app.get(
+  "/api/customer/cart",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => ok(res, await getCustomerCart(req.customer.id))),
+);
+
+app.post(
+  "/api/customer/cart",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => {
+    const input = z
+      .object({ productId: idSchema, quantity: z.coerce.number().int().min(1).max(99).default(1) })
+      .safeParse(req.body);
+    if (!input.success) return fail(res, "Select a valid product and quantity.", 422);
+    const [[product]] = await query(
+      "SELECT id FROM products WHERE id = ? AND status = 'published' LIMIT 1",
+      [input.data.productId],
+    );
+    if (!product) return fail(res, "Product is not available.", 404);
+    const [[existing]] = await query(
+      "SELECT id FROM customer_cart_items WHERE customer_id = ? AND product_id = ? LIMIT 1",
+      [req.customer.id, input.data.productId],
+    );
+    if (existing) {
+      await query(
+        "UPDATE customer_cart_items SET quantity = LEAST(quantity + ?, 99) WHERE id = ?",
+        [input.data.quantity, existing.id],
+      );
+    } else {
+      await query(
+        "INSERT INTO customer_cart_items (customer_id, product_id, quantity) VALUES (?, ?, ?)",
+        [req.customer.id, input.data.productId, input.data.quantity],
+      );
+    }
+    return ok(res, await getCustomerCart(req.customer.id), 201);
+  }),
+);
+
+app.patch(
+  "/api/customer/cart/:productId",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => {
+    const productId = idSchema.parse(req.params.productId);
+    const input = z
+      .object({ quantity: z.coerce.number().int().min(1).max(99) })
+      .safeParse(req.body);
+    if (!input.success) return fail(res, "Quantity must be between 1 and 99.", 422);
+    const [result] = await query(
+      "UPDATE customer_cart_items SET quantity = ? WHERE customer_id = ? AND product_id = ?",
+      [input.data.quantity, req.customer.id, productId],
+    );
+    if (!result.affectedRows) return fail(res, "Cart item not found.", 404);
+    return ok(res, await getCustomerCart(req.customer.id));
+  }),
+);
+
+app.delete(
+  "/api/customer/cart/:productId",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => {
+    const productId = idSchema.parse(req.params.productId);
+    await query("DELETE FROM customer_cart_items WHERE customer_id = ? AND product_id = ?", [
+      req.customer.id,
+      productId,
+    ]);
+    return ok(res, await getCustomerCart(req.customer.id));
+  }),
 );
 
 app.get(

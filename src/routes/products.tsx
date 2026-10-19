@@ -53,12 +53,15 @@ function Products() {
         setCatalogProducts(
           data.map((item) => ({
             id: String(item.id),
+            slug: item.slug,
             name: item.name,
             category: item.category || "RDG Product",
             subtitle: item.subtitle || "Discover the RDG product range.",
             description: item.description || "",
             highlights: item.highlights || [],
             badge: item.name === "Anmol Ratan Juice" ? "Signature Product" : "RDG Product",
+            price: item.price,
+            imageUrl: item.imageUrl,
           })),
         );
       }
@@ -71,6 +74,7 @@ function Products() {
         ...item,
         icon: Sparkles,
         visual: true,
+        slug: item.slug || item.id,
       })),
     [catalogProducts],
   );
@@ -180,7 +184,7 @@ function Products() {
                       ))}
                     </ul>
                     <a
-                      href="/contact"
+                      href={`/products/${item.slug}`}
                       className="bg-brand mt-6 inline-flex w-fit items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
                     >
                       Buy this <ArrowRight className="h-4 w-4" />
@@ -224,13 +228,13 @@ function Products() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href="/contact"
+                href={`/products/${product.slug || product.id}`}
                 className="bg-brand inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-card transition-transform hover:-translate-y-0.5"
               >
                 Enquire about Anmol Ratan <MessageCircle className="h-4 w-4" />
               </a>
               <a
-                href="/become-distributor"
+                href="/distributor/login"
                 className="inline-flex items-center gap-2 rounded-full border border-primary/25 px-6 py-3.5 text-sm font-semibold text-primary transition-colors hover:bg-accent"
               >
                 Become a distributor <ArrowRight className="h-4 w-4" />

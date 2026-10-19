@@ -1,6 +1,7 @@
 import { Component, type ReactNode, useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import Home from "@/routes/index";
 import About from "@/routes/about";
@@ -22,6 +23,10 @@ import RefundPolicy from "@/routes/refund-policy";
 import ShippingPolicy from "@/routes/shipping-policy";
 import SuccessStories from "@/routes/success-stories";
 import Terms from "@/routes/terms";
+import Cart from "@/routes/cart";
+import CustomerAuth from "@/routes/customer-auth";
+import DistributorAuth from "@/routes/distributor-auth";
+import ProductDetail from "@/routes/product-detail";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminDashboard, AdminLogin } from "@/routes/admin";
 
@@ -41,6 +46,9 @@ const pages: Record<string, React.ComponentType> = {
   "/generation-plan": GenerationPlan,
   "/income-calculator": IncomeCalculator,
   "/products": Products,
+  "/cart": Cart,
+  "/customer/login": CustomerAuth,
+  "/distributor/login": DistributorAuth,
   "/privacy-policy": PrivacyPolicy,
   "/refund-policy": RefundPolicy,
   "/shipping-policy": ShippingPolicy,
@@ -121,7 +129,7 @@ export function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  const Page = pages[path] ?? NotFound;
+  const Page = pages[path] ?? (path.startsWith("/products/") ? ProductDetail : NotFound);
   const isAdmin = path.startsWith("/admin");
 
   if (isAdmin) {
@@ -141,6 +149,7 @@ export function App() {
           <Page />
         </main>
         <Footer />
+        <FloatingWhatsApp />
       </AppErrorBoundary>
     </LanguageProvider>
   );

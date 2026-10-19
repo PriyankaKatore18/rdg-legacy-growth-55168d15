@@ -110,7 +110,6 @@ const mr: TranslationTable = {
   "Why join RDG": "RDG मध्ये का सामील व्हावे",
   "Six reasons distributors stay for years":
     "डिस्ट्रिब्युटर वर्षानुवर्षे टिकून राहण्याची सहा कारणे",
-  "Free registration. Lifetime opportunity.": "मोफत नोंदणी. आयुष्यभराची संधी.",
   "Download Center": "डाउनलोड केंद्र",
   "Every document you need, in one place": "आवश्यक प्रत्येक दस्तऐवज एका ठिकाणी",
   "Where the business comes alive": "व्यवसायाला चालना देणारे क्षण",
@@ -243,7 +242,6 @@ const hi: TranslationTable = {
   "From your first order to leadership income": "पहले ऑर्डर से नेतृत्व आय तक",
   "Why join RDG": "RDG से क्यों जुड़ें",
   "Six reasons distributors stay for years": "डिस्ट्रिब्यूटर वर्षों तक जुड़े रहने के छह कारण",
-  "Free registration. Lifetime opportunity.": "मुफ्त पंजीकरण। जीवनभर का अवसर।",
   "Download Center": "डाउनलोड केंद्र",
   "Every document you need, in one place": "आपको चाहिए हर दस्तावेज़ एक ही जगह",
   "Where the business comes alive": "जहां व्यवसाय जीवंत होता है",

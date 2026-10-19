@@ -9,7 +9,7 @@ const benefits = [
   {
     icon: Banknote,
     title: "Low Investment",
-    text: "Free registration. Start with the products you already buy.",
+    text: "₹500 annual distributor subscription. Start with the products you already buy.",
   },
   {
     icon: Users,

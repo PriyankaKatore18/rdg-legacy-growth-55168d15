@@ -71,12 +71,15 @@ export const stats = [
 
 export type Product = {
   id: string;
+  slug?: string;
   name: string;
   category: string;
   subtitle: string;
   description: string;
   highlights: string[];
   badge?: string;
+  price?: number | null;
+  imageUrl?: string | null;
 };
 
 export const products: Product[] = [
@@ -216,7 +219,10 @@ export const whyChoose = [
 ];
 
 export const journey = [
-  { step: "Join", desc: "Register free with a valid ID and start your RDG ID." },
+  {
+    step: "Join",
+    desc: "Register with a valid ID and pay the ₹500 annual distributor subscription to start your RDG ID.",
+  },
   { step: "Buy Products", desc: "Purchase at distributor price and build product experience." },
   { step: "Refer Members", desc: "Share products and enrol customers you already know." },
   { step: "Build Team", desc: "Duplicate the system across generations of your network." },
@@ -233,8 +239,13 @@ export const bonuses = [
   },
   {
     name: "Generation Bonus",
-    detail: "Income across 7 active generations deep.",
-    value: "7 Levels",
+    detail: "Income across 15 active generations deep.",
+    value: "15 Levels",
+  },
+  {
+    name: "2-Year Retirement Benefit",
+    detail: "After 2 years of qualification, receive ₹8 lakh per month, including TDS.",
+    value: "₹8L / month",
   },
 ];
 
@@ -411,8 +422,8 @@ export const downloads = [
 
 export const faqs = [
   {
-    q: "What is the joining fee to become an RDG distributor?",
-    a: "Registration is free. You only purchase the product package you actually want, starting from ₹1,200. There is no franchise, security or renewal fee.",
+    q: "What is the annual distributor subscription fee?",
+    a: "The distributor subscription is ₹500 per year. You can also purchase the product package you actually want, starting from ₹1,200. There is no separate franchise or security fee.",
   },
   {
     q: "How is the Generation Plan different from a binary plan?",
@@ -435,4 +446,3 @@ export const faqs = [
     a: "No. The Training Academy takes you from product basics to leadership with structured modules, live sessions and downloadable material.",
   },
 ];
-

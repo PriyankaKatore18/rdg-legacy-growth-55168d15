@@ -56,6 +56,12 @@ async function api(path: string, options: RequestInit = {}) {
   return payload.data;
 }
 
+async function uploadAdminImage(file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return api("/api/admin/media", { method: "POST", body });
+}
+
 const buttonPrimary =
   "bg-brand inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5";
 const buttonSecondary =
@@ -825,16 +831,18 @@ function BannersView({ setError }: { setError: (value: string) => void }) {
               value={form.ctaUrl}
               onChange={(value) => setForm({ ...form, ctaUrl: value })}
             />
-            <TextField
-              label="Desktop image URL"
+            <ImageUploadField
+              label="Desktop image"
               value={form.imageUrl}
               onChange={(value) => setForm({ ...form, imageUrl: value })}
+              onError={setError}
               wide
             />
-            <TextField
-              label="Mobile image URL"
+            <ImageUploadField
+              label="Mobile image"
               value={form.mobileImageUrl}
               onChange={(value) => setForm({ ...form, mobileImageUrl: value })}
+              onError={setError}
               wide
             />
             <TextField
@@ -1015,10 +1023,11 @@ function ProductsView({ setError }: { setError: (value: string) => void }) {
               value={form.highlightsText}
               onChange={(value) => setForm({ ...form, highlightsText: value })}
             />
-            <TextField
-              label="Image URL"
+            <ImageUploadField
+              label="Product image"
               value={form.imageUrl}
               onChange={(value) => setForm({ ...form, imageUrl: value })}
+              onError={setError}
             />
             <SelectField
               label="Status"
@@ -1337,10 +1346,11 @@ function BlogView({ setError }: { setError: (value: string) => void }) {
               wide
               rows={8}
             />
-            <TextField
-              label="Featured image URL"
+            <ImageUploadField
+              label="Featured image"
               value={form.featuredImage}
               onChange={(value) => setForm({ ...form, featuredImage: value })}
+              onError={setError}
             />
             <TextField
               label="Image alt text"
@@ -1977,7 +1987,7 @@ function GalleryView({ setError }: { setError: (value: string) => void }) {
   return (
     <ModuleShell
       title="Gallery manager"
-      description="Manage gallery photos, categories, captions and publishing status. Upload images first in Media Library, then paste their URL here."
+      description="Manage gallery photos, categories, captions and publishing status. Upload each image directly while creating or editing the item."
       action={
         <button onClick={() => open()} className={buttonPrimary}>
           <Plus className="h-4 w-4" /> Add gallery item
@@ -2002,10 +2012,11 @@ function GalleryView({ setError }: { setError: (value: string) => void }) {
               onChange={(value) => setForm({ ...form, tag: value })}
               required
             />
-            <TextField
-              label="Image URL"
+            <ImageUploadField
+              label="Gallery image"
               value={form.imageUrl}
               onChange={(value) => setForm({ ...form, imageUrl: value })}
+              onError={setError}
               wide
               required
             />
@@ -2605,6 +2616,75 @@ function Editor({
     </div>
   );
 }
+
+function ImageUploadField({
+  label,
+  value,
+  onChange,
+  onError,
+  wide = false,
+  required = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onError: (value: string) => void;
+  wide?: boolean;
+  required?: boolean;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [fileName, setFileName] = useState("");
+
+  async function handleChange(file: File | undefined) {
+    if (!file) return;
+    try {
+      setUploading(true);
+      onError("");
+      const uploaded = await uploadAdminImage(file);
+      onChange(uploaded.url);
+      setFileName(file.name);
+    } catch (error) {
+      onError(error instanceof Error ? error.message : "Unable to upload image.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <label className={`block text-sm font-semibold ${wide ? "sm:col-span-2" : ""}`}>
+      {label}
+      <div className="mt-1.5 rounded-xl border border-dashed border-primary/35 bg-primary/5 p-3">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={(event) => void handleChange(event.target.files?.[0])}
+          className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
+          required={required && !value}
+          disabled={uploading}
+        />
+        <div className="mt-2 flex items-center gap-3">
+          {value && (
+            <img
+              src={value}
+              alt="Selected upload preview"
+              className="h-12 w-16 rounded-lg object-cover"
+            />
+          )}
+          <p className="text-xs text-muted-foreground">
+            {uploading
+              ? "Uploading image…"
+              : fileName
+                ? `${fileName} uploaded`
+                : value
+                  ? "Current image saved. Choose a new file to replace it."
+                  : "Choose an image to upload."}
+          </p>
+        </div>
+      </div>
+    </label>
+  );
+}
+
 function TextField({
   label,
   value,
