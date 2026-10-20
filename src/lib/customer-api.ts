@@ -19,6 +19,53 @@ export type CustomerCartItem = {
   imageUrl?: string | null;
 };
 
+export const customerCartSyncKey = "rdg-customer-cart-sync";
+
+export function broadcastCustomerCartChange(productId: number, quantity: number | null) {
+  try {
+    localStorage.setItem(
+      customerCartSyncKey,
+      JSON.stringify({ productId, quantity, changedAt: Date.now() }),
+    );
+  } catch {
+    // Storage can be unavailable in private browsing; the current page still updates normally.
+  }
+}
+
+export type CustomerOrderSummary = {
+  id: number;
+  orderNumber: string;
+  status: string;
+  paymentStatus: string;
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  shippingCity: string;
+  shippingState: string;
+  createdAt: string;
+  itemCount: number;
+};
+
+export type CustomerOrder = CustomerOrderSummary & {
+  paymentMethod: string;
+  shippingName: string;
+  shippingPhone: string;
+  shippingAddressLine1: string;
+  shippingAddressLine2?: string | null;
+  shippingPostalCode: string;
+  shippingCountry: string;
+  customerNote?: string | null;
+  updatedAt: string;
+  items: {
+    productId: number;
+    productName: string;
+    productSlug?: string | null;
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
+  }[];
+};
+
 async function customerApi<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(path, { credentials: "include", ...options });
   const payload = await response.json().catch(() => ({}));
@@ -90,4 +137,32 @@ export async function removeFromCustomerCart(productId: number) {
   return customerApi<CustomerCartItem[]>(`/api/customer/cart/${productId}`, {
     method: "DELETE",
   });
+}
+
+export async function createCustomerOrder(payload: {
+  shippingName: string;
+  shippingPhone: string;
+  shippingAddressLine1: string;
+  shippingAddressLine2?: string;
+  shippingCity: string;
+  shippingState: string;
+  shippingPostalCode: string;
+  shippingCountry?: string;
+  customerNote?: string;
+  paymentMethod?: "cash_on_delivery";
+}) {
+  const data = await customerApi<{ order: CustomerOrderSummary }>("/api/customer/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return data.order;
+}
+
+export async function getCustomerOrders() {
+  return customerApi<CustomerOrderSummary[]>("/api/customer/orders");
+}
+
+export async function getCustomerOrder(id: number) {
+  return customerApi<CustomerOrder>(`/api/customer/orders/${id}`);
 }

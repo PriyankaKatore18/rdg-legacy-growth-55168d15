@@ -1,6 +1,9 @@
 import { ArrowRight, LockKeyhole, UserPlus } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { directReferralPlans } from "@/data/site";
 import { loginDistributor, registerDistributor } from "@/lib/distributor-api";
+
+const money = (value: number) => `₹${value.toLocaleString("en-IN")}`;
 
 function DistributorAuth() {
   const [mode, setMode] = useState<"login" | "register">("register");
@@ -9,7 +12,11 @@ function DistributorAuth() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
-  const [sponsorCode, setSponsorCode] = useState("");
+  const [sponsorFromInvite] = useState(
+    () => new URLSearchParams(window.location.search).get("sponsor")?.trim() || "",
+  );
+  const [sponsorCode, setSponsorCode] = useState(sponsorFromInvite);
+  const [packageValue, setPackageValue] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -28,13 +35,24 @@ function DistributorAuth() {
     setLoading(true);
     try {
       if (mode === "register") {
-        await registerDistributor({ name, username, email, phone, city, sponsorCode, password });
+        const distributor = await registerDistributor({
+          name,
+          username,
+          email,
+          phone,
+          city,
+          sponsorCode,
+          packageValue: Number(packageValue),
+          password,
+        });
         setMode("login");
         setPassword("");
-        setNotice("Account created successfully. Login with your username and password.");
+        setNotice(
+          `Package purchase request submitted for ${money(Number(packageValue))}. Your account will become active after RDG confirms the payment. Distributor ID: ${distributor.distributorCode}.`,
+        );
       } else {
         await loginDistributor(username, password);
-        window.location.href = "/become-distributor";
+        window.location.href = "/distributor/dashboard";
       }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to continue.");
@@ -57,8 +75,8 @@ function DistributorAuth() {
                 Build your RDG journey with one secure account.
               </h1>
               <p className="mt-5 leading-relaxed text-primary-foreground/75">
-                Create your distributor account, then login anytime with your own username and
-                password.
+                Select and purchase an RDG product package first. Your distributor access activates
+                after payment confirmation.
               </p>
             </div>
             <div className="flex items-center gap-2 text-sm text-primary-foreground/75">
@@ -67,7 +85,7 @@ function DistributorAuth() {
           </div>
         </div>
 
-        <div className="p-7 sm:p-12">
+        <div key={mode} className="p-7 sm:p-12">
           <div className="flex gap-2 rounded-full bg-surface p-1">
             <button
               type="button"
@@ -100,8 +118,14 @@ function DistributorAuth() {
               ? "Register once to receive your distributor ID and secure login access."
               : "Login with the username and password you created."}
           </p>
+          <p className="mt-3 hidden rounded-2xl bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
+            Annual distributor membership: ₹599 per year, renewed every year. Product packages are A
+            A product package purchase is required before distributor access is activated.
+          </p>
+
           <p className="mt-3 rounded-2xl bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
-            Annual distributor subscription: ₹500 per year. Product packages are separate.
+            Annual membership is ₹599 per year. A product package purchase is required before
+            distributor access is activated.
           </p>
 
           <form onSubmit={submit} className="mt-7 grid gap-4">
@@ -143,18 +167,54 @@ function DistributorAuth() {
                   value={sponsorCode}
                   onChange={(event) => setSponsorCode(event.target.value)}
                   className="field"
-                  placeholder="Sponsor ID (optional)"
+                  placeholder="Sponsor ID (optional; auto-filled from invite link)"
+                  readOnly={Boolean(sponsorFromInvite)}
                 />
+                <label className="block text-sm font-semibold text-foreground">
+                  Choose product package
+                  <select
+                    value={packageValue}
+                    onChange={(event) => setPackageValue(event.target.value)}
+                    className="field"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select one package (required)
+                    </option>
+                    {directReferralPlans.map((item) => (
+                      <option key={item.packageValue} value={item.packageValue}>
+                        Package {item.packageCount} — {money(item.packageValue)}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                    Your account remains pending until this package payment is confirmed by RDG.
+                  </span>
+                </label>
               </>
             )}
-            <input
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              className="field"
-              placeholder="Username"
-              autoComplete="username"
-              required
-            />
+            <label className="block text-sm font-semibold text-foreground">
+              Username (not email)
+              <input
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                type="text"
+                name="distributor-username"
+                className="field"
+                placeholder="Choose a username"
+                autoComplete={mode === "register" ? "new-password" : "username"}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                required
+              />
+              {mode === "register" && (
+                <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                  Use 4–80 letters, numbers, dot, underscore or hyphen. Keep email in the email
+                  field above.
+                </span>
+              )}
+            </label>
             <input
               value={password}
               onChange={(event) => setPassword(event.target.value)}

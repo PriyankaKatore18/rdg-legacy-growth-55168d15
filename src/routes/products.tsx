@@ -144,7 +144,7 @@ function Products() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
             {visibleItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -153,7 +153,7 @@ function Products() {
                   className="card-lift flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft"
                 >
                   {item.visual ? (
-                    <ProductVisual compact />
+                    <ProductVisual compact imageUrl={item.imageUrl} productName={item.name} />
                   ) : (
                     <div className="bg-gradient-to-br from-primary/10 via-accent to-secondary/10 flex h-52 items-center justify-center">
                       <span className="bg-brand flex h-20 w-20 items-center justify-center rounded-3xl text-primary-foreground shadow-card">
@@ -161,7 +161,7 @@ function Products() {
                       </span>
                     </div>
                   )}
-                  <div className="flex flex-1 flex-col p-6">
+                  <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
                     <span className="bg-gold-grad inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold text-gold-foreground">
                       {item.badge}
                     </span>
@@ -171,6 +171,11 @@ function Products() {
                     <h3 className="mt-2 font-display text-xl font-semibold text-foreground">
                       {item.name}
                     </h3>
+                    <p className="mt-3 text-lg font-bold text-primary">
+                      {item.price === null || item.price === undefined
+                        ? "Price on request"
+                        : `₹${Number(item.price).toLocaleString("en-IN")}`}
+                    </p>
                     <p className="mt-2 text-sm font-medium text-foreground/75">{item.subtitle}</p>
                     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                       {item.description}

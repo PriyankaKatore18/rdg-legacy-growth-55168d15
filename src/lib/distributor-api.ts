@@ -3,12 +3,39 @@ export type Distributor = {
   accountId: number;
   username: string;
   distributorCode: string;
+  sponsorId?: string;
   name: string;
   email: string;
   phone?: string | null;
   city?: string | null;
   sponsorCode?: string | null;
   status: string;
+  membershipAmount?: number;
+  membershipStatus?: string;
+  membershipCurrentStatus?: string;
+  membershipPaymentStatus?: string;
+  membershipStartsAt?: string | null;
+  membershipExpiresAt?: string | null;
+};
+
+export type DistributorNetworkMember = Distributor & {
+  networkLevel: number;
+  networkPath: string;
+  totalIds: number;
+  completedLevel: number;
+  nextLevel?: number | null;
+  remainingIds?: number;
+};
+
+export type DistributorNetwork = {
+  root: Distributor;
+  network: DistributorNetworkMember[];
+  summary: {
+    totalMembers: number;
+    directMembers: number;
+    deepestLevel: number;
+    byLevel: Record<string, number>;
+  };
 };
 
 async function distributorApi<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -38,6 +65,7 @@ export async function registerDistributor(payload: {
   phone: string;
   city: string;
   sponsorCode?: string;
+  packageValue: number;
   password: string;
 }) {
   const data = await distributorApi<{ distributor: Distributor }>(
@@ -62,4 +90,8 @@ export async function loginDistributor(username: string, password: string) {
 
 export async function logoutDistributor() {
   await distributorApi("/api/distributor/auth/logout", { method: "POST" });
+}
+
+export async function getDistributorNetwork() {
+  return distributorApi<DistributorNetwork>("/api/distributor/network");
 }

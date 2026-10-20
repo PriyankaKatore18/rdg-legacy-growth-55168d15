@@ -59,16 +59,19 @@ export function FeaturedProducts() {
 
   useEffect(() => {
     getPublicProducts().then((data) => {
-      if (data) {
+      if (data?.length) {
         setItems(
           data.map((item) => ({
             id: String(item.id),
+            slug: item.slug,
             name: item.name,
             category: item.category || "RDG Product",
             subtitle: item.subtitle || "Discover the RDG product range.",
             description: item.description || "",
             highlights: item.highlights || [],
             badge: item.name === "Anmol Ratan Juice" ? "Signature Product" : "RDG Product",
+            price: item.price,
+            imageUrl: item.imageUrl,
           })),
         );
       }
@@ -91,13 +94,11 @@ export function FeaturedProducts() {
             View product details <ArrowRight className="h-4 w-4" />
           </a>
         </div>
-        <Stagger className="mx-auto mt-12 max-w-md">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((p) => (
-            <StaggerItem key={p.id}>
-              <ProductCard product={p} />
-            </StaggerItem>
+            <ProductCard key={p.id} product={p} />
           ))}
-        </Stagger>
+        </div>
       </div>
     </section>
   );
@@ -456,7 +457,7 @@ export function CTABand() {
         <div className="bg-brand relative overflow-hidden rounded-[2.5rem] px-8 py-16 text-center text-primary-foreground shadow-lift md:px-16">
           <div className="bg-gold-grad animate-blob absolute -top-20 -right-16 h-72 w-72 rounded-full opacity-30 blur-3xl" />
           <h2 className="relative mx-auto max-w-2xl text-3xl font-bold md:text-4xl">
-            Start your RDG journey today — ₹500 annual distributor subscription
+            Start your RDG journey today — ₹599 annual distributor membership
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-primary-foreground/80">
             Join 5,000+ distributors building income with a product their families can enjoy.

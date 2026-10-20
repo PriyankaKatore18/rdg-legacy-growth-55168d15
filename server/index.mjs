@@ -133,9 +133,20 @@ async function requireDistributorAuth(req, res, next) {
     const payload = jwt.verify(token, jwtSecret);
     const [rows] = await query(
       `SELECT a.id AS accountId, a.username, d.id, d.distributor_code AS distributorCode,
-         d.name, d.email, d.phone, d.city, d.sponsor_code AS sponsorCode, d.status
+         d.name, d.email, d.phone, d.city, d.sponsor_code AS sponsorCode, d.status,
+         m.amount AS membershipAmount, m.status AS membershipStatus,
+         m.payment_status AS membershipPaymentStatus, m.starts_at AS membershipStartsAt,
+         m.expires_at AS membershipExpiresAt,
+         CASE WHEN m.id IS NULL THEN 'not_started'
+              WHEN m.expires_at < CURDATE() THEN 'expired'
+              ELSE m.status END AS membershipCurrentStatus
        FROM distributor_accounts a
        INNER JOIN distributors d ON d.id = a.distributor_id
+       LEFT JOIN distributor_memberships m ON m.id = (
+         SELECT m2.id FROM distributor_memberships m2
+         WHERE m2.distributor_id = d.id
+         ORDER BY m2.expires_at DESC, m2.id DESC LIMIT 1
+       )
        WHERE a.id = ? AND d.status = 'active'
        LIMIT 1`,
       [payload.sub],
@@ -207,6 +218,13 @@ function getIdLevelProgress(value) {
 }
 
 const idSchema = z.coerce.number().int().positive();
+const distributorMembershipAmount = 599;
+const distributorPackagePlans = [
+  { packageCount: 1, packageValue: 3500 },
+  { packageCount: 2, packageValue: 7000 },
+  { packageCount: 3, packageValue: 10500 },
+  { packageCount: 4, packageValue: 14000 },
+];
 const customerRegisterSchema = z.object({
   name: z.string().trim().min(2).max(160),
   email: z.string().email().max(190),
@@ -216,6 +234,18 @@ const customerRegisterSchema = z.object({
 const customerLoginSchema = z.object({
   email: z.string().email().max(190),
   password: z.string().min(1).max(120),
+});
+const customerOrderSchema = z.object({
+  shippingName: z.string().trim().min(2).max(160),
+  shippingPhone: z.string().trim().min(7).max(40),
+  shippingAddressLine1: z.string().trim().min(5).max(255),
+  shippingAddressLine2: z.string().trim().max(255).optional().nullable(),
+  shippingCity: z.string().trim().min(2).max(120),
+  shippingState: z.string().trim().min(2).max(120),
+  shippingPostalCode: z.string().trim().min(3).max(20),
+  shippingCountry: z.string().trim().min(2).max(80).default("India"),
+  customerNote: z.string().trim().max(1000).optional().nullable(),
+  paymentMethod: z.literal("cash_on_delivery").default("cash_on_delivery"),
 });
 const distributorRegisterSchema = z.object({
   name: z.string().trim().min(2).max(160),
@@ -229,6 +259,13 @@ const distributorRegisterSchema = z.object({
   phone: z.string().trim().min(10).max(40),
   city: z.string().trim().min(2).max(120),
   sponsorCode: z.string().trim().max(80).optional().nullable(),
+  packageValue: z.coerce
+    .number()
+    .int()
+    .refine(
+      (value) => distributorPackagePlans.some((item) => item.packageValue === value),
+      "Select a valid distributor package.",
+    ),
   password: z.string().min(8).max(120),
 });
 const distributorLoginSchema = z.object({
@@ -340,7 +377,7 @@ const enquirySchema = z.object({
   message: z.string().max(5000).optional().nullable(),
 });
 const distributorSchema = z.object({
-  distributorCode: z.string().trim().min(1).max(80),
+  distributorCode: z.string().trim().max(80).optional().nullable().or(z.literal("")),
   name: z.string().trim().min(2).max(160),
   email: z.string().email().max(190).optional().nullable().or(z.literal("")),
   phone: z.string().max(40).optional().nullable(),
@@ -448,13 +485,151 @@ function distributorProfile(distributor) {
     accountId: distributor.accountId,
     username: distributor.username,
     distributorCode: distributor.distributorCode,
+    sponsorId: distributor.sponsorId || distributor.distributorCode,
     name: distributor.name,
     email: distributor.email,
     phone: distributor.phone,
     city: distributor.city,
     sponsorCode: distributor.sponsorCode,
     status: distributor.status,
+    membershipAmount: distributor.membershipAmount
+      ? Number(distributor.membershipAmount)
+      : distributorMembershipAmount,
+    membershipStatus:
+      distributor.membershipCurrentStatus || distributor.membershipStatus || "not_started",
+    membershipPaymentStatus: distributor.membershipPaymentStatus || "pending",
+    membershipStartsAt: distributor.membershipStartsAt || null,
+    membershipExpiresAt: distributor.membershipExpiresAt || null,
   };
+}
+
+async function resolveSponsorCode(value, execute = query) {
+  const candidate = String(value || "").trim();
+  if (!candidate) return null;
+  const [rows] = await execute(
+    "SELECT distributor_code AS distributorCode FROM distributors WHERE UPPER(distributor_code) = UPPER(?) AND status <> 'blocked' LIMIT 1",
+    [candidate],
+  );
+  return rows[0]?.distributorCode || null;
+}
+
+async function generateDistributorCode(execute = query) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const candidate = `RDG-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
+    const [rows] = await execute("SELECT id FROM distributors WHERE distributor_code = ? LIMIT 1", [
+      candidate,
+    ]);
+    if (!rows[0]) return candidate;
+  }
+  throw new Error("Unable to generate a unique distributor ID.");
+}
+
+async function getDistributorNetwork(sponsorCode) {
+  const [rows] = await query(
+    `WITH RECURSIVE network AS (
+       SELECT d.id, d.distributor_code AS distributorCode, d.name, d.email, d.phone, d.city,
+         d.sponsor_code AS sponsorCode, d.status, 1 AS networkLevel,
+         CAST(d.distributor_code AS CHAR(2000)) AS networkPath
+       FROM distributors d
+       WHERE UPPER(d.sponsor_code) = UPPER(?) AND d.status <> 'blocked'
+       UNION ALL
+       SELECT child.id, child.distributor_code AS distributorCode, child.name, child.email,
+         child.phone, child.city, child.sponsor_code AS sponsorCode, child.status,
+         network.networkLevel + 1,
+         CONCAT(network.networkPath, ' > ', child.distributor_code)
+       FROM distributors child
+       INNER JOIN network ON UPPER(child.sponsor_code) = UPPER(network.distributorCode)
+       WHERE child.status <> 'blocked'
+         AND network.networkLevel < 15
+         AND FIND_IN_SET(
+           CAST(UPPER(child.distributor_code) AS BINARY),
+           REPLACE(
+             CAST(UPPER(network.networkPath) AS BINARY),
+             CAST(' > ' AS BINARY),
+             CAST(',' AS BINARY)
+           )
+         ) = 0
+     )
+     SELECT network.*, a.username,
+       m.amount AS membershipAmount,
+       m.status AS membershipStatus,
+       m.payment_status AS membershipPaymentStatus,
+       m.starts_at AS membershipStartsAt,
+       m.expires_at AS membershipExpiresAt,
+       CASE WHEN m.id IS NULL THEN 'not_started'
+            WHEN m.expires_at < CURDATE() THEN 'expired'
+            ELSE m.status END AS membershipCurrentStatus,
+       COALESCE(tx.totalIds, 0) AS totalIds
+     FROM network
+     LEFT JOIN distributor_accounts a ON a.distributor_id = network.id
+     LEFT JOIN distributor_memberships m ON m.id = (
+       SELECT m2.id FROM distributor_memberships m2
+       WHERE m2.distributor_id = network.id
+       ORDER BY m2.expires_at DESC, m2.id DESC LIMIT 1
+     )
+     LEFT JOIN (
+       SELECT distributor_id,
+         SUM(CASE WHEN transaction_type = 'id_purchase' AND payment_status = 'paid' THEN id_count ELSE 0 END) AS totalIds
+       FROM distributor_transactions
+       GROUP BY distributor_id
+     ) tx ON tx.distributor_id = network.id
+     ORDER BY network.networkLevel, network.networkPath`,
+    [sponsorCode],
+  );
+  return rows.map((item) => ({
+    ...item,
+    ...getIdLevelProgress(item.totalIds),
+    membershipAmount: item.membershipAmount
+      ? Number(item.membershipAmount)
+      : distributorMembershipAmount,
+  }));
+}
+
+async function getAdminDistributorNetwork() {
+  const [rows] = await query(
+    `SELECT d.*, a.username,
+       parent.id AS sponsorId,
+       parent.name AS sponsorName,
+       parent.distributor_code AS sponsorDistributorCode,
+       sponsorAccount.username AS sponsorUsername,
+       (
+         SELECT COUNT(*) FROM distributors child
+         WHERE UPPER(child.sponsor_code) = UPPER(d.distributor_code)
+           AND child.status <> 'blocked'
+       ) AS directTeamCount,
+       m.amount AS membershipAmount,
+       m.status AS membershipStatus,
+       m.payment_status AS membershipPaymentStatus,
+       m.starts_at AS membershipStartsAt,
+       m.expires_at AS membershipExpiresAt,
+       CASE WHEN m.id IS NULL THEN 'not_started'
+            WHEN m.expires_at < CURDATE() THEN 'expired'
+            ELSE m.status END AS membershipCurrentStatus,
+       COALESCE(tx.totalIds, 0) AS totalIds
+     FROM distributors d
+     LEFT JOIN distributor_accounts a ON a.distributor_id = d.id
+     LEFT JOIN distributors parent ON UPPER(parent.distributor_code) = UPPER(d.sponsor_code)
+     LEFT JOIN distributor_accounts sponsorAccount ON sponsorAccount.distributor_id = parent.id
+     LEFT JOIN distributor_memberships m ON m.id = (
+       SELECT m2.id FROM distributor_memberships m2
+       WHERE m2.distributor_id = d.id
+       ORDER BY m2.expires_at DESC, m2.id DESC LIMIT 1
+     )
+     LEFT JOIN (
+       SELECT distributor_id,
+         SUM(CASE WHEN transaction_type = 'id_purchase' AND payment_status = 'paid' THEN id_count ELSE 0 END) AS totalIds
+       FROM distributor_transactions
+       GROUP BY distributor_id
+     ) tx ON tx.distributor_id = d.id
+     ORDER BY d.created_at ASC, d.id ASC`,
+  );
+  return rows.map((item) => ({
+    ...item,
+    ...getIdLevelProgress(item.totalIds),
+    membershipAmount: item.membershipAmount
+      ? Number(item.membershipAmount)
+      : distributorMembershipAmount,
+  }));
 }
 
 function setDistributorCookie(res, token) {
@@ -463,6 +638,61 @@ function setDistributorCookie(res, token) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+}
+
+async function syncDistributorPackageAccess(
+  distributorId,
+  paymentStatus,
+  paymentMethod = "admin_recorded",
+  transactionReference = null,
+) {
+  await transaction(async (connection) => {
+    const [membershipRows] = await connection.execute(
+      `SELECT id FROM distributor_memberships
+       WHERE distributor_id = ? ORDER BY expires_at DESC, id DESC LIMIT 1`,
+      [distributorId],
+    );
+    const membership = membershipRows[0];
+
+    if (paymentStatus === "paid") {
+      await connection.execute(
+        "UPDATE distributors SET status = 'active' WHERE id = ? AND status <> 'blocked'",
+        [distributorId],
+      );
+      if (membership) {
+        await connection.execute(
+          `UPDATE distributor_memberships
+           SET status = 'active', payment_status = 'paid', payment_method = ?,
+               transaction_reference = ?, starts_at = COALESCE(starts_at, CURDATE()),
+               expires_at = COALESCE(expires_at, DATE_ADD(CURDATE(), INTERVAL 1 YEAR))
+           WHERE id = ?`,
+          [paymentMethod, transactionReference, membership.id],
+        );
+      } else {
+        await connection.execute(
+          `INSERT INTO distributor_memberships
+             (distributor_id, amount, status, payment_status, payment_method,
+              transaction_reference, starts_at, expires_at)
+           VALUES (?, ?, 'active', 'paid', ?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR))`,
+          [distributorId, distributorMembershipAmount, paymentMethod, transactionReference],
+        );
+      }
+      return;
+    }
+
+    await connection.execute(
+      "UPDATE distributors SET status = 'inactive' WHERE id = ? AND status <> 'blocked'",
+      [distributorId],
+    );
+    if (membership) {
+      await connection.execute(
+        `UPDATE distributor_memberships
+         SET status = 'pending', payment_status = ?, payment_method = ?, transaction_reference = ?
+         WHERE id = ?`,
+        [paymentStatus, paymentMethod, transactionReference, membership.id],
+      );
+    }
   });
 }
 
@@ -482,6 +712,21 @@ async function getCustomerCart(customerId) {
     price: row.price === null ? null : Number(row.price),
     highlights: parseJson(row.highlights, []),
   }));
+}
+
+function formatOrder(order, items = []) {
+  return {
+    ...order,
+    subtotal: Number(order.subtotal || 0),
+    shippingFee: Number(order.shipping_fee ?? order.shippingFee ?? 0),
+    total: Number(order.total || 0),
+    items: items.map((item) => ({
+      ...item,
+      unitPrice: Number(item.unitPrice ?? item.unit_price ?? 0),
+      lineTotal: Number(item.lineTotal ?? item.line_total ?? 0),
+      quantity: Number(item.quantity || 0),
+    })),
+  };
 }
 
 app.post(
@@ -562,34 +807,52 @@ app.post(
     if (!input.success)
       return fail(
         res,
-        "Enter your name, username, email, mobile number, city and a password of 8+ characters.",
+        "Enter valid account details and select a distributor product package before continuing.",
         422,
       );
 
     const email = input.data.email.toLowerCase();
     const username = input.data.username.toLowerCase();
+    const sponsorCode = await resolveSponsorCode(input.data.sponsorCode);
+    if (input.data.sponsorCode && !sponsorCode)
+      return fail(res, "Enter a valid active sponsor ID.", 422);
+    const selectedPackage = distributorPackagePlans.find(
+      (item) => item.packageValue === input.data.packageValue,
+    );
     const passwordHash = await bcrypt.hash(input.data.password, 12);
-    const distributorCode = `RDG-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
+    const distributorCode = await generateDistributorCode();
 
     try {
       const distributor = await transaction(async (connection) => {
         const [distributorResult] = await connection.execute(
           `INSERT INTO distributors
              (distributor_code, name, email, phone, city, sponsor_code, status)
-           VALUES (?, ?, ?, ?, ?, ?, 'active')`,
-          [
-            distributorCode,
-            input.data.name,
-            email,
-            input.data.phone,
-            input.data.city,
-            input.data.sponsorCode || null,
-          ],
+           VALUES (?, ?, ?, ?, ?, ?, 'inactive')`,
+          [distributorCode, input.data.name, email, input.data.phone, input.data.city, sponsorCode],
         );
         const [accountResult] = await connection.execute(
           `INSERT INTO distributor_accounts (distributor_id, username, password_hash)
            VALUES (?, ?, ?)`,
           [distributorResult.insertId, username, passwordHash],
+        );
+        await connection.execute(
+          `INSERT INTO distributor_memberships
+             (distributor_id, amount, status, payment_status, payment_method, starts_at, expires_at)
+           VALUES (?, ?, 'pending', 'pending', 'package_purchase_pending', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR))`,
+          [distributorResult.insertId, distributorMembershipAmount],
+        );
+        await connection.execute(
+          `INSERT INTO distributor_transactions
+             (distributor_id, transaction_type, reference_no, id_count, package_value, amount,
+              payment_method, payment_status, transaction_date, notes)
+           VALUES (?, 'id_purchase', ?, 1, ?, ?, 'package_purchase_pending', 'pending', CURDATE(), ?)`,
+          [
+            distributorResult.insertId,
+            `PACKAGE-${distributorCode}`,
+            selectedPackage.packageValue,
+            selectedPackage.packageValue,
+            `Registration includes ${selectedPackage.packageCount} package(s). Awaiting payment confirmation.`,
+          ],
         );
         return {
           id: distributorResult.insertId,
@@ -600,11 +863,31 @@ app.post(
           email,
           phone: input.data.phone,
           city: input.data.city,
-          sponsorCode: input.data.sponsorCode || null,
-          status: "active",
+          sponsorCode,
+          status: "inactive",
+          packageValue: selectedPackage.packageValue,
+          packageCount: selectedPackage.packageCount,
+          packagePaymentStatus: "pending",
         };
       });
-      return ok(res, { distributor: distributorProfile(distributor) }, 201);
+      const [[membership]] = await query(
+        `SELECT amount AS membershipAmount, status AS membershipStatus,
+           payment_status AS membershipPaymentStatus, starts_at AS membershipStartsAt,
+           expires_at AS membershipExpiresAt,
+           CASE WHEN expires_at < CURDATE() THEN 'expired' ELSE status END AS membershipCurrentStatus
+         FROM distributor_memberships WHERE distributor_id = ?
+         ORDER BY expires_at DESC, id DESC LIMIT 1`,
+        [distributor.id],
+      );
+      return ok(
+        res,
+        {
+          distributor: distributorProfile({ ...distributor, ...membership }),
+          package: selectedPackage,
+          packagePaymentStatus: "pending",
+        },
+        201,
+      );
     } catch (error) {
       if (error.code === "ER_DUP_ENTRY")
         return fail(res, "That username is already registered. Please choose another.", 409);
@@ -621,20 +904,34 @@ app.post(
     if (!input.success) return fail(res, "Username and password are required.", 422);
     const [rows] = await query(
       `SELECT a.*, d.id AS distributorId, d.distributor_code AS distributorCode,
-         d.name, d.email, d.phone, d.city, d.sponsor_code AS sponsorCode, d.status
+         d.name, d.email, d.phone, d.city, d.sponsor_code AS sponsorCode, d.status,
+         m.amount AS membershipAmount, m.status AS membershipStatus,
+         m.payment_status AS membershipPaymentStatus, m.starts_at AS membershipStartsAt,
+         m.expires_at AS membershipExpiresAt,
+         CASE WHEN m.id IS NULL THEN 'not_started'
+              WHEN m.expires_at < CURDATE() THEN 'expired'
+              ELSE m.status END AS membershipCurrentStatus
        FROM distributor_accounts a
        INNER JOIN distributors d ON d.id = a.distributor_id
+       LEFT JOIN distributor_memberships m ON m.id = (
+         SELECT m2.id FROM distributor_memberships m2
+         WHERE m2.distributor_id = d.id
+         ORDER BY m2.expires_at DESC, m2.id DESC LIMIT 1
+       )
        WHERE a.username = ?
        LIMIT 1`,
       [input.data.username.toLowerCase()],
     );
     const account = rows[0];
-    if (
-      !account ||
-      account.status !== "active" ||
-      !(await bcrypt.compare(input.data.password, account.password_hash))
-    ) {
+    if (!account || !(await bcrypt.compare(input.data.password, account.password_hash))) {
       return fail(res, "Invalid username or password.", 401);
+    }
+    if (account.status !== "active") {
+      return fail(
+        res,
+        "Your package purchase is still pending payment confirmation. Distributor access will activate after RDG confirms the package payment.",
+        403,
+      );
     }
     const distributor = {
       id: account.distributorId,
@@ -647,6 +944,11 @@ app.post(
       city: account.city,
       sponsorCode: account.sponsorCode,
       status: account.status,
+      membershipAmount: account.membershipAmount,
+      membershipCurrentStatus: account.membershipCurrentStatus,
+      membershipPaymentStatus: account.membershipPaymentStatus,
+      membershipStartsAt: account.membershipStartsAt,
+      membershipExpiresAt: account.membershipExpiresAt,
     };
     const token = jwt.sign(
       { sub: account.id, scope: "distributor", username: account.username },
@@ -671,6 +973,32 @@ app.get(
   "/api/distributor/auth/me",
   requireDistributorAuth,
   asyncRoute(async (req, res) => ok(res, { distributor: distributorProfile(req.distributor) })),
+);
+
+app.get(
+  "/api/distributor/network",
+  requireDistributorAuth,
+  asyncRoute(async (req, res) => {
+    const network = await getDistributorNetwork(req.distributor.distributorCode);
+    const byLevel = network.reduce((result, item) => {
+      const key = String(item.networkLevel);
+      result[key] = (result[key] || 0) + 1;
+      return result;
+    }, {});
+    return ok(res, {
+      root: distributorProfile(req.distributor),
+      network,
+      summary: {
+        totalMembers: network.length,
+        directMembers: byLevel["1"] || 0,
+        deepestLevel: network.reduce(
+          (max, item) => Math.max(max, Number(item.networkLevel) || 0),
+          0,
+        ),
+        byLevel,
+      },
+    });
+  }),
 );
 
 app.get(
@@ -739,6 +1067,209 @@ app.delete(
       productId,
     ]);
     return ok(res, await getCustomerCart(req.customer.id));
+  }),
+);
+
+app.post(
+  "/api/customer/orders",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => {
+    const input = customerOrderSchema.safeParse(req.body);
+    if (!input.success) return fail(res, "Complete all required shipping details.", 422);
+    const cart = await getCustomerCart(req.customer.id);
+    if (!cart.length) return fail(res, "Your cart is empty.", 422);
+    if (cart.some((item) => item.price === null || item.price === undefined)) {
+      return fail(res, "Add prices to every product before placing an order.", 422);
+    }
+
+    const subtotal = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+    const shippingFee = subtotal >= 999 ? 0 : 99;
+    const total = subtotal + shippingFee;
+    const orderNumber = `RDG-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+
+    const order = await transaction(async (connection) => {
+      const [orderResult] = await connection.execute(
+        `INSERT INTO customer_orders
+          (order_number, customer_id, status, payment_status, payment_method, subtotal, shipping_fee, total,
+           shipping_name, shipping_phone, shipping_address_line1, shipping_address_line2,
+           shipping_city, shipping_state, shipping_postal_code, shipping_country, customer_note)
+         VALUES (?, ?, 'pending', 'cod', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          orderNumber,
+          req.customer.id,
+          input.data.paymentMethod,
+          subtotal,
+          shippingFee,
+          total,
+          input.data.shippingName,
+          input.data.shippingPhone,
+          input.data.shippingAddressLine1,
+          input.data.shippingAddressLine2 || null,
+          input.data.shippingCity,
+          input.data.shippingState,
+          input.data.shippingPostalCode,
+          input.data.shippingCountry,
+          input.data.customerNote || null,
+        ],
+      );
+
+      for (const item of cart) {
+        const unitPrice = Number(item.price);
+        await connection.execute(
+          `INSERT INTO customer_order_items
+            (order_id, product_id, product_name, product_slug, unit_price, quantity, line_total)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            orderResult.insertId,
+            item.productId,
+            item.name,
+            item.slug,
+            unitPrice,
+            item.quantity,
+            unitPrice * item.quantity,
+          ],
+        );
+      }
+      await connection.execute("DELETE FROM customer_cart_items WHERE customer_id = ?", [
+        req.customer.id,
+      ]);
+      return { id: orderResult.insertId };
+    });
+
+    return ok(
+      res,
+      {
+        order: {
+          id: order.id,
+          orderNumber,
+          status: "pending",
+          paymentStatus: "cod",
+          subtotal,
+          shippingFee,
+          total,
+        },
+      },
+      201,
+    );
+  }),
+);
+
+app.get(
+  "/api/customer/orders",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => {
+    const [rows] = await query(
+      `SELECT o.id, o.order_number AS orderNumber, o.status, o.payment_status AS paymentStatus,
+         o.subtotal, o.shipping_fee AS shippingFee, o.total, o.shipping_city AS shippingCity,
+         o.shipping_state AS shippingState, o.created_at AS createdAt,
+         COUNT(i.id) AS itemCount
+       FROM customer_orders o
+       LEFT JOIN customer_order_items i ON i.order_id = o.id
+       WHERE o.customer_id = ?
+       GROUP BY o.id
+       ORDER BY o.created_at DESC`,
+      [req.customer.id],
+    );
+    return ok(
+      res,
+      rows.map((row) => formatOrder(row)),
+    );
+  }),
+);
+
+app.get(
+  "/api/customer/orders/:id",
+  requireCustomerAuth,
+  asyncRoute(async (req, res) => {
+    const id = idSchema.safeParse(req.params.id);
+    if (!id.success) return fail(res, "Invalid order number.", 422);
+    const [[order]] = await query(
+      `SELECT id, order_number AS orderNumber, status, payment_status AS paymentStatus,
+         payment_method AS paymentMethod, subtotal, shipping_fee AS shippingFee, total,
+         shipping_name AS shippingName, shipping_phone AS shippingPhone,
+         shipping_address_line1 AS shippingAddressLine1, shipping_address_line2 AS shippingAddressLine2,
+         shipping_city AS shippingCity, shipping_state AS shippingState,
+         shipping_postal_code AS shippingPostalCode, shipping_country AS shippingCountry,
+         customer_note AS customerNote, created_at AS createdAt, updated_at AS updatedAt
+       FROM customer_orders WHERE id = ? AND customer_id = ? LIMIT 1`,
+      [id.data, req.customer.id],
+    );
+    if (!order) return fail(res, "Order not found.", 404);
+    const [items] = await query(
+      `SELECT product_id AS productId, product_name AS productName, product_slug AS productSlug,
+         unit_price AS unitPrice, quantity, line_total AS lineTotal
+       FROM customer_order_items WHERE order_id = ? ORDER BY id ASC`,
+      [id.data],
+    );
+    return ok(res, formatOrder(order, items));
+  }),
+);
+
+const adminOrderUpdateSchema = z.object({
+  status: z.enum(["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]),
+  paymentStatus: z.enum(["pending", "cod", "paid", "failed", "refunded"]).optional(),
+});
+
+app.get(
+  "/api/admin/orders",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const status = [
+      "pending",
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ].includes(String(req.query.status))
+      ? String(req.query.status)
+      : null;
+    const params = [];
+    const where = [];
+    if (status) {
+      where.push("o.status = ?");
+      params.push(status);
+    }
+    const [rows] = await query(
+      `SELECT o.id, o.order_number AS orderNumber, o.status, o.payment_status AS paymentStatus,
+         o.payment_method AS paymentMethod, o.subtotal, o.shipping_fee AS shippingFee, o.total,
+         o.shipping_name AS shippingName, o.shipping_phone AS shippingPhone,
+         o.shipping_city AS shippingCity, o.shipping_state AS shippingState,
+         o.shipping_postal_code AS shippingPostalCode, o.created_at AS createdAt,
+         c.name AS customerName, c.email AS customerEmail,
+         COUNT(i.id) AS itemCount
+       FROM customer_orders o
+       INNER JOIN customers c ON c.id = o.customer_id
+       LEFT JOIN customer_order_items i ON i.order_id = o.id
+       ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+       GROUP BY o.id
+       ORDER BY o.created_at DESC`,
+      params,
+    );
+    return ok(
+      res,
+      rows.map((row) => formatOrder(row)),
+    );
+  }),
+);
+
+app.patch(
+  "/api/admin/orders/:id",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const id = idSchema.safeParse(req.params.id);
+    const input = adminOrderUpdateSchema.safeParse(req.body);
+    if (!id.success || !input.success) return fail(res, "Select a valid order status.", 422);
+    const [result] = await query(
+      "UPDATE customer_orders SET status = ?, payment_status = COALESCE(?, payment_status) WHERE id = ?",
+      [input.data.status, input.data.paymentStatus || null, id.data],
+    );
+    if (!result.affectedRows) return fail(res, "Order not found.", 404);
+    await activity(req.user, "update", "order", id.data, {
+      status: input.data.status,
+      paymentStatus: input.data.paymentStatus,
+    });
+    return ok(res, { updated: true });
   }),
 );
 
@@ -852,21 +1383,149 @@ app.get(
     }
     const [rows] = await query(
       `SELECT d.*,
-        COALESCE(SUM(CASE WHEN t.transaction_type = 'id_purchase' AND t.payment_status = 'paid' THEN t.id_count ELSE 0 END), 0) AS totalIds,
-        COALESCE(SUM(CASE WHEN t.payment_status = 'paid' AND t.transaction_type IN ('payment', 'id_purchase') THEN t.amount ELSE 0 END), 0) AS totalPaid,
-        COALESCE(SUM(CASE WHEN t.payment_status = 'pending' THEN t.amount ELSE 0 END), 0) AS totalPending,
-        COALESCE(SUM(CASE WHEN t.transaction_type = 'income' AND t.payment_status = 'paid' THEN t.amount ELSE 0 END), 0) AS totalIncome,
-        COUNT(t.id) AS transactionCount
+        a.username,
+        parent.name AS sponsorName,
+        parent.distributor_code AS sponsorDistributorCode,
+        sponsorAccount.username AS sponsorUsername,
+        (
+          SELECT COUNT(*) FROM distributors child
+          WHERE UPPER(child.sponsor_code) = UPPER(d.distributor_code)
+            AND child.status <> 'blocked'
+        ) AS directTeamCount,
+        m.amount AS membershipAmount,
+        m.status AS membershipStatus,
+        m.payment_status AS membershipPaymentStatus,
+        m.starts_at AS membershipStartsAt,
+        m.expires_at AS membershipExpiresAt,
+        CASE WHEN m.id IS NULL THEN 'not_started'
+             WHEN m.expires_at < CURDATE() THEN 'expired'
+             ELSE m.status END AS membershipCurrentStatus,
+        COALESCE(tx.totalIds, 0) AS totalIds,
+        COALESCE(tx.totalPaid, 0) AS totalPaid,
+        COALESCE(tx.totalPending, 0) AS totalPending,
+        COALESCE(tx.totalIncome, 0) AS totalIncome,
+        COALESCE(tx.transactionCount, 0) AS transactionCount
        FROM distributors d
-       LEFT JOIN distributor_transactions t ON t.distributor_id = d.id
+       LEFT JOIN distributor_accounts a ON a.distributor_id = d.id
+       LEFT JOIN distributors parent ON UPPER(parent.distributor_code) = UPPER(d.sponsor_code)
+       LEFT JOIN distributor_accounts sponsorAccount ON sponsorAccount.distributor_id = parent.id
+       LEFT JOIN distributor_memberships m ON m.id = (
+         SELECT m2.id FROM distributor_memberships m2
+         WHERE m2.distributor_id = d.id
+         ORDER BY m2.expires_at DESC, m2.id DESC LIMIT 1
+       )
+       LEFT JOIN (
+         SELECT distributor_id,
+           SUM(CASE WHEN transaction_type = 'id_purchase' AND payment_status = 'paid' THEN id_count ELSE 0 END) AS totalIds,
+           SUM(CASE WHEN payment_status = 'paid' AND transaction_type IN ('payment', 'id_purchase') THEN amount ELSE 0 END) AS totalPaid,
+           SUM(CASE WHEN payment_status = 'pending' THEN amount ELSE 0 END) AS totalPending,
+           SUM(CASE WHEN transaction_type = 'income' AND payment_status = 'paid' THEN amount ELSE 0 END) AS totalIncome,
+           COUNT(id) AS transactionCount
+         FROM distributor_transactions
+         GROUP BY distributor_id
+       ) tx ON tx.distributor_id = d.id
        ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
-       GROUP BY d.id
        ORDER BY d.created_at DESC`,
       params,
     );
     return ok(
       res,
       rows.map((item) => ({ ...item, ...getIdLevelProgress(item.totalIds) })),
+    );
+  }),
+);
+
+app.get(
+  "/api/admin/distributor-network",
+  requireAuth,
+  asyncRoute(async (_req, res) => ok(res, await getAdminDistributorNetwork())),
+);
+
+app.post(
+  "/api/admin/distributors/:id/membership/renew",
+  requireAuth,
+  allowRoles("super_admin", "enquiry_manager"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.safeParse(req.params.id);
+    const input = z
+      .object({
+        paymentMethod: z.string().trim().max(60).default("admin_recorded"),
+        transactionReference: z.string().trim().max(120).optional().nullable(),
+      })
+      .safeParse(req.body);
+    if (!id.success || !input.success) return fail(res, "Invalid membership renewal details.", 422);
+
+    const [[distributor]] = await query("SELECT id FROM distributors WHERE id = ? LIMIT 1", [
+      id.data,
+    ]);
+    if (!distributor) return fail(res, "Distributor not found.", 404);
+    const [[latest]] = await query(
+      "SELECT id, payment_status AS paymentStatus, DATE_FORMAT(expires_at, '%Y-%m-%d') AS expiresAt FROM distributor_memberships WHERE distributor_id = ? ORDER BY expires_at DESC, id DESC LIMIT 1",
+      [id.data],
+    );
+    const today = new Date().toISOString().slice(0, 10);
+    if (latest?.id && latest.paymentStatus === "pending" && latest.expiresAt >= today) {
+      await query(
+        "UPDATE distributor_memberships SET payment_status = 'paid', payment_method = ?, transaction_reference = ?, status = 'active' WHERE id = ?",
+        [input.data.paymentMethod, input.data.transactionReference || null, latest.id],
+      );
+      await activity(req.user, "renew", "distributor_membership", latest.id, {
+        distributorId: id.data,
+        amount: distributorMembershipAmount,
+        paymentStatus: "paid",
+      });
+      return ok(res, {
+        id: latest.id,
+        amount: distributorMembershipAmount,
+        startsAt: null,
+        expiresAt: latest.expiresAt,
+        status: "active",
+        paymentStatus: "paid",
+      });
+    }
+    const addDays = (dateText, days) => {
+      const date = new Date(`${dateText}T00:00:00Z`);
+      date.setUTCDate(date.getUTCDate() + days);
+      return date.toISOString().slice(0, 10);
+    };
+    const addYear = (dateText) => {
+      const date = new Date(`${dateText}T00:00:00Z`);
+      date.setUTCFullYear(date.getUTCFullYear() + 1);
+      return date.toISOString().slice(0, 10);
+    };
+    const startsAt =
+      latest?.expiresAt && latest.expiresAt >= today ? addDays(latest.expiresAt, 1) : today;
+    const expiresAt = addYear(startsAt);
+    const [result] = await query(
+      `INSERT INTO distributor_memberships
+        (distributor_id, amount, status, payment_status, payment_method, transaction_reference, starts_at, expires_at)
+       VALUES (?, ?, 'active', 'paid', ?, ?, ?, ?)`,
+      [
+        id.data,
+        distributorMembershipAmount,
+        input.data.paymentMethod,
+        input.data.transactionReference || null,
+        startsAt,
+        expiresAt,
+      ],
+    );
+    await activity(req.user, "renew", "distributor_membership", result.insertId, {
+      distributorId: id.data,
+      amount: distributorMembershipAmount,
+      startsAt,
+      expiresAt,
+    });
+    return ok(
+      res,
+      {
+        id: result.insertId,
+        amount: distributorMembershipAmount,
+        startsAt,
+        expiresAt,
+        status: "active",
+        paymentStatus: "paid",
+      },
+      201,
     );
   }),
 );
@@ -878,16 +1537,20 @@ app.post(
   asyncRoute(async (req, res) => {
     const input = validate(distributorSchema, req.body, res);
     if (!input) return;
+    const sponsorCode = await resolveSponsorCode(input.sponsorCode);
+    if (input.sponsorCode && !sponsorCode)
+      return fail(res, "Enter a valid active sponsor ID.", 422);
+    const distributorCode = input.distributorCode?.trim() || (await generateDistributorCode());
     try {
       const [result] = await query(
         "INSERT INTO distributors (distributor_code, name, email, phone, city, sponsor_code, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          input.distributorCode,
+          distributorCode,
           input.name,
           input.email || null,
           input.phone || null,
           input.city || null,
-          input.sponsorCode || null,
+          sponsorCode,
           input.status,
           input.notes || null,
         ],
@@ -910,16 +1573,29 @@ app.put(
     const id = idSchema.parse(req.params.id);
     const input = validate(distributorSchema, req.body, res);
     if (!input) return;
+    const [[current]] = await query(
+      "SELECT distributor_code AS distributorCode FROM distributors WHERE id = ? LIMIT 1",
+      [id],
+    );
+    if (!current) return fail(res, "Distributor not found.", 404);
+    const distributorCode = input.distributorCode?.trim() || current.distributorCode;
+    const sponsorCode = await resolveSponsorCode(input.sponsorCode);
+    if (input.sponsorCode && !sponsorCode)
+      return fail(res, "Enter a valid active sponsor ID.", 422);
+    if (sponsorCode) {
+      if (current && current.distributorCode.toUpperCase() === sponsorCode.toUpperCase())
+        return fail(res, "A distributor cannot sponsor itself.", 422);
+    }
     try {
       const [result] = await query(
         "UPDATE distributors SET distributor_code = ?, name = ?, email = ?, phone = ?, city = ?, sponsor_code = ?, status = ?, notes = ? WHERE id = ?",
         [
-          input.distributorCode,
+          distributorCode,
           input.name,
           input.email || null,
           input.phone || null,
           input.city || null,
-          input.sponsorCode || null,
+          sponsorCode,
           input.status,
           input.notes || null,
           id,
@@ -1082,6 +1758,14 @@ app.post(
         req.user.id,
       ],
     );
+    if (input.transactionType === "id_purchase") {
+      await syncDistributorPackageAccess(
+        input.distributorId,
+        input.paymentStatus,
+        input.paymentMethod || "admin_recorded",
+        input.referenceNo || null,
+      );
+    }
     await activity(req.user, "create", "transaction", result.insertId, {
       distributorId: input.distributorId,
       amount: input.amount,
@@ -1099,6 +1783,10 @@ app.put(
     const id = idSchema.parse(req.params.id);
     const input = validate(transactionSchema, req.body, res);
     if (!input) return;
+    const [[previousTransaction]] = await query(
+      "SELECT transaction_type AS transactionType FROM distributor_transactions WHERE id = ? LIMIT 1",
+      [id],
+    );
     const [[distributor]] = await query("SELECT id FROM distributors WHERE id = ? LIMIT 1", [
       input.distributorId,
     ]);
@@ -1121,6 +1809,21 @@ app.put(
       ],
     );
     if (!result.affectedRows) return fail(res, "Transaction not found.", 404);
+    if (input.transactionType === "id_purchase") {
+      await syncDistributorPackageAccess(
+        input.distributorId,
+        input.paymentStatus,
+        input.paymentMethod || "admin_recorded",
+        input.referenceNo || null,
+      );
+    } else if (previousTransaction?.transactionType === "id_purchase") {
+      await syncDistributorPackageAccess(
+        input.distributorId,
+        "pending",
+        input.paymentMethod || "admin_recorded",
+        input.referenceNo || null,
+      );
+    }
     await activity(req.user, "update", "transaction", id, {
       distributorId: input.distributorId,
       amount: input.amount,

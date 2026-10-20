@@ -2,20 +2,30 @@ import { ArrowRight } from "lucide-react";
 import bottleImage from "@/assets/anmol-ratan-juice-bottle.png";
 import type { Product } from "@/data/site";
 
-export function ProductVisual({ compact = false }: { compact?: boolean }) {
+export function ProductVisual({
+  compact = false,
+  imageUrl,
+  productName = "Anmol Ratan Juice",
+}: {
+  compact?: boolean;
+  imageUrl?: string | null;
+  productName?: string;
+}) {
+  const image = imageUrl || bottleImage;
+
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f7fbe9] via-[#fff7d6] to-[#d7eff7] ${compact ? "min-h-64" : "min-h-[30rem]"}`}
-      aria-label="Anmol Ratan Juice bottle with mixed berries"
+      className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f7fbe9] via-[#fff7d6] to-[#d7eff7] ${compact ? "h-56 min-h-0" : "min-h-[30rem]"}`}
+      aria-label={`${productName} product image`}
     >
       <div className="absolute -top-12 -right-10 h-44 w-44 rounded-full bg-[#a8d66d]/40 blur-3xl" />
       <div className="absolute -bottom-14 -left-8 h-48 w-48 rounded-full bg-[#e8a72d]/25 blur-3xl" />
       <img
-        src={bottleImage}
-        alt="Anmol Ratan Juice herbal and mixed berry juice bottle"
+        src={image}
+        alt={`${productName} product image`}
         width={1024}
         height={1536}
-        className={`relative w-auto object-contain drop-shadow-2xl ${compact ? "h-60" : "h-[29rem]"}`}
+        className={`relative max-h-full w-auto object-contain drop-shadow-2xl ${compact ? "h-52" : "h-[29rem]"}`}
       />
     </div>
   );
@@ -23,9 +33,9 @@ export function ProductVisual({ compact = false }: { compact?: boolean }) {
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="card-sheen group overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
-      <ProductVisual compact />
-      <div className="p-6">
+    <article className="card-sheen group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+      <ProductVisual compact imageUrl={product.imageUrl} productName={product.name} />
+      <div className="flex flex-1 flex-col p-6">
         <span className="bg-gold-grad inline-flex rounded-full px-3 py-1 text-[11px] font-semibold text-gold-foreground">
           {product.badge}
         </span>
@@ -44,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
         </ul>
         <a
           href={`/products/${product.slug || product.id}`}
-          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary"
+          className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-primary"
         >
           View product details
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

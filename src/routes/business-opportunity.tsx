@@ -9,7 +9,7 @@ const benefits = [
   {
     icon: Banknote,
     title: "Low Investment",
-    text: "₹500 annual distributor subscription. Start with the products you already buy.",
+    text: "₹599 annual distributor membership, renewed every year. Start with the products you already buy.",
   },
   {
     icon: Users,

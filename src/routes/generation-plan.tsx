@@ -237,8 +237,8 @@ function GenerationPlan() {
               <ShieldCheck className="h-7 w-7 text-gold" />
               <h3 className="mt-5 font-display text-xl font-bold">Transparent by design</h3>
               <p className="mt-3 text-sm leading-relaxed text-primary-foreground/75">
-                Product packages, qualification values and rewards are kept separate so the page does not
-                present qualification values as guaranteed personal income.
+                Product packages, qualification values and rewards are kept separate so the page
+                does not present qualification values as guaranteed personal income.
               </p>
               <a
                 href="/income-calculator"
@@ -270,18 +270,19 @@ function GenerationPlan() {
                 <ArrowRight className="h-5 w-5 shrink-0 text-primary" />
                 <div className="text-right">
                   <p className="text-xs font-semibold tracking-[0.16em] text-secondary uppercase">
-                    Products included
+                    Packages selected
                   </p>
                   <p className="mt-2 font-display text-2xl font-extrabold text-secondary">
-                    {item.productCount}
+                    {item.packageCount}
                   </p>
                 </div>
               </motion.div>
             ))}
             <p className="rounded-2xl border border-primary/15 bg-primary/5 p-5 text-sm leading-relaxed text-muted-foreground">
               <strong className="text-foreground">Package example:</strong>{" "}
-              {money(directReferralPlans[0].packageValue)} package = {directReferralPlans[0].productCount}{" "}
-              products. Final product, tax and payout terms should be confirmed with RDG.
+              {directReferralPlans[0].packageCount} package ={" "}
+              {money(directReferralPlans[0].packageValue)}. Final package, tax and payout terms
+              should be confirmed with RDG.
             </p>
           </div>
         </div>
@@ -297,8 +298,8 @@ function GenerationPlan() {
               Recognition grows with the business.
             </h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              These plan components are qualification-based and separate from the single-leg
-              product packages above.
+              These plan components are qualification-based and separate from the single-leg product
+              packages above.
             </p>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

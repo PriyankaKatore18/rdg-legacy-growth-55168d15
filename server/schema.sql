@@ -97,6 +97,47 @@ CREATE TABLE IF NOT EXISTS customer_cart_items (
   CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS customer_orders (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  order_number VARCHAR(40) NOT NULL UNIQUE,
+  customer_id BIGINT UNSIGNED NOT NULL,
+  status ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending',
+  payment_status ENUM('pending', 'cod', 'paid', 'failed', 'refunded') NOT NULL DEFAULT 'pending',
+  payment_method VARCHAR(40) NOT NULL DEFAULT 'cash_on_delivery',
+  subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+  shipping_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
+  total DECIMAL(12,2) NOT NULL DEFAULT 0,
+  shipping_name VARCHAR(160) NOT NULL,
+  shipping_phone VARCHAR(40) NOT NULL,
+  shipping_address_line1 VARCHAR(255) NOT NULL,
+  shipping_address_line2 VARCHAR(255) NULL,
+  shipping_city VARCHAR(120) NOT NULL,
+  shipping_state VARCHAR(120) NOT NULL,
+  shipping_postal_code VARCHAR(20) NOT NULL,
+  shipping_country VARCHAR(80) NOT NULL DEFAULT 'India',
+  customer_note TEXT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_orders_customer_date (customer_id, created_at),
+  INDEX idx_orders_status_date (status, created_at),
+  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS customer_order_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  order_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NULL,
+  product_name VARCHAR(255) NOT NULL,
+  product_slug VARCHAR(190) NULL,
+  unit_price DECIMAL(12,2) NOT NULL,
+  quantity INT UNSIGNED NOT NULL DEFAULT 1,
+  line_total DECIMAL(12,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_order_items_order (order_id),
+  CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES customer_orders(id) ON DELETE CASCADE,
+  CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS blog_posts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
@@ -226,6 +267,23 @@ CREATE TABLE IF NOT EXISTS distributor_accounts (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_distributor_accounts_username (username),
   CONSTRAINT fk_distributor_account_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS distributor_memberships (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  distributor_id BIGINT UNSIGNED NOT NULL,
+  amount DECIMAL(10,2) NOT NULL DEFAULT 599,
+  status ENUM('pending', 'active', 'expired', 'cancelled') NOT NULL DEFAULT 'pending',
+  payment_status ENUM('pending', 'paid', 'failed', 'refunded') NOT NULL DEFAULT 'pending',
+  payment_method VARCHAR(60) NULL,
+  transaction_reference VARCHAR(120) NULL,
+  starts_at DATE NOT NULL,
+  expires_at DATE NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_memberships_distributor_expiry (distributor_id, expires_at),
+  INDEX idx_memberships_status_expiry (status, expires_at),
+  CONSTRAINT fk_membership_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS distributor_transactions (

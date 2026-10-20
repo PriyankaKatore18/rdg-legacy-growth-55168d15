@@ -24,8 +24,11 @@ import ShippingPolicy from "@/routes/shipping-policy";
 import SuccessStories from "@/routes/success-stories";
 import Terms from "@/routes/terms";
 import Cart from "@/routes/cart";
+import Checkout from "@/routes/checkout";
 import CustomerAuth from "@/routes/customer-auth";
+import CustomerOrders from "@/routes/customer-orders";
 import DistributorAuth from "@/routes/distributor-auth";
+import DistributorDashboard from "@/routes/distributor-dashboard";
 import ProductDetail from "@/routes/product-detail";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminDashboard, AdminLogin } from "@/routes/admin";
@@ -47,8 +50,11 @@ const pages: Record<string, React.ComponentType> = {
   "/income-calculator": IncomeCalculator,
   "/products": Products,
   "/cart": Cart,
+  "/checkout": Checkout,
   "/customer/login": CustomerAuth,
+  "/account/orders": CustomerOrders,
   "/distributor/login": DistributorAuth,
+  "/distributor/dashboard": DistributorDashboard,
   "/privacy-policy": PrivacyPolicy,
   "/refund-policy": RefundPolicy,
   "/shipping-policy": ShippingPolicy,

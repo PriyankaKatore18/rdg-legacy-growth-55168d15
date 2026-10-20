@@ -15,7 +15,7 @@ const money = (value: number) =>
 
 const title = "Become a Distributor — RDG Future Way";
 const description =
-  "Join RDG Future Way as a distributor with a ₹500 annual subscription. Get wholesale pricing, training support and access to the generation income plan.";
+  "Join RDG Future Way as a distributor with a ₹599 annual membership. Renew every year to keep your account active and access wholesale pricing, training support and the generation income plan.";
 
 type FormValues = {
   fullName: string;
@@ -94,7 +94,9 @@ function BecomeDistributor() {
                   <h3 className="font-display text-xl font-bold text-foreground">
                     Product packages
                   </h3>
-                  <p className="text-sm text-muted-foreground">Package value → products included</p>
+                  <p className="text-sm text-muted-foreground">
+                    Choose one package before registration
+                  </p>
                 </div>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -104,12 +106,14 @@ function BecomeDistributor() {
                     className="rounded-2xl border border-border bg-surface p-4"
                   >
                     <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-                      Package {money(item.packageValue)}
+                      Package {item.packageCount}
                     </p>
                     <p className="mt-2 font-display text-2xl font-extrabold text-secondary">
-                      {item.productCount} products
+                      {money(item.packageValue)}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">included in package</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {item.packageCount} × {money(3500)} package
+                    </p>
                   </div>
                 ))}
               </div>
@@ -118,6 +122,12 @@ function BecomeDistributor() {
                 className="bg-brand mt-6 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
               >
                 Calculate your scenario <ArrowRight className="h-4 w-4" />
+              </a>
+              <a
+                href="/distributor/login"
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/20 px-5 py-3 text-sm font-semibold text-primary"
+              >
+                Choose package and register <ArrowRight className="h-4 w-4" />
               </a>
             </div>
 
@@ -191,7 +201,7 @@ function BecomeDistributor() {
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.1fr]">
           <div className="space-y-4">
             {[
-              "₹500 annual distributor subscription; no separate franchise fee",
+              "₹599 annual distributor membership; renews every year",
               "Distributor support for Anmol Ratan Juice",
               "Monthly bonus payouts by the 10th",
               "Free access to the RDG Training Academy",

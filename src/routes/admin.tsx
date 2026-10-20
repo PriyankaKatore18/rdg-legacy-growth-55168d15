@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Network,
   Newspaper,
   Package,
   Pencil,
@@ -40,6 +41,7 @@ type Tab =
   | "events"
   | "blog"
   | "enquiries"
+  | "orders"
   | "distributors"
   | "transactions"
   | "gallery"
@@ -206,6 +208,7 @@ export function AdminDashboard() {
     { id: "events", label: "Events", icon: CalendarDays, group: "Content" },
     { id: "blog", label: "Blog / Insights", icon: Newspaper, group: "Content" },
     { id: "enquiries", label: "Contact Enquiries", icon: Users, group: "Operations" },
+    { id: "orders", label: "Customer Orders", icon: Package, group: "Operations" },
     { id: "distributors", label: "Distributors / IDs", icon: UserPlus, group: "Operations" },
     { id: "transactions", label: "Transactions & Payments", icon: Receipt, group: "Operations" },
     { id: "gallery", label: "Gallery", icon: ImageIcon, group: "Operations" },
@@ -339,6 +342,7 @@ export function AdminDashboard() {
           {tab === "events" && <EventsView setError={setError} />}
           {tab === "blog" && <BlogView setError={setError} />}
           {tab === "enquiries" && <EnquiriesView setError={setError} />}
+          {tab === "orders" && <OrdersView setError={setError} />}
           {tab === "distributors" && <DistributorsView setError={setError} />}
           {tab === "transactions" && <TransactionsView setError={setError} />}
           {tab === "gallery" && <GalleryView setError={setError} />}
@@ -1413,7 +1417,9 @@ function BlogView({ setError }: { setError: (value: string) => void }) {
 
 function DistributorsView({ setError }: { setError: (value: string) => void }) {
   const [items, setItems] = useState<RecordItem[]>([]);
+  const [networkItems, setNetworkItems] = useState<RecordItem[]>([]);
   const [editing, setEditing] = useState<RecordItem | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [search, setSearch] = useState("");
   const blank = {
     distributorCode: "",
@@ -1428,14 +1434,21 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
   const [form, setForm] = useState<RecordItem>(blank);
 
   const load = () =>
-    api(`/api/admin/distributors?search=${encodeURIComponent(search)}`)
-      .then(setItems)
+    Promise.all([
+      api(`/api/admin/distributors?search=${encodeURIComponent(search)}`),
+      api("/api/admin/distributor-network"),
+    ])
+      .then(([filtered, network]) => {
+        setItems(filtered);
+        setNetworkItems(network);
+      })
       .catch((e) => setError(e.message));
   useEffect(() => {
     load();
   }, [search]);
   function open(item?: RecordItem) {
     setEditing(item || null);
+    setEditorOpen(true);
     setForm(
       item
         ? {
@@ -1460,6 +1473,7 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
         body: JSON.stringify(form),
       });
       setEditing(null);
+      setEditorOpen(false);
       await load();
     } catch (e) {
       setError((e as Error).message);
@@ -1469,6 +1483,19 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
     if (!confirm("Delete this distributor and its transaction history?")) return;
     try {
       await api(`/api/admin/distributors/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  async function renewMembership(item: RecordItem) {
+    if (!confirm(`Record ₹599 annual membership renewal for ${item.name}?`)) return;
+    try {
+      await api(`/api/admin/distributors/${item.id}/membership/renew`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentMethod: "admin_recorded" }),
+      });
       await load();
     } catch (e) {
       setError((e as Error).message);
@@ -1498,18 +1525,23 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
           {items.length} distributor{items.length === 1 ? "" : "s"}
         </p>
       </div>
-      {editing && (
+      {editorOpen && (
         <Editor
           title={editing ? "Edit distributor" : "Add distributor"}
-          onClose={() => setEditing(null)}
+          onClose={() => {
+            setEditing(null);
+            setEditorOpen(false);
+          }}
         >
           <form onSubmit={save} className="grid gap-5 sm:grid-cols-2">
-            <TextField
-              label="Distributor ID"
-              value={form.distributorCode}
-              onChange={(value) => setForm({ ...form, distributorCode: value })}
-              required
-            />
+            <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-2.5">
+              <p className="text-xs font-semibold tracking-wide text-primary uppercase">
+                Distributor ID
+              </p>
+              <p className="mt-1 text-sm font-semibold text-foreground">
+                {editing ? form.distributorCode : "Auto-generated after saving"}
+              </p>
+            </div>
             <TextField
               label="Full name"
               value={form.name}
@@ -1551,7 +1583,14 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
               rows={3}
             />
             <div className="flex justify-end gap-3 sm:col-span-2">
-              <button type="button" className={buttonSecondary} onClick={() => setEditing(null)}>
+              <button
+                type="button"
+                className={buttonSecondary}
+                onClick={() => {
+                  setEditing(null);
+                  setEditorOpen(false);
+                }}
+              >
                 Cancel
               </button>
               <button className={buttonPrimary}>Save distributor</button>
@@ -1562,9 +1601,11 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
       <DataTable
         headers={[
           "Distributor",
+          "Sponsor / Team",
           "Contact",
           "IDs purchased",
           "Level",
+          "Membership",
           "Paid",
           "Pending",
           "Income",
@@ -1577,6 +1618,18 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
             <td className="px-4 py-4">
               <p className="font-semibold">{item.name}</p>
               <p className="text-xs text-muted-foreground">{item.distributor_code}</p>
+              <p className="mt-1 text-xs text-primary">@{item.username || "no login yet"}</p>
+            </td>
+            <td className="px-4 py-4 text-sm">
+              <p className="font-semibold text-foreground">
+                {item.sponsorName || "Top-level distributor"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {item.sponsorDistributorCode || "No sponsor ID"}
+              </p>
+              <p className="mt-1 text-xs text-primary">
+                {Number(item.directTeamCount || 0)} direct under this ID
+              </p>
             </td>
             <td className="px-4 py-4 text-sm text-muted-foreground">
               <p>{item.phone || "—"}</p>
@@ -1595,6 +1648,22 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
                   : "Top level reached"}
               </p>
             </td>
+            <td className="px-4 py-4">
+              <p className="font-semibold text-primary">
+                ₹{Number(item.membershipAmount || 599).toLocaleString("en-IN")} / year
+              </p>
+              <div className="mt-1">
+                <StatusBadge status={item.membershipCurrentStatus || "not_started"} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {item.membershipExpiresAt
+                  ? `Expires ${new Date(item.membershipExpiresAt).toLocaleDateString("en-IN")}`
+                  : "No membership recorded"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Payment: {item.membershipPaymentStatus || "pending"}
+              </p>
+            </td>
             <td className="px-4 py-4 text-sm">
               Rs {Number(item.totalPaid || 0).toLocaleString("en-IN")}
             </td>
@@ -1608,7 +1677,18 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
               <StatusBadge status={item.status} />
             </td>
             <td className="px-4 py-4">
-              <RowActions onEdit={() => open(item)} onDelete={() => remove(item.id)} />
+              <div className="flex flex-col items-start gap-2">
+                <button
+                  onClick={() => void renewMembership(item)}
+                  className="rounded-lg border border-secondary/30 px-2.5 py-1.5 text-[11px] font-semibold text-secondary hover:bg-secondary/10"
+                >
+                  {item.membershipPaymentStatus === "pending" &&
+                  item.membershipCurrentStatus === "active"
+                    ? "Mark paid ₹599"
+                    : "Renew ₹599"}
+                </button>
+                <RowActions onEdit={() => open(item)} onDelete={() => remove(item.id)} />
+              </div>
             </td>
           </tr>
         ))}
@@ -1618,7 +1698,82 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
           <EmptyState label="No distributors found. Add the first distributor ID to start tracking accounts." />
         </div>
       )}
+      <AdminNetworkTree items={networkItems} />
     </ModuleShell>
+  );
+}
+
+function AdminNetworkTree({ items }: { items: RecordItem[] }) {
+  if (!items.length) return null;
+  const bySponsor = new Map<string, RecordItem[]>();
+  const knownCodes = new Set(
+    items.map((item) => String(item.distributor_code || "").toUpperCase()),
+  );
+  items.forEach((item) => {
+    const sponsor = String(item.sponsor_code || "").toUpperCase();
+    const children = bySponsor.get(sponsor) || [];
+    children.push(item);
+    bySponsor.set(sponsor, children);
+  });
+  const roots = items.filter((item) => {
+    const sponsor = String(item.sponsor_code || "").toUpperCase();
+    return !sponsor || !knownCodes.has(sponsor);
+  });
+
+  function branch(item: RecordItem, depth: number, visited: Set<number>): ReactNode {
+    if (visited.has(Number(item.id)) || depth > 15) return null;
+    const nextVisited = new Set(visited).add(Number(item.id));
+    const code = String(item.distributor_code || "").toUpperCase();
+    const children = bySponsor.get(code) || [];
+    return (
+      <div key={`${item.id}-${depth}`} className={depth ? "border-l border-primary/20 pl-4" : ""}>
+        <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="truncate font-semibold text-foreground">
+              {item.name}{" "}
+              <span className="font-normal text-muted-foreground">({item.distributor_code})</span>
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {item.username ? `@${item.username}` : "No login account"} •{" "}
+              {item.city || "City not added"}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 font-semibold text-primary">
+              {depth ? `Level ${depth}` : "Top level"}
+            </span>
+            <span className="rounded-full bg-secondary/10 px-2.5 py-1 font-semibold text-secondary">
+              {children.length} direct
+            </span>
+            <span className="text-muted-foreground">
+              {Number(item.totalIds || 0).toLocaleString("en-IN")} IDs
+            </span>
+          </div>
+        </div>
+        {children.length ? (
+          <div className="mt-2 space-y-2">
+            {children.map((child) => branch(child, depth + 1, nextVisited))}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8 rounded-3xl border border-border bg-surface p-5 sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+            Network hierarchy
+          </p>
+          <h3 className="mt-2 font-display text-2xl font-bold">All distributor chains</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">{items.length} accounts in the network</p>
+      </div>
+      <div className="mt-5 space-y-3">
+        {roots.map((item) => branch(item, 0, new Set<number>()))}
+      </div>
+    </div>
   );
 }
 
@@ -1725,7 +1880,7 @@ function TransactionsView({ setError }: { setError: (value: string) => void }) {
   return (
     <ModuleShell
       title="Transactions & payments"
-      description="Record every ID purchase, distributor payment, income, refund and adjustment. The totals are calculated automatically per distributor."
+      description="Record every ID purchase, distributor package payment, income, refund and adjustment. Mark a pending package as paid to activate that distributor account."
       action={
         <div className="flex flex-wrap gap-2">
           <a href="/api/admin/transactions/export" className={buttonSecondary}>
@@ -2168,6 +2323,93 @@ function EnquiriesView({ setError }: { setError: (value: string) => void }) {
           </tr>
         ))}
       </DataTable>
+    </ModuleShell>
+  );
+}
+
+function OrdersView({ setError }: { setError: (value: string) => void }) {
+  const [items, setItems] = useState<RecordItem[]>([]);
+  const [status, setStatus] = useState("all");
+  const load = () =>
+    api(`/api/admin/orders${status === "all" ? "" : `?status=${status}`}`)
+      .then(setItems)
+      .catch((e) => setError(e.message));
+  useEffect(() => {
+    load();
+  }, [status]);
+
+  async function update(item: RecordItem, next: string) {
+    try {
+      await api(`/api/admin/orders/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  return (
+    <ModuleShell
+      title="Customer orders"
+      description="Review shipping details, totals and fulfilment status for customer orders."
+    >
+      <div className="mb-5 flex flex-wrap gap-2">
+        {["all", "pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map(
+          (value) => (
+            <button
+              key={value}
+              onClick={() => setStatus(value)}
+              className={`rounded-full px-4 py-2 text-xs font-semibold capitalize ${status === value ? "bg-primary text-white" : "border border-border bg-card text-muted-foreground"}`}
+            >
+              {value}
+            </button>
+          ),
+        )}
+      </div>
+      <DataTable headers={["Order / customer", "Items", "Shipping", "Total", "Status", "Date"]}>
+        {items.map((item) => (
+          <tr key={item.id} className="border-t border-border align-top">
+            <td className="px-4 py-4">
+              <p className="font-semibold">{item.orderNumber}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.customerName}</p>
+              <p className="text-xs text-muted-foreground">{item.customerEmail}</p>
+            </td>
+            <td className="px-4 py-4 text-sm">{item.itemCount}</td>
+            <td className="px-4 py-4 text-sm">
+              <p>{item.shippingName}</p>
+              <p className="text-xs text-muted-foreground">
+                {item.shippingCity}, {item.shippingState} {item.shippingPostalCode}
+              </p>
+              <p className="text-xs text-muted-foreground">{item.shippingPhone}</p>
+            </td>
+            <td className="px-4 py-4 text-sm font-bold text-primary">
+              ₹{Number(item.total || 0).toLocaleString("en-IN")}
+            </td>
+            <td className="px-4 py-4">
+              <select
+                value={item.status}
+                onChange={(event) => void update(item, event.target.value)}
+                className="rounded-lg border border-border bg-card px-2 py-2 text-xs capitalize"
+              >
+                {["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map(
+                  (value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ),
+                )}
+              </select>
+            </td>
+            <td className="px-4 py-4 text-xs text-muted-foreground">
+              {new Date(item.createdAt).toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+      {!items.length && <EmptyState label="No customer orders found." />}
     </ModuleShell>
   );
 }

@@ -141,12 +141,13 @@ function Calculator() {
               >
                 {directReferralPlans.map((item, index) => (
                   <option key={item.packageValue} value={index}>
-                    {money(item.packageValue)} package → {item.productCount} products
+                    Package {item.packageCount} → {money(item.packageValue)}
                   </option>
                 ))}
               </select>
               <p className="mt-2 text-xs text-muted-foreground">
-                Selected package includes {result.directPlan.productCount} products.
+                Selected package: {result.directPlan.packageCount} package(s), total value{" "}
+                {money(result.directPlan.packageValue)}.
               </p>
 
               <div className="mt-5 grid gap-4 rounded-2xl border border-border bg-surface p-4 sm:grid-cols-[6.5rem_1fr] sm:items-center">
@@ -161,13 +162,13 @@ function Calculator() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                    Main product
+                    Package product reference
                   </p>
                   <h3 className="mt-1 font-display text-lg font-semibold text-foreground">
                     Anmol Ratan Juice
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Included in the selected product package.
+                    Product reference for the selected distributor package.
                   </p>
                 </div>
               </div>

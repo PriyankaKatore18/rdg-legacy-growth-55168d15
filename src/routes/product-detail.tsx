@@ -1,29 +1,81 @@
-import { ArrowLeft, CheckCircle2, Minus, Plus, ShoppingCart, UserRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, CheckCircle2, Minus, Plus, ShoppingCart } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ProductVisual } from "@/components/shared/ProductCard";
 import { products } from "@/data/site";
 import { getPublicProducts, type PublicProduct } from "@/lib/cms";
-import { addToCustomerCart } from "@/lib/customer-api";
+import {
+  addToCustomerCart,
+  broadcastCustomerCartChange,
+  customerCartSyncKey,
+  getCustomerCart,
+  updateCustomerCart,
+} from "@/lib/customer-api";
 
 const money = (value: number | null | undefined) =>
   value === null || value === undefined || Number.isNaN(Number(value))
     ? "Price available on request"
     : `₹${Number(value).toLocaleString("en-IN")}`;
 
+function quantityFromUrl() {
+  const value = Number(new URLSearchParams(window.location.search).get("quantity"));
+  return Number.isInteger(value) ? Math.min(99, Math.max(1, value)) : 1;
+}
+
 function ProductDetail() {
   const slug = typeof window === "undefined" ? "" : window.location.pathname.split("/").pop() || "";
   const [product, setProduct] = useState<(PublicProduct & { badge?: string }) | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(quantityFromUrl);
+  const [cartItemExists, setCartItemExists] = useState(false);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState("");
+  const quantityRef = useRef(quantity);
+  const cartItemExistsRef = useRef(cartItemExists);
+  const productRef = useRef(product);
+
+  useEffect(() => {
+    quantityRef.current = quantity;
+  }, [quantity]);
+
+  useEffect(() => {
+    cartItemExistsRef.current = cartItemExists;
+  }, [cartItemExists]);
+
+  useEffect(() => {
+    productRef.current = product;
+  }, [product]);
+
+  useEffect(() => {
+    if (typeof product?.id !== "number") return;
+    let active = true;
+    getCustomerCart()
+      .then((items) => {
+        if (!active) return;
+        const cartItem = items.find((item) => Number(item.productId) === Number(product.id));
+        cartItemExistsRef.current = Boolean(cartItem);
+        setCartItemExists(Boolean(cartItem));
+        if (cartItem) {
+          quantityRef.current = cartItem.quantity;
+          setQuantity(cartItem.quantity);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          cartItemExistsRef.current = false;
+          setCartItemExists(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [product?.id]);
 
   useEffect(() => {
     getPublicProducts()
       .then((items) => {
         const fallback = products.find((item) => item.id === slug || item.name === slug);
-        const mapped = (items || []).find((item) => item.slug === slug);
+        const mapped = (items || []).find((item) => item.slug === slug || String(item.id) === slug);
         setProduct(
           mapped
             ? {
@@ -52,7 +104,15 @@ function ProductDetail() {
     try {
       setAdding(true);
       setError("");
-      await addToCustomerCart(product.id, quantity);
+      const items = cartItemExists
+        ? await updateCustomerCart(product.id, quantity)
+        : await addToCustomerCart(product.id, quantity);
+      const saved = items.find((item) => Number(item.productId) === Number(product.id));
+      cartItemExistsRef.current = Boolean(saved);
+      setCartItemExists(Boolean(saved));
+      quantityRef.current = saved?.quantity ?? quantity;
+      setQuantity(saved?.quantity ?? quantity);
+      broadcastCustomerCartChange(product.id, saved?.quantity ?? quantity);
       setAdded(true);
     } catch (reason) {
       if ((reason as Error & { status?: number }).status === 401) {
@@ -66,6 +126,79 @@ function ProductDetail() {
       setAdding(false);
     }
   }
+
+  async function changeQuantity(delta: number) {
+    const currentProduct = productRef.current;
+    const nextQuantity = Math.min(99, Math.max(1, quantityRef.current + delta));
+    quantityRef.current = nextQuantity;
+    setQuantity(nextQuantity);
+    setAdded(false);
+    if (!currentProduct || typeof currentProduct.id !== "number" || !cartItemExistsRef.current)
+      return;
+
+    try {
+      const items = await updateCustomerCart(currentProduct.id, nextQuantity);
+      const cartItem = items.find((item) => Number(item.productId) === Number(currentProduct.id));
+      cartItemExistsRef.current = Boolean(cartItem);
+      setCartItemExists(Boolean(cartItem));
+      quantityRef.current = cartItem?.quantity ?? nextQuantity;
+      setQuantity(quantityRef.current);
+      broadcastCustomerCartChange(currentProduct.id, quantityRef.current);
+    } catch (reason) {
+      if ((reason as Error & { status?: number }).status !== 401) {
+        setError(reason instanceof Error ? reason.message : "Unable to update cart quantity.");
+      }
+    }
+  }
+
+  useEffect(() => {
+    function handleQuantityAction(event: MouseEvent) {
+      const target =
+        event.target instanceof Element
+          ? event.target.closest<HTMLElement>("[data-quantity-action]")
+          : null;
+      const action = target?.dataset.quantityAction;
+      if (!action) return;
+      event.preventDefault();
+      const nextQuantity = Math.min(
+        99,
+        Math.max(1, quantityRef.current + (action === "increase" ? 1 : -1)),
+      );
+      const valueElement =
+        target?.parentElement?.querySelector<HTMLElement>("[data-quantity-value]");
+      if (valueElement) {
+        valueElement.textContent = String(nextQuantity);
+        valueElement.setAttribute("aria-label", `Quantity ${nextQuantity}`);
+      }
+      void changeQuantity(action === "increase" ? 1 : -1);
+    }
+
+    document.addEventListener("click", handleQuantityAction, true);
+    return () => document.removeEventListener("click", handleQuantityAction, true);
+  }, []);
+
+  useEffect(() => {
+    function syncFromAnotherTab(event: StorageEvent) {
+      if (event.key !== customerCartSyncKey || !event.newValue || !product?.id) return;
+      try {
+        const change = JSON.parse(event.newValue) as {
+          productId?: number;
+          quantity?: number | null;
+        };
+        if (Number(change.productId) !== Number(product.id)) return;
+        const nextQuantity = change.quantity === null ? 1 : Math.max(1, change.quantity || 1);
+        quantityRef.current = nextQuantity;
+        cartItemExistsRef.current = change.quantity !== null;
+        setQuantity(nextQuantity);
+        setCartItemExists(change.quantity !== null);
+      } catch {
+        // Ignore malformed cross-tab events.
+      }
+    }
+
+    window.addEventListener("storage", syncFromAnotherTab);
+    return () => window.removeEventListener("storage", syncFromAnotherTab);
+  }, [product?.id]);
 
   if (loading) {
     return (
@@ -122,23 +255,32 @@ function ProductDetail() {
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <div className="flex items-center rounded-full border border-border bg-surface">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                  className="p-3 text-primary"
+                <a
+                  href={`${window.location.pathname}?quantity=${Math.max(1, quantity - 1)}`}
+                  data-quantity-action="decrease"
+                  className="cursor-pointer p-3 text-primary select-none"
                   aria-label="Decrease quantity"
+                  role="button"
                 >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="min-w-10 text-center text-sm font-bold">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity((value) => Math.min(99, value + 1))}
-                  className="p-3 text-primary"
+                  <Minus className="pointer-events-none h-4 w-4" />
+                </a>
+                <span
+                  data-quantity-value
+                  className="min-w-10 text-center text-sm font-bold"
+                  aria-live="polite"
+                  aria-label={`Quantity ${quantity}`}
+                >
+                  {quantity}
+                </span>
+                <a
+                  href={`${window.location.pathname}?quantity=${Math.min(99, quantity + 1)}`}
+                  data-quantity-action="increase"
+                  className="cursor-pointer p-3 text-primary select-none"
                   aria-label="Increase quantity"
+                  role="button"
                 >
-                  <Plus className="h-4 w-4" />
-                </button>
+                  <Plus className="pointer-events-none h-4 w-4" />
+                </a>
               </div>
               <button
                 type="button"
@@ -148,12 +290,6 @@ function ProductDetail() {
               >
                 <ShoppingCart className="h-4 w-4" /> {adding ? "Adding…" : "Add to cart"}
               </button>
-              <a
-                href="/customer/login"
-                className="inline-flex items-center gap-2 rounded-full border border-primary/20 px-5 py-3.5 text-sm font-semibold text-primary"
-              >
-                <UserRound className="h-4 w-4" /> Customer login
-              </a>
             </div>
 
             {added && (

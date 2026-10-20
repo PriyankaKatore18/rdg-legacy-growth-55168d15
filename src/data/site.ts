@@ -186,10 +186,10 @@ export const planLevels = [
 ] as const;
 
 export const directReferralPlans = [
-  { packageValue: 3500, productCount: 5 },
-  { packageValue: 7000, productCount: 10 },
-  { packageValue: 9500, productCount: 15 },
-  { packageValue: 14000, productCount: 20 },
+  { packageCount: 1, packageValue: 3500 },
+  { packageCount: 2, packageValue: 7000 },
+  { packageCount: 3, packageValue: 10500 },
+  { packageCount: 4, packageValue: 14000 },
 ] as const;
 
 export const whyChoose = [
@@ -221,7 +221,7 @@ export const whyChoose = [
 export const journey = [
   {
     step: "Join",
-    desc: "Register with a valid ID and pay the ₹500 annual distributor subscription to start your RDG ID.",
+    desc: "Register with a valid ID and pay the ₹599 annual distributor membership to start your RDG ID.",
   },
   { step: "Buy Products", desc: "Purchase at distributor price and build product experience." },
   { step: "Refer Members", desc: "Share products and enrol customers you already know." },
@@ -423,7 +423,7 @@ export const downloads = [
 export const faqs = [
   {
     q: "What is the annual distributor subscription fee?",
-    a: "The distributor subscription is ₹500 per year. You can also purchase the product package you actually want, starting from ₹1,200. There is no separate franchise or security fee.",
+    a: "The distributor membership is ₹599 per year and renews annually. You can also purchase the product package you actually want, starting from ₹1,200. There is no separate franchise or security fee.",
   },
   {
     q: "How is the Generation Plan different from a binary plan?",

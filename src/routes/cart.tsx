@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import {
   getCustomerCart,
   getCustomerMe,
+  broadcastCustomerCartChange,
+  customerCartSyncKey,
   logoutCustomer,
   removeFromCustomerCart,
   updateCustomerCart,
@@ -32,9 +34,38 @@ function Cart() {
     });
   }, []);
 
+  useEffect(() => {
+    function syncFromAnotherTab(event: StorageEvent) {
+      if (event.key !== customerCartSyncKey || !event.newValue) return;
+      try {
+        const change = JSON.parse(event.newValue) as {
+          productId?: number;
+          quantity?: number | null;
+        };
+        if (!change.productId) return;
+        setItems((current) => {
+          if (change.quantity === null) {
+            return current.filter((item) => item.productId !== change.productId);
+          }
+          return current.map((item) =>
+            item.productId === change.productId
+              ? { ...item, quantity: change.quantity || item.quantity }
+              : item,
+          );
+        });
+      } catch {
+        // Ignore malformed cross-tab events.
+      }
+    }
+
+    window.addEventListener("storage", syncFromAnotherTab);
+    return () => window.removeEventListener("storage", syncFromAnotherTab);
+  }, []);
+
   async function changeQuantity(item: CustomerCartItem, quantity: number) {
     try {
       setItems(await updateCustomerCart(item.productId, quantity));
+      broadcastCustomerCartChange(item.productId, quantity);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to update cart.");
     }
@@ -43,6 +74,7 @@ function Cart() {
   async function remove(item: CustomerCartItem) {
     try {
       setItems(await removeFromCustomerCart(item.productId));
+      broadcastCustomerCartChange(item.productId, null);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to remove cart item.");
     }
@@ -190,9 +222,14 @@ function Cart() {
                 <span>{hasPrices ? `₹${total.toLocaleString("en-IN")}` : "Price on request"}</span>
               </div>
               <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-                Final shipping, availability and payment details will be confirmed by RDG before
-                dispatch.
+                Secure checkout includes shipping details, cash on delivery and order tracking.
               </p>
+              <a
+                href="/checkout"
+                className="bg-brand mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-card"
+              >
+                Continue to checkout <ArrowRight className="h-4 w-4" />
+              </a>
             </aside>
           </div>
         )}

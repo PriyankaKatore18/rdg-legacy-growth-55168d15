@@ -141,10 +141,10 @@ export function Navbar() {
                 )}
               </a>
               <a
-                href={customer ? "/cart" : "/customer/login"}
+                href={customer ? "/account/orders" : "/customer/login"}
                 className="hidden items-center gap-1.5 rounded-full px-2 py-2 text-xs font-semibold text-primary-dark transition-colors hover:bg-accent hover:text-primary sm:flex"
               >
-                <UserRound className="h-4 w-4" /> {customer ? customer.name.split(" ")[0] : "Login"}
+                <UserRound className="h-4 w-4" /> {customer ? "Account" : "Login"}
               </a>
               <button
                 type="button"
@@ -278,7 +278,7 @@ export function Navbar() {
                 </a>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <a
-                    href="/customer/login"
+                    href={customer ? "/account/orders" : "/customer/login"}
                     onClick={() => setOpen(false)}
                     className="flex items-center justify-center gap-2 rounded-full border border-primary/20 px-4 py-3 text-sm font-semibold text-primary"
                   >
