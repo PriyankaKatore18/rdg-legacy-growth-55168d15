@@ -167,9 +167,13 @@ function DistributorAuth() {
                   value={sponsorCode}
                   onChange={(event) => setSponsorCode(event.target.value)}
                   className="field"
-                  placeholder="Sponsor ID (optional; auto-filled from invite link)"
+                  placeholder="Parent Sponsor ID (required for a team placement)"
                   readOnly={Boolean(sponsorFromInvite)}
                 />
+                <p className="-mt-2 text-xs text-muted-foreground">
+                  Enter the distributor ID whose team you want to join. Leave blank only when
+                  creating a top-level distributor. An invite link fills this automatically.
+                </p>
                 <label className="block text-sm font-semibold text-foreground">
                   Choose product package
                   <select

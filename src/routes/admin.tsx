@@ -1501,6 +1501,29 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
       setError((e as Error).message);
     }
   }
+  const teamMembers = (() => {
+    if (!editing || !form.distributorCode) return [];
+    const bySponsor = new Map<string, RecordItem[]>();
+    networkItems.forEach((item) => {
+      const sponsor = String(item.sponsor_code || item.sponsorCode || "").toUpperCase();
+      const members = bySponsor.get(sponsor) || [];
+      members.push(item);
+      bySponsor.set(sponsor, members);
+    });
+    const result: Array<{ item: RecordItem; level: number }> = [];
+    const visited = new Set<number>();
+    function collect(sponsorCode: string, level: number) {
+      (bySponsor.get(sponsorCode.toUpperCase()) || []).forEach((item) => {
+        const id = Number(item.id);
+        if (visited.has(id)) return;
+        visited.add(id);
+        result.push({ item, level });
+        collect(String(item.distributor_code || item.distributorCode || ""), level + 1);
+      });
+    }
+    collect(form.distributorCode, 1);
+    return result;
+  })();
   return (
     <ModuleShell
       title="Distributors & ID accounts"
@@ -1536,10 +1559,13 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
           <form onSubmit={save} className="grid gap-5 sm:grid-cols-2">
             <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-2.5">
               <p className="text-xs font-semibold tracking-wide text-primary uppercase">
-                Distributor ID
+                Distributor ID / Sponsor ID
               </p>
               <p className="mt-1 text-sm font-semibold text-foreground">
                 {editing ? form.distributorCode : "Auto-generated after saving"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Share this ID when another distributor joins under this account.
               </p>
             </div>
             <TextField
@@ -1565,10 +1591,57 @@ function DistributorsView({ setError }: { setError: (value: string) => void }) {
               onChange={(value) => setForm({ ...form, city: value })}
             />
             <TextField
-              label="Sponsor ID"
+              label="Parent Sponsor ID (optional for top-level)"
               value={form.sponsorCode}
               onChange={(value) => setForm({ ...form, sponsorCode: value })}
             />
+            <p className="-mt-3 text-xs text-muted-foreground sm:col-span-2">
+              Enter the existing distributor ID whose team this distributor should join. Leave blank
+              only for a top-level distributor.
+            </p>
+            {editing && (
+              <div className="rounded-xl border border-border bg-surface p-4 sm:col-span-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-xs font-semibold tracking-wide text-primary uppercase">
+                      All distributors under this ID
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Direct and downstream chain members connected to {form.distributorCode}.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                    {teamMembers.length} total
+                  </span>
+                </div>
+                {teamMembers.length ? (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {teamMembers.map(({ item: member, level }) => (
+                      <div
+                        key={member.id}
+                        className="rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-semibold text-foreground">{member.name}</p>
+                          <span className="text-[11px] font-semibold text-primary">
+                            Level {level}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {member.distributor_code || member.distributorCode}
+                          {member.username ? ` · @${member.username}` : ""}
+                        </p>
+                        <p className="mt-1 text-xs text-primary">{member.status || "active"}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 rounded-lg bg-card px-3 py-2 text-xs text-muted-foreground">
+                    No distributor has joined directly under this ID yet.
+                  </p>
+                )}
+              </div>
+            )}
             <SelectField
               label="Account status"
               value={form.status}
