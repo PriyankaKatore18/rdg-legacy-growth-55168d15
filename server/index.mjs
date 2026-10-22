@@ -316,6 +316,16 @@ const productSchema = z.object({
   status: z.enum(["draft", "published"]),
   sortOrder: z.coerce.number().int().min(0).default(0),
 });
+const productCategorySchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(140)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+});
 const downloadSchema = z.object({
   title: z.string().trim().min(2).max(255),
   slug: z
@@ -2170,6 +2180,104 @@ app.delete(
 );
 
 app.get(
+  "/api/admin/product-categories",
+  requireAuth,
+  asyncRoute(async (_req, res) => {
+    const [rows] = await query(
+      `SELECT c.id, c.name, c.slug, c.sort_order AS sortOrder,
+         c.created_at AS createdAt, c.updated_at AS updatedAt,
+         (SELECT COUNT(*) FROM products p WHERE p.category = c.name) AS productCount
+       FROM product_categories c
+       ORDER BY c.sort_order ASC, c.name ASC`,
+    );
+    return ok(
+      res,
+      rows.map((row) => ({ ...row, productCount: Number(row.productCount || 0) })),
+    );
+  }),
+);
+
+app.post(
+  "/api/admin/product-categories",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const input = validate(productCategorySchema, req.body, res);
+    if (!input) return;
+    try {
+      const [result] = await query(
+        "INSERT INTO product_categories (name, slug, sort_order) VALUES (?, ?, ?)",
+        [input.name, input.slug, input.sortOrder],
+      );
+      await activity(req.user, "create", "product_category", result.insertId, {
+        name: input.name,
+      });
+      return ok(res, { id: result.insertId }, 201);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY")
+        return fail(res, "That category name or slug already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.put(
+  "/api/admin/product-categories/:id",
+  requireAuth,
+  allowRoles("super_admin", "content_editor"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const input = validate(productCategorySchema, req.body, res);
+    if (!input) return;
+    const [[current]] = await query("SELECT name FROM product_categories WHERE id = ? LIMIT 1", [
+      id,
+    ]);
+    if (!current) return fail(res, "Product category not found.", 404);
+    try {
+      const result = await transaction(async (connection) => {
+        const [update] = await connection.execute(
+          "UPDATE product_categories SET name = ?, slug = ?, sort_order = ? WHERE id = ?",
+          [input.name, input.slug, input.sortOrder, id],
+        );
+        await connection.execute("UPDATE products SET category = ? WHERE category = ?", [
+          input.name,
+          current.name,
+        ]);
+        return update;
+      });
+      if (!result.affectedRows) return fail(res, "Product category not found.", 404);
+      await activity(req.user, "update", "product_category", id, { name: input.name });
+      return ok(res, { id });
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY")
+        return fail(res, "That category name or slug already exists.", 409);
+      throw error;
+    }
+  }),
+);
+
+app.delete(
+  "/api/admin/product-categories/:id",
+  requireAuth,
+  allowRoles("super_admin"),
+  asyncRoute(async (req, res) => {
+    const id = idSchema.parse(req.params.id);
+    const [[category]] = await query(
+      `SELECT c.name, (SELECT COUNT(*) FROM products p WHERE p.category = c.name) AS productCount
+       FROM product_categories c WHERE c.id = ? LIMIT 1`,
+      [id],
+    );
+    if (!category) return fail(res, "Product category not found.", 404);
+    if (Number(category.productCount || 0) > 0)
+      return fail(res, "Move products to another category before deleting this category.", 409);
+    const [result] = await query("DELETE FROM product_categories WHERE id = ?", [id]);
+    if (!result.affectedRows) return fail(res, "Product category not found.", 404);
+    await activity(req.user, "delete", "product_category", id, { name: category.name });
+    return ok(res, { id });
+  }),
+);
+
+app.get(
   "/api/admin/events",
   requireAuth,
   asyncRoute(async (_req, res) => {
@@ -2813,6 +2921,7 @@ app.get("/api/docs", (_req, res) =>
       "/api/admin/pages",
       "/api/admin/banners",
       "/api/admin/products",
+      "/api/admin/product-categories",
       "/api/admin/blog-posts",
       "/api/admin/enquiries",
       "/api/admin/distributors",

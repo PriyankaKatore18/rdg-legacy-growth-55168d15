@@ -112,6 +112,16 @@ const events = [
   ],
 ];
 
+function categorySlug(value) {
+  return (
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "product-category"
+  );
+}
+
 export async function seedDatabase() {
   await migrate();
   const email = process.env.ADMIN_EMAIL;
@@ -178,6 +188,17 @@ export async function seedDatabase() {
         events.findIndex((item) => item[0] === slug),
       ],
     );
+  }
+
+  const [existingProductCategories] = await query(
+    "SELECT DISTINCT TRIM(category) AS name FROM products WHERE category IS NOT NULL AND TRIM(category) <> ''",
+  );
+  for (const [index, item] of existingProductCategories.entries()) {
+    await query("INSERT IGNORE INTO product_categories (name, slug, sort_order) VALUES (?, ?, ?)", [
+      item.name,
+      categorySlug(item.name),
+      index,
+    ]);
   }
 }
 

@@ -916,6 +916,8 @@ function BannersView({ setError }: { setError: (value: string) => void }) {
 function ProductsView({ setError }: { setError: (value: string) => void }) {
   const [items, setItems] = useState<RecordItem[]>([]);
   const [editing, setEditing] = useState<RecordItem | null>(null);
+  const [categories, setCategories] = useState<RecordItem[]>([]);
+  const [categoryEditing, setCategoryEditing] = useState<RecordItem | null>(null);
   const blank = {
     name: "",
     slug: "",
@@ -928,10 +930,15 @@ function ProductsView({ setError }: { setError: (value: string) => void }) {
     status: "draft",
     sortOrder: 0,
   };
+  const blankCategory = { name: "", slug: "", sortOrder: 0 };
   const [form, setForm] = useState<RecordItem>(blank);
+  const [categoryForm, setCategoryForm] = useState<RecordItem>(blankCategory);
   const load = () =>
-    api("/api/admin/products")
-      .then((rows) => setItems(rows))
+    Promise.all([api("/api/admin/products"), api("/api/admin/product-categories")])
+      .then(([rows, categoryRows]) => {
+        setItems(rows);
+        setCategories(categoryRows);
+      })
       .catch((e) => setError(e.message));
   useEffect(() => {
     load();
@@ -939,6 +946,14 @@ function ProductsView({ setError }: { setError: (value: string) => void }) {
   function open(item?: RecordItem) {
     setEditing(item || {});
     setForm(item ? { ...item, highlightsText: (item.highlights || []).join("\n") } : blank);
+  }
+  function openCategory(item?: RecordItem) {
+    setCategoryEditing(item || {});
+    setCategoryForm(
+      item
+        ? { name: item.name || "", slug: item.slug || "", sortOrder: item.sortOrder || 0 }
+        : blankCategory,
+    );
   }
   async function save(event: FormEvent) {
     event.preventDefault();
@@ -970,17 +985,143 @@ function ProductsView({ setError }: { setError: (value: string) => void }) {
       setError((e as Error).message);
     }
   }
+  async function saveCategory(event: FormEvent) {
+    event.preventDefault();
+    try {
+      await api(
+        categoryEditing?.id
+          ? `/api/admin/product-categories/${categoryEditing.id}`
+          : "/api/admin/product-categories",
+        {
+          method: categoryEditing?.id ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(categoryForm),
+        },
+      );
+      setCategoryEditing(null);
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  async function removeCategory(id: number) {
+    if (!confirm("Delete this product category? Products must be moved first.")) return;
+    try {
+      await api(`/api/admin/product-categories/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  const categoryOptions = Array.from(
+    new Set([...categories.map((category) => category.name), form.category].filter(Boolean)),
+  );
   return (
     <ModuleShell
       title="Products"
       description="Manage the product catalogue shown to customers and distributors."
       action={
-        <button onClick={() => open()} className={buttonPrimary}>
-          <Plus className="h-4 w-4" />
-          Add product
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => openCategory()} className={buttonSecondary}>
+            <Plus className="h-4 w-4" /> Add category
+          </button>
+          <button onClick={() => open()} className={buttonPrimary}>
+            <Plus className="h-4 w-4" /> Add product
+          </button>
+        </div>
       }
     >
+      {categoryEditing && (
+        <Editor
+          title={categoryEditing.id ? "Edit product category" : "New product category"}
+          onClose={() => setCategoryEditing(null)}
+        >
+          <form onSubmit={saveCategory} className="grid gap-4 sm:grid-cols-2">
+            <TextField
+              label="Category name"
+              value={categoryForm.name}
+              onChange={(value) =>
+                setCategoryForm({
+                  ...categoryForm,
+                  name: value,
+                  ...(categoryEditing.id
+                    ? {}
+                    : {
+                        slug: value
+                          .toLowerCase()
+                          .trim()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, ""),
+                      }),
+                })
+              }
+              required
+            />
+            <TextField
+              label="Slug"
+              value={categoryForm.slug}
+              onChange={(value) => setCategoryForm({ ...categoryForm, slug: value })}
+              required
+            />
+            <TextField
+              label="Display order"
+              type="number"
+              value={categoryForm.sortOrder}
+              onChange={(value) => setCategoryForm({ ...categoryForm, sortOrder: Number(value) })}
+            />
+            <p className="self-end pb-2 text-xs text-muted-foreground">
+              Categories appear in the navbar and Products page after saving.
+            </p>
+            <div className="flex justify-end gap-3 sm:col-span-2">
+              <button
+                type="button"
+                className={buttonSecondary}
+                onClick={() => setCategoryEditing(null)}
+              >
+                Cancel
+              </button>
+              <button className={buttonPrimary}>Save category</button>
+            </div>
+          </form>
+        </Editor>
+      )}
+      <div className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-bold">Product categories</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Create categories here, then select them while adding or editing products.
+            </p>
+          </div>
+          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            {categories.length} categories
+          </span>
+        </div>
+        <div className="mt-4">
+          {categories.length ? (
+            <DataTable headers={["Category", "Slug", "Products", "Order", "Actions"]}>
+              {categories.map((category) => (
+                <tr key={category.id} className="border-t border-border">
+                  <td className="px-4 py-3 font-semibold">{category.name}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{category.slug}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                    {Number(category.productCount || 0)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{category.sortOrder}</td>
+                  <td className="px-4 py-3">
+                    <RowActions
+                      onEdit={() => openCategory(category)}
+                      onDelete={() => removeCategory(category.id)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </DataTable>
+          ) : (
+            <EmptyState label="No categories yet. Add your first product category." />
+          )}
+        </div>
+      </div>
       {editing && (
         <Editor
           title={editing.id ? "Edit product" : "New product"}
@@ -999,9 +1140,10 @@ function ProductsView({ setError }: { setError: (value: string) => void }) {
               onChange={(value) => setForm({ ...form, slug: value })}
               required
             />
-            <TextField
+            <SelectField
               label="Category"
-              value={form.category}
+              value={form.category || ""}
+              options={["", ...categoryOptions]}
               onChange={(value) => setForm({ ...form, category: value })}
             />
             <TextField

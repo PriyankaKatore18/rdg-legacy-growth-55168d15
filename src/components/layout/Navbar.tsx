@@ -12,8 +12,9 @@ import {
   X,
 } from "lucide-react";
 import logo from "@/assets/logo-transparent.png";
-import { navigation } from "@/data/site";
+import { navigation, products } from "@/data/site";
 import { getCustomerCart, getCustomerMe, type Customer } from "@/lib/customer-api";
+import { getPublicProducts } from "@/lib/cms";
 import { languageOptions, useLanguage } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,9 @@ export function Navbar() {
   const [languageOpen, setLanguageOpen] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [cartCount, setCartCount] = useState(0);
+  const [productCategories, setProductCategories] = useState(() =>
+    Array.from(new Set(products.map((product) => product.category).filter(Boolean))),
+  );
   const { language, setLanguage } = useLanguage();
   const currentPath = typeof window === "undefined" ? "/" : window.location.pathname;
 
@@ -40,6 +44,36 @@ export function Navbar() {
       .then((items) => setCartCount(items.reduce((total, item) => total + item.quantity, 0)))
       .catch(() => setCartCount(0));
   }, []);
+
+  useEffect(() => {
+    getPublicProducts().then((items) => {
+      if (!items?.length) return;
+      const categories = Array.from(
+        new Set(items.map((item) => item.category?.trim()).filter(Boolean) as string[]),
+      );
+      if (categories.length) setProductCategories(categories);
+    });
+  }, []);
+
+  const navigationItems = navigation.map((item) =>
+    item.label === "Products"
+      ? {
+          ...item,
+          children: [
+            {
+              label: "All Categories",
+              to: "/products",
+              desc: "Browse the complete product collection",
+            },
+            ...productCategories.map((category) => ({
+              label: category,
+              to: `/products?category=${encodeURIComponent(category)}`,
+              desc: `Browse ${category} products`,
+            })),
+          ],
+        }
+      : item,
+  );
 
   const isActive = (to: string) => (to === "/" ? currentPath === "/" : currentPath.startsWith(to));
 
@@ -78,7 +112,7 @@ export function Navbar() {
               className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
               onMouseLeave={() => setMenu(null)}
             >
-              {navigation.map((item) => (
+              {navigationItems.map((item) => (
                 <div key={item.label} className="relative" onMouseEnter={() => setMenu(item.label)}>
                   <a
                     href={item.to}
@@ -221,7 +255,7 @@ export function Navbar() {
               className="glass mt-3 overflow-hidden rounded-3xl bg-white/95 shadow-card lg:hidden"
             >
               <div className="max-h-[70vh] space-y-1 overflow-y-auto p-4">
-                {navigation.map((item) => (
+                {navigationItems.map((item) => (
                   <div key={item.label}>
                     <a
                       href={item.to}

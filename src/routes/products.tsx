@@ -46,7 +46,10 @@ const productDetails = [
 ];
 
 function Products() {
-  const [activeCategory, setActiveCategory] = useState("All Collections");
+  const [activeCategory, setActiveCategory] = useState(() => {
+    if (typeof window === "undefined") return "All Collections";
+    return new URLSearchParams(window.location.search).get("category") || "All Collections";
+  });
   const [catalogProducts, setCatalogProducts] = useState(products);
   useEffect(() => {
     getPublicProducts().then((data) => {
