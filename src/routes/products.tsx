@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   HeartPulse,
   Leaf,
+  LayoutGrid,
   MessageCircle,
   ShieldCheck,
   Sparkles,
@@ -78,10 +79,39 @@ function Products() {
       })),
     [catalogProducts],
   );
-  const categories = [
-    "All Collections",
-    ...Array.from(new Set(catalogItems.map((item) => item.category))),
-  ];
+  const categories = useMemo(
+    () => ["All Collections", ...Array.from(new Set(catalogItems.map((item) => item.category)))],
+    [catalogItems],
+  );
+  const categoryCards = useMemo(
+    () =>
+      categories.map((category, index) => {
+        const categoryName = category.toLowerCase();
+        const Icon =
+          category === "All Collections"
+            ? LayoutGrid
+            : categoryName.includes("wellness") || categoryName.includes("ayur")
+              ? Leaf
+              : categoryName.includes("business") || categoryName.includes("package")
+                ? HeartPulse
+                : Sparkles;
+        return {
+          category,
+          count:
+            category === "All Collections"
+              ? catalogItems.length
+              : catalogItems.filter((item) => item.category === category).length,
+          Icon,
+          accent: [
+            "from-primary/10 to-accent",
+            "from-secondary/15 to-emerald-50",
+            "from-gold/20 to-amber-50",
+            "from-violet-100 to-white",
+          ][index % 4],
+        };
+      }),
+    [categories, catalogItems],
+  );
   const visibleItems = useMemo(
     () =>
       activeCategory === "All Collections"
@@ -104,41 +134,52 @@ function Products() {
 
       <section className="pb-16">
         <div className="container-x">
-          <div className="rounded-[2rem] border border-border bg-card p-4 shadow-soft sm:p-6">
+          <div className="rounded-[2rem] border border-border bg-card p-5 shadow-soft sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
-                  Browse categories
+                  Shop by category
                 </p>
                 <h2 className="mt-2 font-display text-2xl font-bold text-foreground sm:text-3xl">
-                  Find what fits your journey
+                  Explore the RDG collection
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-                Wellness products, business packages and recognition milestones are organised in one
-                place.
+                Browse products by collection and find the right wellness or business offering for
+                your journey.
               </p>
             </div>
 
             <div
-              className="mt-6 flex flex-wrap gap-2"
+              className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
               role="tablist"
               aria-label="Product categories"
             >
-              {categories.map((category) => (
+              {categoryCards.map(({ category, count, Icon, accent }) => (
                 <button
                   key={category}
                   type="button"
                   role="tab"
                   aria-selected={activeCategory === category}
                   onClick={() => setActiveCategory(category)}
-                  className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`group rounded-2xl border bg-gradient-to-br p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-soft ${accent} ${
                     activeCategory === category
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                      : "border-border bg-surface text-muted-foreground hover:border-primary/40 hover:text-primary"
+                      ? "border-primary text-primary shadow-card ring-2 ring-primary/15"
+                      : "border-border text-foreground hover:border-primary/40"
                   }`}
                 >
-                  {category}
+                  <span className="flex items-start justify-between gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 text-primary shadow-sm">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-primary/60 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <span className="mt-5 block font-display text-sm font-bold sm:text-base">
+                    {category}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {count} {count === 1 ? "product" : "products"}
+                  </span>
                 </button>
               ))}
             </div>
