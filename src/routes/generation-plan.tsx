@@ -59,6 +59,43 @@ const rankThemes = [
   "border-orange-200 bg-orange-50 text-orange-950",
 ];
 
+const crownTiers = [
+  "border-slate-300 bg-white/80 text-slate-500 shadow-[0_4px_14px_rgba(100,116,139,0.22)]",
+  "border-sky-300 bg-white/80 text-sky-600 shadow-[0_4px_14px_rgba(14,165,233,0.24)]",
+  "border-rose-300 bg-white/80 text-rose-600 shadow-[0_4px_14px_rgba(244,63,94,0.24)]",
+  "border-amber-300 bg-white/80 text-amber-600 shadow-[0_4px_14px_rgba(245,158,11,0.3)]",
+  "border-slate-400 bg-white/80 text-slate-600 shadow-[0_4px_14px_rgba(71,85,105,0.28)]",
+  "border-yellow-400 bg-white/80 text-yellow-600 shadow-[0_4px_14px_rgba(234,179,8,0.32)]",
+  "border-cyan-300 bg-white/80 text-cyan-600 shadow-[0_4px_14px_rgba(6,182,212,0.28)]",
+  "border-blue-300 bg-white/80 text-blue-600 shadow-[0_4px_14px_rgba(37,99,235,0.28)]",
+  "border-violet-300 bg-white/80 text-violet-600 shadow-[0_4px_14px_rgba(124,58,237,0.28)]",
+  "border-teal-300 bg-white/80 text-teal-600 shadow-[0_4px_14px_rgba(13,148,136,0.28)]",
+  "border-purple-400 bg-white/80 text-purple-700 shadow-[0_4px_18px_rgba(126,34,206,0.34)]",
+  "border-red-400 bg-white/80 text-red-700 shadow-[0_4px_18px_rgba(185,28,28,0.34)]",
+  "border-emerald-400 bg-white/80 text-emerald-700 shadow-[0_4px_18px_rgba(4,120,87,0.34)]",
+  "border-indigo-400 bg-white/80 text-indigo-700 shadow-[0_4px_18px_rgba(67,56,202,0.34)]",
+  "border-orange-400 bg-white/80 text-orange-700 shadow-[0_4px_22px_rgba(194,65,12,0.4)]",
+];
+
+function PremiumCrown({ level }: { level: number }) {
+  const isDiamond = level >= 11;
+  return (
+    <span
+      title={`${isDiamond ? "Premium diamond" : "Premium crown"} for level ${level}`}
+      className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border ${crownTiers[level - 1]}`}
+    >
+      {isDiamond ? (
+        <Gem className="h-5 w-5" strokeWidth={1.8} fill="currentColor" />
+      ) : (
+        <Crown className="h-5 w-5" strokeWidth={1.8} fill="currentColor" />
+      )}
+      {isDiamond && (
+        <Sparkles className="absolute -top-2 -right-2 h-4 w-4 text-gold" fill="currentColor" />
+      )}
+    </span>
+  );
+}
+
 const heroStats = [
   { value: "15", label: "recognition levels", icon: Crown },
   { value: "1 leg", label: "simple network view", icon: Network },
@@ -197,8 +234,7 @@ function GenerationPlan() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-dark font-display text-lg font-extrabold text-primary-foreground shadow-soft">
                     {item.level}
                   </span>
-                  {item.level >= 11 && <Gem className="h-5 w-5 opacity-70" />}
-                  {item.level >= 4 && item.level < 11 && <Crown className="h-5 w-5 opacity-60" />}
+                  <PremiumCrown level={item.level} />
                 </div>
                 <h3 className="mt-5 min-h-12 font-display text-lg leading-tight font-extrabold capitalize">
                   {rankNames[index]}
